@@ -1,0 +1,13 @@
+GET http://localhost:9000/healthcheck
+
+###
+
+POST http://localhost:9000/api/users/login
+
+{
+  "user":{
+    "email": "jake@jake.jake",
+    "password": "jakejake"
+  }
+}
+###
