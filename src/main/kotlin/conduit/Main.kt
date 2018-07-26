@@ -2,7 +2,8 @@ package conduit
 
 import conduit.handlers.LoginHandler
 import conduit.model.LoginRequest
-import conduit.utils.toJson
+import conduit.model.LoginResponse
+import conduit.repository.ConduitRepository
 import org.http4k.core.Body
 import org.http4k.core.Method
 import org.http4k.core.Response
@@ -12,19 +13,35 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
+import org.jetbrains.exposed.sql.Database
+
+// TODO: Create filter for authentication
+// TODO: Add error handling filter
+
+// TODO: Fix content type of request
+// TODO: Configure json serializer correctly
+// TODO: Define a better place for request lenses
+// TODO: Add log4j
 
 
 fun main(args: Array<String>) {
 
-    val loginHandler = LoginHandler()
+    val database = Database.connect("jdbc:h2:~/conduit", driver = "org.h2.Driver")
+
+    val repository = ConduitRepository(database)
+
+    val loginHandler = LoginHandler(repository)
 
     val app = routes(
         "/healthcheck" bind Method.GET to { _ -> Response(OK).body("OK") },
         "/api/users/login" bind Method.POST to { req ->
             val reqLens = Body.auto<LoginRequest>().toLens()
-            val result = loginHandler.handle(reqLens.extract(req).user)
 
-            Response(OK).body(result.toJson())
+            val result = loginHandler(reqLens.extract(req).user)
+
+            val resLens = Body.auto<LoginResponse>().toLens()
+
+            resLens.inject(LoginResponse(result), Response(OK))
         }
     )
 

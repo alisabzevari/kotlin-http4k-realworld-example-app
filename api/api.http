@@ -3,6 +3,7 @@ GET http://localhost:9000/healthcheck
 ###
 
 POST http://localhost:9000/api/users/login
+#Accept: application/json
 
 {
   "user":{

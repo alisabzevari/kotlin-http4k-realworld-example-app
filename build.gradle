@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = "1.2.50"
+    ext.kotlin_version = "1.2.51"
     ext.http4k_version = "3.33.1"
 
     repositories {
@@ -16,6 +16,7 @@ apply plugin: "kotlin"
 repositories {
     mavenCentral()
     jcenter()
+    maven { url "http://dl.bintray.com/kotlin/exposed" }
 }
 
 dependencies {
@@ -23,6 +24,9 @@ dependencies {
     compile "org.http4k:http4k-core:$http4k_version"
     compile "org.http4k:http4k-server-jetty:$http4k_version"
     compile "org.http4k:http4k-format-jackson:$http4k_version"
+    compile "org.jetbrains.exposed:exposed:0.10.3"
+    compile "io.jsonwebtoken:jjwt:0.9.1"
+    compile "com.h2database:h2:1.4.197"
 
     testCompile "junit:junit:4.12"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
