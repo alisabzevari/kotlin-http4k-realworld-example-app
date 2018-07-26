@@ -1,6 +1,8 @@
 buildscript {
     ext.kotlin_version = "1.2.51"
     ext.http4k_version = "3.33.1"
+    ext.log4j_version = "2.10.0"
+    ext.jackson_version = "2.9.6"
 
     repositories {
         mavenCentral()
@@ -27,6 +29,12 @@ dependencies {
     compile "org.jetbrains.exposed:exposed:0.10.3"
     compile "io.jsonwebtoken:jjwt:0.9.1"
     compile "com.h2database:h2:1.4.197"
+    compile "io.github.microutils:kotlin-logging:1.4.9"
+    compile "org.apache.logging.log4j:log4j-core:$log4j_version"
+    compile "org.apache.logging.log4j:log4j-api:$log4j_version"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4j_version"
+    compile "com.fasterxml.jackson.core:jackson-core:$jackson_version"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jackson_version"
 
     testCompile "junit:junit:4.12"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"

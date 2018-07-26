@@ -1,0 +1,14 @@
+Configuration:
+  thresholdFilter:
+    level: debug
+  appenders:
+    Console:
+      name: STDOUT
+      PatternLayout:
+        Pattern: "[%-5level] %c{1.} - %m%n"
+
+  Loggers:
+    Root:
+      level: info
+      AppenderRef:
+        ref: STDOUT
