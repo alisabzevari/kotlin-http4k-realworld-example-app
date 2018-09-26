@@ -34,3 +34,6 @@ class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
 
 class UserNotFoundException(username: String) : HttpException(Status.NOT_FOUND, "User $username not found.")
 class InvalidUserPassException() : HttpException(Status.BAD_REQUEST, "Invalid username or password.")
+
+data class LoginInfo(val email: Email, val password: Password)
+data class LoggedInUserInfo(val email: Email, val token: Token, val username: Username, val bio: Bio?, val image: Image?)

@@ -12,14 +12,6 @@ data class Username @JsonCreator(mode = m) constructor(@JsonValue val value: Str
 data class Bio @JsonCreator(mode = m) constructor(@JsonValue val value: String)
 data class Image @JsonCreator(mode = m) constructor(@JsonValue val value: String)
 
-data class LoginInfo(val email: Email, val password: Password)
-
-data class LoggedInUserInfo(val email: Email, val token: Token, val username: Username, val bio: Bio?, val image: Image?)
-
-data class LoginRequest(val user: LoginInfo)
-
-data class LoginResponse(val user: LoggedInUserInfo)
-
 data class User(
     val id: Int,
     val email: Email,
