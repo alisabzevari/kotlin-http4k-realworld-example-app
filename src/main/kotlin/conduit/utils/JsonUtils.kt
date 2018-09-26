@@ -5,4 +5,6 @@ import org.http4k.format.Json
 
 val mapper = ObjectMapper()
 
-fun Any.toJson() = mapper.writeValueAsString(this)
+fun Any.stringifyAsJson() = mapper.writeValueAsString(this)
+
+fun String.toJsonTree() = mapper.readTree(this)

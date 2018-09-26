@@ -6,8 +6,12 @@ import conduit.utils.generateToken
 import conduit.utils.hash
 import org.http4k.core.Status
 
-class LoginHandler(val repository: ConduitRepository) {
-    operator fun invoke(loginInfo: LoginInfo): LoggedInUserInfo {
+interface LoginHandler {
+    operator fun invoke(loginInfo: LoginInfo): LoggedInUserInfo
+}
+
+class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
+    override operator fun invoke(loginInfo: LoginInfo): LoggedInUserInfo {
 
         val user = repository.findUserByEmail(loginInfo.email) ?: throw UserNotFoundException(loginInfo.email.value)
 

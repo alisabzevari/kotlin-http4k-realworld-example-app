@@ -1,6 +1,7 @@
 package conduit
 
 import conduit.handlers.LoginHandler
+import conduit.handlers.LoginHandlerImpl
 import conduit.model.LoginRequest
 import conduit.model.LoginResponse
 import conduit.repository.ConduitRepository
@@ -33,24 +34,13 @@ fun main(args: Array<String>) {
     val logger = KotlinLogging.logger("main")
 
     val database = Database.connect("jdbc:h2:~/conduit", driver = "org.h2.Driver")
-
     val repository = ConduitRepository(database)
 
-    val loginHandler = LoginHandler(repository)
+    val loginHandler = LoginHandlerImpl(repository)
 
-    val app = routes(
-        "/healthcheck" bind Method.GET to { _ -> Response(OK).body("OK") },
-        "/api/users/login" bind Method.POST to { req ->
-            val reqLens = Body.auto<LoginRequest>().toLens()
-
-            val result = loginHandler(reqLens.extract(req).user)
-
-            val resLens = Body.auto<LoginResponse>().toLens()
-
-            resLens.inject(LoginResponse(result), Response(OK))
-        }
-    )
-
+    val app = Router(
+        loginHandler
+    )()
 
     logger.info("Starting server...")
     app.asServer(Jetty(9000)).start()
