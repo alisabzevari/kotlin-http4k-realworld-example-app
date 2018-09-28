@@ -29,7 +29,6 @@ dependencies {
     implementation "org.jetbrains.exposed:exposed:0.10.3"
     implementation "io.jsonwebtoken:jjwt:0.9.1"
     implementation "com.h2database:h2:1.4.197"
-    implementation "io.github.microutils:kotlin-logging:1.4.9"
     implementation "org.apache.logging.log4j:log4j-core:$log4j_version"
     implementation "org.apache.logging.log4j:log4j-api:$log4j_version"
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:$log4j_version"

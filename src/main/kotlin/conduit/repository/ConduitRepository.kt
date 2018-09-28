@@ -4,14 +4,18 @@ import conduit.model.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class ConduitRepository(val database: Database) {
+interface ConduitRepository {
+    fun findUserByEmail(email: Email): User?
+}
+
+class ConduitRepositoryImpl(val database: Database) : ConduitRepository {
     init {
         transaction(database) {
             SchemaUtils.create(Users)
         }
     }
 
-    fun findUserByEmail(email: Email): User? =
+    override fun findUserByEmail(email: Email): User? =
         transaction(database) {
             Users
                 .select { Users.email.eq(email.value) }
@@ -19,20 +23,20 @@ class ConduitRepository(val database: Database) {
                 ?.toUser()
         }
 
-    fun insertUser(newUser: NewUser) = transaction {
-        Users.insert {
-            it[email] = newUser.email.value
-            it[username] = newUser.username.value
-            it[password] = newUser.password.value
-        }
-    }
+//    fun insertUser(newUser: NewUser) = transaction {
+//        Users.insert {
+//            it[email] = newUser.email.value
+//            it[username] = newUser.username.value
+//            it[password] = newUser.password.value
+//        }
+//    }
 }
 
 fun ResultRow.toUser() = User(
     id = this[Users.id],
     email = Email(this[Users.email]),
     password = Password(this[Users.password]),
-    token = Token(""),
+    token = null,
     username = Username(this[Users.username]),
     bio = this[Users.bio]?.let(::Bio),
     image = this[Users.image]?.let { Image(it) }

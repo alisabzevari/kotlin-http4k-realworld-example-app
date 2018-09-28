@@ -6,7 +6,11 @@ interface RegisterUserHandler {
     operator fun invoke(newUserInfo: NewUserInfo): RegisteredUserInfo
 }
 
-// TODO: RegisterUserHandlerImpl
+class RegisterUserHandlerImpl: RegisterUserHandler {
+    override fun invoke(newUserInfo: NewUserInfo): RegisteredUserInfo {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
 
 data class NewUserInfo(
     val username: Username,

@@ -15,7 +15,6 @@ class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
 
         val user = repository.findUserByEmail(loginInfo.email) ?: throw UserNotFoundException(loginInfo.email.value)
 
-        // TODO: Try to use code from ktor
         if (loginInfo.password.hash() != user.password) {
             throw InvalidUserPassException()
         }

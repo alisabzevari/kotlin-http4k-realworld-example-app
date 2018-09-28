@@ -16,7 +16,7 @@ data class User(
     val id: Int,
     val email: Email,
     val password: Password,
-    val token: Token,
+    val token: Token?,
     val username: Username,
     val bio: Bio?,
     val image: Image?
