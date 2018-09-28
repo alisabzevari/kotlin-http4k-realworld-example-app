@@ -17,6 +17,7 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class AuthenticationEndpointTest {
     lateinit var router: Router
@@ -84,7 +85,7 @@ class AuthenticationEndpointTest {
     }
 
     @Test
-    fun `should return not-found when the user not found`() {
+    fun `should return error when the user not found`() {
         every { router.loginHandler(any()) } throws UserNotFoundException("xxx")
 
         @Language("JSON")
@@ -100,12 +101,12 @@ class AuthenticationEndpointTest {
 
         val resp = router()(request)
 
-        assertEquals(Status.NOT_FOUND, resp.status)
-        assertEquals("User xxx not found.", resp.bodyString())
+        assertEquals(Status.UNAUTHORIZED, resp.status)
+        assertTrue(resp.bodyString().contains("User xxx not found."))
     }
 
     @Test
-    fun `should return bad-request when the user or password is invalid`() {
+    fun `should return unauthorized when the user or password is invalid`() {
         every { router.loginHandler(any()) } throws InvalidUserPassException()
 
         @Language("JSON")
@@ -121,7 +122,7 @@ class AuthenticationEndpointTest {
 
         val resp = router()(request)
 
-        assertEquals(Status.BAD_REQUEST, resp.status)
-        assertEquals("Invalid username or password.", resp.bodyString())
+        assertEquals(Status.UNAUTHORIZED, resp.status)
+        assertTrue(resp.bodyString().contains("Invalid username or password."))
     }
 }

@@ -14,8 +14,7 @@ class Router(
     val registerUserHandler: RegisterUserHandler
 ) {
     operator fun invoke() =
-        ServerFilters.CatchAll()
-            .then(CatchHttpExceptions())
+        CatchHttpExceptions()
             .then(ServerFilters.CatchLensFailure())
             .then(
                 routes(
@@ -45,7 +44,7 @@ class Router(
     }
 }
 
-data class LoginRequest(val user: LoginInfo)
+data class LoginRequest(val user: LoginUser)
 data class LoginResponse(val user: LoggedInUserInfo)
 
 data class RegisterUserRequest(val user: NewUserInfo)

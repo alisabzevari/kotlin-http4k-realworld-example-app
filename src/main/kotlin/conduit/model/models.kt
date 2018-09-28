@@ -1,8 +1,7 @@
 package conduit.model
 
-import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.annotation.JsonCreator
-import org.http4k.core.Status
+import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.annotation.JsonCreator.Mode.DELEGATING as m
 
 data class Email @JsonCreator(mode = m) constructor(@JsonValue val value: String)
@@ -27,5 +26,3 @@ data class NewUser(
     val password: Password,
     val email: Email
 )
-
-open class HttpException(val status: Status, message: String) : RuntimeException(message)

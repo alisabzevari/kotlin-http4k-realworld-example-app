@@ -1,9 +1,8 @@
 package conduit.handler
 
 import conduit.model.*
-import conduit.repository.ConduitRepository
-import conduit.util.generateToken
 import conduit.util.hash
+import conduit.util.parse
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
@@ -34,7 +33,7 @@ class LoginHandlerImplTest {
             Image("an image url")
         )
         every { unit.repository.findUserByEmail(any()) } returns dbUser
-        val loginInfo = LoginInfo(
+        val loginInfo = LoginUser(
             Email("jake@jake.jake"),
             Password("password")
         )
@@ -45,7 +44,9 @@ class LoginHandlerImplTest {
         assertEquals(dbUser.email, result.email)
         assertEquals(dbUser.image, result.image)
         assertEquals(dbUser.username, result.username)
-        assertEquals(generateToken(dbUser), result.token)
+        val parsedToken = result.token.parse()
+        assertEquals(dbUser.username.value, parsedToken["username"])
+        assertEquals(dbUser.email.value, parsedToken["email"])
     }
 
     @Test
@@ -61,7 +62,7 @@ class LoginHandlerImplTest {
             Image("an image url")
         )
         every { unit.repository.findUserByEmail(any()) } returns dbUser
-        val loginInfo = LoginInfo(
+        val loginInfo = LoginUser(
             Email("jake@jake.jake"),
             Password("wrong password")
         )

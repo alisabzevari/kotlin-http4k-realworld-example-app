@@ -15,7 +15,7 @@ fun generateToken(user: User) = Token(
         .setIssuer("thinkster.io")
         .setClaims(
             mapOf(
-                "id" to user.id,
+                "username" to user.username.value,
                 "email" to user.email.value
             )
         )
