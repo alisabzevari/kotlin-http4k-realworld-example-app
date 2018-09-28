@@ -1,7 +1,7 @@
 package conduit
 
-import conduit.handlers.*
-import conduit.utils.CatchHttpExceptions
+import conduit.handler.*
+import conduit.util.CatchHttpExceptions
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
 import org.http4k.format.Jackson.auto

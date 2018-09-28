@@ -1,4 +1,4 @@
-package conduit.handlers
+package conduit.handler
 
 import conduit.model.*
 

@@ -1,9 +1,9 @@
-package conduit.handlers
+package conduit.handler
 
 import conduit.model.*
 import conduit.repository.ConduitRepository
-import conduit.utils.generateToken
-import conduit.utils.hash
+import conduit.util.generateToken
+import conduit.util.hash
 import org.http4k.core.Status
 
 interface LoginHandler {

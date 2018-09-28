@@ -1,7 +1,6 @@
-package conduit.utils
+package conduit.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.http4k.format.Json
 
 val mapper = ObjectMapper()
 

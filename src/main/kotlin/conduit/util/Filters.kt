@@ -1,4 +1,4 @@
-package conduit.utils
+package conduit.util
 
 import conduit.model.HttpException
 import org.http4k.core.Filter

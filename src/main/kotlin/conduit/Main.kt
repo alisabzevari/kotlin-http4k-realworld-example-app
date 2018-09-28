@@ -1,13 +1,5 @@
 package conduit
 
-import conduit.handlers.LoginHandlerImpl
-import conduit.repository.ConduitRepository
-import mu.KotlinLogging
-import org.apache.logging.log4j.core.config.Configurator
-import org.http4k.server.Jetty
-import org.http4k.server.asServer
-import org.jetbrains.exposed.sql.Database
-
 // TODO: Create filter for authentication
 // TODO: Add error handling filter
 

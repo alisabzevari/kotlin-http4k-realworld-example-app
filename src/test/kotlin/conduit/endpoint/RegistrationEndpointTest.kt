@@ -1,12 +1,12 @@
-package conduit.endpoints
+package conduit.endpoint
 
 import conduit.Router
-import conduit.handlers.RegisteredUserInfo
+import conduit.handler.RegisteredUserInfo
 import conduit.model.Bio
 import conduit.model.Email
 import conduit.model.Token
 import conduit.model.Username
-import conduit.utils.toJsonTree
+import conduit.util.toJsonTree
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request

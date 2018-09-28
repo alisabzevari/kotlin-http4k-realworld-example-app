@@ -1,14 +1,14 @@
-package conduit.endpoints
+package conduit.endpoint
 
 import conduit.Router
-import conduit.handlers.InvalidUserPassException
-import conduit.handlers.LoggedInUserInfo
-import conduit.handlers.UserNotFoundException
+import conduit.handler.InvalidUserPassException
+import conduit.handler.LoggedInUserInfo
+import conduit.handler.UserNotFoundException
 import conduit.model.Bio
 import conduit.model.Email
 import conduit.model.Token
 import conduit.model.Username
-import conduit.utils.toJsonTree
+import conduit.util.toJsonTree
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request

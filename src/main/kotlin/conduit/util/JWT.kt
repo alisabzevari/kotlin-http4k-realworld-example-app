@@ -1,4 +1,4 @@
-package conduit.utils
+package conduit.util
 
 import conduit.model.Token
 import conduit.model.User
