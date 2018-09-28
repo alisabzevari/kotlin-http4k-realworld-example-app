@@ -1,26 +1,28 @@
 package conduit
 
 import conduit.handlers.*
+import conduit.utils.CatchHttpExceptions
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
 import org.http4k.format.Jackson.auto
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
+
 class Router(
     val loginHandler: LoginHandler,
     val registerUserHandler: RegisterUserHandler
 ) {
     operator fun invoke() =
-        ServerFilters.CatchLensFailure.then(
-            routes(
-                "/healthcheck" bind Method.GET to healthCheck(),
-                "/api/users/login" bind Method.POST to login(loginHandler),
-                "/api/users" bind Method.POST to registerUser(registerUserHandler)
+        ServerFilters.CatchAll()
+            .then(CatchHttpExceptions())
+            .then(ServerFilters.CatchLensFailure())
+            .then(
+                routes(
+                    "/api/users/login" bind Method.POST to login(loginHandler),
+                    "/api/users" bind Method.POST to registerUser(registerUserHandler)
+                )
             )
-        )
-
-    fun healthCheck() = { _: Request -> Response(Status.OK).body("OK") }
 
     fun login(loginHandler: LoginHandler) = { req: Request ->
         val reqLens = Body.auto<LoginRequest>().toLens()

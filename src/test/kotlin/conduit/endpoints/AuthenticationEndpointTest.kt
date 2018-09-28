@@ -1,8 +1,13 @@
 package conduit.endpoints
 
 import conduit.Router
+import conduit.handlers.InvalidUserPassException
 import conduit.handlers.LoggedInUserInfo
-import conduit.model.*
+import conduit.handlers.UserNotFoundException
+import conduit.model.Bio
+import conduit.model.Email
+import conduit.model.Token
+import conduit.model.Username
 import conduit.utils.toJsonTree
 import io.mockk.every
 import org.http4k.core.Method
@@ -78,5 +83,45 @@ class AuthenticationEndpointTest {
         assertEquals(Status.BAD_REQUEST, resp.status)
     }
 
-    // TODO: write test for cases that handler throws an exception
+    @Test
+    fun `should return not-found when the user not found`() {
+        every { router.loginHandler(any()) } throws UserNotFoundException("xxx")
+
+        @Language("JSON")
+        val requestBody = """
+            {
+              "user":{
+                "email": "jake@jake.jake",
+                "password": "jakejake"
+              }
+            }
+        """.trimIndent()
+        val request = Request(Method.POST, "/api/users/login").body(requestBody)
+
+        val resp = router()(request)
+
+        assertEquals(Status.NOT_FOUND, resp.status)
+        assertEquals("User xxx not found.", resp.bodyString())
+    }
+
+    @Test
+    fun `should return bad-request when the user or password is invalid`() {
+        every { router.loginHandler(any()) } throws InvalidUserPassException()
+
+        @Language("JSON")
+        val requestBody = """
+            {
+              "user":{
+                "email": "jake@jake.jake",
+                "password": "jakejake"
+              }
+            }
+        """.trimIndent()
+        val request = Request(Method.POST, "/api/users/login").body(requestBody)
+
+        val resp = router()(request)
+
+        assertEquals(Status.BAD_REQUEST, resp.status)
+        assertEquals("Invalid username or password.", resp.bodyString())
+    }
 }
