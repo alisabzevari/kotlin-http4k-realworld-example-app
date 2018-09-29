@@ -61,10 +61,9 @@ class AuthenticationEndpointTest {
                 "image": null
               }
             }
-        """.trimIndent().toJsonTree()
-        assertEquals(expectedResponseBody, resp.bodyString().toJsonTree())
+        """.trimIndent()
         assertEquals(Status.OK, resp.status)
-        assertEquals("application/json; charset=utf-8", resp.header("Content-Type"))
+        resp.expectJsonResponse(expectedResponseBody)
     }
 
     @Test
@@ -82,6 +81,7 @@ class AuthenticationEndpointTest {
 
 
         assertEquals(Status.BAD_REQUEST, resp.status)
+        resp.expectJsonResponse()
     }
 
     @Test
@@ -101,8 +101,18 @@ class AuthenticationEndpointTest {
 
         val resp = router()(request)
 
+        @Language("JSON")
+        val expectedResponseBody = """
+            {
+              "errors": {
+                "body": [
+                  "User xxx not found."
+                ]
+              }
+            }
+        """.trimIndent()
+        resp.expectJsonResponse(expectedResponseBody)
         assertEquals(Status.UNAUTHORIZED, resp.status)
-        assertTrue(resp.bodyString().contains("User xxx not found."))
     }
 
     @Test
@@ -122,7 +132,17 @@ class AuthenticationEndpointTest {
 
         val resp = router()(request)
 
+        @Language("JSON")
+        val expectedResponseBody = """
+            {
+              "errors": {
+                "body": [
+                  "Invalid username or password."
+                ]
+              }
+            }
+        """.trimIndent()
+        resp.expectJsonResponse(expectedResponseBody)
         assertEquals(Status.UNAUTHORIZED, resp.status)
-        assertTrue(resp.bodyString().contains("Invalid username or password."))
     }
 }

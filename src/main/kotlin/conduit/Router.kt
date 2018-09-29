@@ -2,6 +2,7 @@ package conduit
 
 import conduit.handler.*
 import conduit.util.CatchHttpExceptions
+import conduit.util.createErrorResponse
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
 import org.http4k.format.Jackson.auto
@@ -15,7 +16,11 @@ class Router(
 ) {
     operator fun invoke() =
         CatchHttpExceptions()
-            .then(ServerFilters.CatchLensFailure())
+            .then(ServerFilters.CatchLensFailure {
+                createErrorResponse(
+                    Status.BAD_REQUEST,
+                    it.failures.map { it.toString() })
+            })
             .then(
                 routes(
                     "/api/users/login" bind Method.POST to login(loginHandler),

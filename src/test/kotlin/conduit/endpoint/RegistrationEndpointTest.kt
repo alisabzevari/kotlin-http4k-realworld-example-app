@@ -61,10 +61,9 @@ class RegistrationEndpointTest {
                 "image": null
               }
             }
-        """.trimIndent().toJsonTree()
-        assertEquals(expectedResponseBody, resp.bodyString().toJsonTree())
+        """.trimIndent()
         assertEquals(Status.CREATED, resp.status)
-        assertEquals("application/json; charset=utf-8", resp.header("Content-Type"))
+        resp.expectJsonResponse(expectedResponseBody)
     }
 
     @Test
@@ -85,7 +84,17 @@ class RegistrationEndpointTest {
 
         val resp = router()(request)
 
+        @Language("JSON")
+        val expectedResponseBody = """
+            {
+              "errors": {
+                "body": [
+                  "The specified user already exists."
+                ]
+              }
+            }
+        """.trimIndent()
+        resp.expectJsonResponse(expectedResponseBody)
         assertEquals(Status.CONFLICT, resp.status)
-        assertTrue(resp.bodyString().contains("The specified user already exists."))
     }
 }

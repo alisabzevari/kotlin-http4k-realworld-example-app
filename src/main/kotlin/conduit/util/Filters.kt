@@ -15,17 +15,19 @@ object CatchHttpExceptions {
             try {
                 next(it)
             } catch (e: HttpException) {
-                createResponse(e.status, e.message)
+                createErrorResponse(e.status, listOf(e.message ?: "Oops!"))
             } catch (e: Exception) {
-                createResponse(Status(422, "Unprocessable Entity"), "Unexpected error")
+                createErrorResponse(Status(422, "Unprocessable Entity"), listOf("Unexpected error"))
             }
         }
     }
+}
 
-    private fun createResponse(status: Status, message: String?) =
-        Response(status).body(
+fun createErrorResponse(status: Status, errorMessages: List<String>) =
+    Response(status)
+        .header("Content-Type", "application/json; charset=utf-8")
+        .body(
             GenericErrorModel(
-                GenericErrorModelBody(if (message != null) listOf(message) else emptyList())
+                GenericErrorModelBody(errorMessages)
             ).stringifyAsJson()
         )
-}
