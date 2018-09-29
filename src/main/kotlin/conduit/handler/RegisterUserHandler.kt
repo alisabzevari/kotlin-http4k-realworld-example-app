@@ -1,14 +1,30 @@
 package conduit.handler
 
 import conduit.model.*
+import conduit.repository.ConduitRepository
+import conduit.util.HttpException
+import conduit.util.generateToken
+import conduit.util.hash
+import org.http4k.core.Status
 
 interface RegisterUserHandler {
     operator fun invoke(newUserDto: NewUserDto): UserDto
 }
 
-class RegisterUserHandlerImpl: RegisterUserHandler {
+class RegisterUserHandlerImpl(val repository: ConduitRepository) : RegisterUserHandler {
     override fun invoke(newUserDto: NewUserDto): UserDto {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        repository.insertUser(
+            newUserDto.let {
+                NewUser(it.username, it.password.hash(), it.email)
+            })
+
+        return UserDto(
+            newUserDto.email,
+            generateToken(newUserDto.username, newUserDto.email),
+            newUserDto.username,
+            null,
+            null
+        )
     }
 }
 
@@ -17,3 +33,5 @@ data class NewUserDto(
     val password: Password,
     val email: Email
 )
+
+class UserAlreadyExistsException() : HttpException(Status.CONFLICT, "The specified user already exists.")

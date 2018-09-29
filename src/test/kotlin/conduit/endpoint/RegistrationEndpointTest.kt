@@ -1,6 +1,7 @@
 package conduit.endpoint
 
 import conduit.Router
+import conduit.handler.UserAlreadyExistsException
 import conduit.handler.UserDto
 import conduit.model.Bio
 import conduit.model.Email
@@ -15,6 +16,7 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class RegistrationEndpointTest {
     lateinit var router: Router
@@ -61,7 +63,29 @@ class RegistrationEndpointTest {
             }
         """.trimIndent().toJsonTree()
         assertEquals(expectedResponseBody, resp.bodyString().toJsonTree())
-        assertEquals(Status.OK, resp.status)
+        assertEquals(Status.CREATED, resp.status)
         assertEquals("application/json; charset=utf-8", resp.header("Content-Type"))
+    }
+
+    @Test
+    fun `should return CONFLICT if user already exist`() {
+        every { router.registerUserHandler(any()) } throws UserAlreadyExistsException()
+
+        @Language("JSON")
+        val requestBody = """
+            {
+              "user":{
+                "username": "Jacob",
+                "email": "jake@jake.jake",
+                "password": "jakejake"
+              }
+            }
+        """.trimIndent()
+        val request = Request(Method.POST, "/api/users").body(requestBody)
+
+        val resp = router()(request)
+
+        assertEquals(Status.CONFLICT, resp.status)
+        assertTrue(resp.bodyString().contains("The specified user already exists."))
     }
 }

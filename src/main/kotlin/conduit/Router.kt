@@ -40,7 +40,7 @@ class Router(
 
         val resLens = Body.auto<UserResponse>().toLens()
 
-        resLens.inject(UserResponse(result), Response(Status.OK))
+        resLens.inject(UserResponse(result), Response(Status.CREATED))
     }
 }
 

@@ -20,7 +20,7 @@ class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
             throw InvalidUserPassException()
         }
 
-        val token = generateToken(user)
+        val token = generateToken(user.username, user.email)
 
         return UserDto(
             user.email,

@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
     val repository = ConduitRepositoryImpl(database)
 
     val loginHandler = LoginHandlerImpl(repository)
-    val registerUserHandler = RegisterUserHandlerImpl()
+    val registerUserHandler = RegisterUserHandlerImpl(repository)
     val app = Router(
         loginHandler,
         registerUserHandler
