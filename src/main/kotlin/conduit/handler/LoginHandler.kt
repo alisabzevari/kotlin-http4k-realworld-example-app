@@ -8,21 +8,21 @@ import conduit.util.hash
 import org.http4k.core.Status
 
 interface LoginHandler {
-    operator fun invoke(loginUser: LoginUser): LoggedInUserInfo
+    operator fun invoke(loginUserDto: LoginUserDto): UserDto
 }
 
 class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
-    override operator fun invoke(loginUser: LoginUser): LoggedInUserInfo {
+    override operator fun invoke(loginUserDto: LoginUserDto): UserDto {
 
-        val user = repository.findUserByEmail(loginUser.email) ?: throw UserNotFoundException(loginUser.email.value)
+        val user = repository.findUserByEmail(loginUserDto.email) ?: throw UserNotFoundException(loginUserDto.email.value)
 
-        if (loginUser.password.hash() != user.password) {
+        if (loginUserDto.password.hash() != user.password) {
             throw InvalidUserPassException()
         }
 
         val token = generateToken(user)
 
-        return LoggedInUserInfo(
+        return UserDto(
             user.email,
             token,
             user.username,
@@ -35,5 +35,5 @@ class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
 class UserNotFoundException(username: String) : HttpException(Status.UNAUTHORIZED, "User $username not found.")
 class InvalidUserPassException() : HttpException(Status.UNAUTHORIZED, "Invalid username or password.")
 
-data class LoginUser(val email: Email, val password: Password)
-data class LoggedInUserInfo(val email: Email, val token: Token, val username: Username, val bio: Bio?, val image: Image?)
+data class LoginUserDto(val email: Email, val password: Password)
+data class UserDto(val email: Email, val token: Token, val username: Username, val bio: Bio?, val image: Image?)

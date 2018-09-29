@@ -1,7 +1,7 @@
 package conduit.endpoint
 
 import conduit.Router
-import conduit.handler.RegisteredUserInfo
+import conduit.handler.UserDto
 import conduit.model.Bio
 import conduit.model.Email
 import conduit.model.Token
@@ -26,7 +26,7 @@ class RegistrationEndpointTest {
 
     @Test
     fun `should return User on successful registration`() {
-        every { router.registerUserHandler(any()) } returns RegisteredUserInfo(
+        every { router.registerUserHandler(any()) } returns UserDto(
             Email("jake@jake.jake"),
             Token("jwt.token.here"),
             Username("jake"),

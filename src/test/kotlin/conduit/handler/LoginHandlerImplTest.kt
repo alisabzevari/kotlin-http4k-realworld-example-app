@@ -33,7 +33,7 @@ class LoginHandlerImplTest {
             Image("an image url")
         )
         every { unit.repository.findUserByEmail(any()) } returns dbUser
-        val loginInfo = LoginUser(
+        val loginInfo = LoginUserDto(
             Email("jake@jake.jake"),
             Password("password")
         )
@@ -62,7 +62,7 @@ class LoginHandlerImplTest {
             Image("an image url")
         )
         every { unit.repository.findUserByEmail(any()) } returns dbUser
-        val loginInfo = LoginUser(
+        val loginInfo = LoginUserDto(
             Email("jake@jake.jake"),
             Password("wrong password")
         )

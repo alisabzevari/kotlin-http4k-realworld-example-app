@@ -2,7 +2,7 @@ package conduit.endpoint
 
 import conduit.Router
 import conduit.handler.InvalidUserPassException
-import conduit.handler.LoggedInUserInfo
+import conduit.handler.UserDto
 import conduit.handler.UserNotFoundException
 import conduit.model.Bio
 import conduit.model.Email
@@ -29,7 +29,7 @@ class AuthenticationEndpointTest {
 
     @Test
     fun `should return a User on successful login`() {
-        every { router.loginHandler.invoke(any()) } returns LoggedInUserInfo(
+        every { router.loginHandler.invoke(any()) } returns UserDto(
             Email("jake@jake.jake"),
             Token("jwt.token.here"),
             Username("jake"),

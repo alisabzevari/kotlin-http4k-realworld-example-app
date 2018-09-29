@@ -24,28 +24,27 @@ class Router(
             )
 
     fun login(loginHandler: LoginHandler) = { req: Request ->
-        val reqLens = Body.auto<LoginRequest>().toLens()
+        val reqLens = Body.auto<LoginUserRequest>().toLens()
 
         val result = loginHandler(reqLens.extract(req).user)
 
-        val resLens = Body.auto<LoginResponse>().toLens()
+        val resLens = Body.auto<UserResponse>().toLens()
 
-        resLens.inject(LoginResponse(result), Response(Status.OK))
+        resLens.inject(UserResponse(result), Response(Status.OK))
     }
 
     fun registerUser(registerUserHandler: RegisterUserHandler) = { req: Request ->
-        val reqLens = Body.auto<RegisterUserRequest>().toLens()
+        val reqLens = Body.auto<NewUserRequest>().toLens()
 
         val result = registerUserHandler(reqLens.extract(req).user)
 
-        val resLens = Body.auto<RegisterUserResponse>().toLens()
+        val resLens = Body.auto<UserResponse>().toLens()
 
-        resLens.inject(RegisterUserResponse(result), Response(Status.OK))
+        resLens.inject(UserResponse(result), Response(Status.OK))
     }
 }
 
-data class LoginRequest(val user: LoginUser)
-data class LoginResponse(val user: LoggedInUserInfo)
+data class LoginUserRequest(val user: LoginUserDto)
+data class UserResponse(val user: UserDto)
 
-data class RegisterUserRequest(val user: NewUserInfo)
-data class RegisterUserResponse(val user: RegisteredUserInfo)
+data class NewUserRequest(val user: NewUserDto)
