@@ -3,6 +3,7 @@ package conduit
 import conduit.handler.GetCurrentUserHandlerImpl
 import conduit.handler.LoginHandlerImpl
 import conduit.handler.RegisterUserHandlerImpl
+import conduit.handler.UpdateCurrentUserHandlerImpl
 import conduit.repository.ConduitRepositoryImpl
 import org.apache.logging.log4j.core.config.Configurator
 import org.http4k.server.Jetty
@@ -21,11 +22,13 @@ fun main(args: Array<String>) {
     val loginHandler = LoginHandlerImpl(repository)
     val registerUserHandler = RegisterUserHandlerImpl(repository)
     val getCurrentUserHandler = GetCurrentUserHandlerImpl(repository)
+    val updateCurrentUserHandler = UpdateCurrentUserHandlerImpl(repository)
 
     val app = Router(
         loginHandler,
         registerUserHandler,
-        getCurrentUserHandler
+        getCurrentUserHandler,
+        updateCurrentUserHandler
     )()
 
     logger.info("Starting server...")

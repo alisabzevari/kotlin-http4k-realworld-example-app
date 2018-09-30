@@ -2,6 +2,7 @@ package conduit.model
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
+import conduit.util.TokenAuth
 import com.fasterxml.jackson.annotation.JsonCreator.Mode.DELEGATING as m
 
 data class Email @JsonCreator(mode = m) constructor(@JsonValue val value: String)
@@ -26,3 +27,12 @@ data class NewUser(
     val password: Password,
     val email: Email
 )
+
+data class UpdateUser(
+    val email: Email?,
+    val username: Username?,
+    val bio: Bio?,
+    val image: Image?
+)
+
+fun TokenAuth.TokenInfo.extractEmail() = Email(this.claims["email"].toString())

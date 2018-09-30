@@ -14,7 +14,8 @@ interface LoginHandler {
 class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
     override operator fun invoke(loginUserDto: LoginUserDto): UserDto {
 
-        val user = repository.findUserByEmail(loginUserDto.email) ?: throw UserNotFoundException(loginUserDto.email.value)
+        val user =
+            repository.findUserByEmail(loginUserDto.email) ?: throw UserNotFoundException(loginUserDto.email.value)
 
         if (loginUserDto.password.hash() != user.password) {
             throw InvalidUserPassException()
@@ -32,7 +33,9 @@ class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
     }
 }
 
-class UserNotFoundException(username: String) : HttpException(Status.UNAUTHORIZED, "User $username not found.")
+class UserNotFoundException(usernameOrEmail: String) :
+    HttpException(Status.UNAUTHORIZED, "User $usernameOrEmail not found.")
+
 class InvalidUserPassException() : HttpException(Status.UNAUTHORIZED, "Invalid username or password.")
 
 data class LoginUserDto(val email: Email, val password: Password)

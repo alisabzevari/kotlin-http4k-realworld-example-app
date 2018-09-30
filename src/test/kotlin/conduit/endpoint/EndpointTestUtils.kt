@@ -12,7 +12,8 @@ import kotlin.test.assertEquals
 fun getRouterToTest() = Router(
     loginHandler = mockk(relaxed = true),
     registerUserHandler = mockk(relaxed = true),
-    getCurrentUserHandler = mockk(relaxed = true)
+    getCurrentUserHandler = mockk(relaxed = true),
+    updateCurrentUserHandler = mockk(relaxed = true)
 )
 
 fun Response.expectJsonResponse(expectedBody: String? = null) {

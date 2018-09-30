@@ -1,6 +1,7 @@
 package conduit.repository
 
 import conduit.handler.UserAlreadyExistsException
+import conduit.handler.UserNotFoundException
 import conduit.model.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -8,6 +9,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 interface ConduitRepository {
     fun findUserByEmail(email: Email): User?
     fun insertUser(newUser: NewUser)
+    fun updateUser(email: Email, user: UpdateUser): User
 }
 
 class ConduitRepositoryImpl(val database: Database) : ConduitRepository {
@@ -20,7 +22,7 @@ class ConduitRepositoryImpl(val database: Database) : ConduitRepository {
     override fun findUserByEmail(email: Email): User? =
         transaction(database) {
             Users
-                .select { Users.email.eq(email.value) }
+                .select { Users.email eq email.value }
                 .firstOrNull()
                 ?.toUser()
         }
@@ -31,7 +33,7 @@ class ConduitRepositoryImpl(val database: Database) : ConduitRepository {
                 .firstOrNull() != null
         if (alreadyExists) throw UserAlreadyExistsException()
 
-        transaction {
+        transaction(database) {
             Users.insert {
                 it[email] = newUser.email.value
                 it[username] = newUser.username.value
@@ -41,6 +43,22 @@ class ConduitRepositoryImpl(val database: Database) : ConduitRepository {
             }
         }
     }
+
+    override fun updateUser(email: Email, user: UpdateUser): User =
+        transaction(database) {
+            val dbUser =
+                (Users.select { Users.email eq email.value }.firstOrNull() ?: throw UserNotFoundException(email.value))
+                    .toUser()
+
+            Users.update({ Users.id eq dbUser.id }) {
+                if (user.bio != null) it[this.bio] = user.bio.value
+                if (user.email != null) it[this.email] = user.email.value
+                if (user.image != null) it[this.image] = user.image.value
+                if (user.username != null) it[this.username] = user.username.value
+            }
+
+            Users.select { Users.id eq dbUser.id }.first().toUser()
+        }
 }
 
 fun ResultRow.toUser() = User(

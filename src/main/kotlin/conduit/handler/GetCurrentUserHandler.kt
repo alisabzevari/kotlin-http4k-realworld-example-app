@@ -1,6 +1,7 @@
 package conduit.handler
 
 import conduit.model.Email
+import conduit.model.extractEmail
 import conduit.repository.ConduitRepository
 import conduit.util.TokenAuth
 
@@ -10,7 +11,7 @@ interface GetCurrentUserHandler {
 
 class GetCurrentUserHandlerImpl(val repository: ConduitRepository) : GetCurrentUserHandler {
     override fun invoke(tokenInfo: TokenAuth.TokenInfo): UserDto {
-        val email = Email(tokenInfo.claims["email"].toString())
+        val email = tokenInfo.extractEmail()
         val user = repository.findUserByEmail(email) ?: throw UserNotFoundException(email.value)
 
         return UserDto(
