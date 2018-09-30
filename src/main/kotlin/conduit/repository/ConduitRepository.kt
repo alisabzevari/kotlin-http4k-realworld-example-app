@@ -12,7 +12,7 @@ interface ConduitRepository {
     fun updateUser(email: Email, user: UpdateUser): User
 }
 
-class ConduitRepositoryImpl(val database: Database) : ConduitRepository {
+class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
     init {
         transaction(database) {
             SchemaUtils.create(Users)

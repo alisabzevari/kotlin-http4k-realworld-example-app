@@ -37,4 +37,4 @@ data class NewUserDto(
     val email: Email
 )
 
-class UserAlreadyExistsException() : HttpException(Status.CONFLICT, "The specified user already exists.")
+class UserAlreadyExistsException : HttpException(Status.CONFLICT, "The specified user already exists.")
