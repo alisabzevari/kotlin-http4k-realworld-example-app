@@ -1,5 +1,6 @@
 package conduit
 
+import conduit.handler.GetCurrentUserHandlerImpl
 import conduit.handler.LoginHandlerImpl
 import conduit.handler.RegisterUserHandlerImpl
 import conduit.repository.ConduitRepositoryImpl
@@ -19,9 +20,12 @@ fun main(args: Array<String>) {
 
     val loginHandler = LoginHandlerImpl(repository)
     val registerUserHandler = RegisterUserHandlerImpl(repository)
+    val getCurrentUserHandler = GetCurrentUserHandlerImpl(repository)
+
     val app = Router(
         loginHandler,
-        registerUserHandler
+        registerUserHandler,
+        getCurrentUserHandler
     )()
 
     logger.info("Starting server...")

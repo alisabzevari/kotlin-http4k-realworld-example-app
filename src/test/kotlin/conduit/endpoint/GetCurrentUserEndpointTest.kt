@@ -2,10 +2,8 @@ package conduit.endpoint
 
 import conduit.Router
 import conduit.handler.UserDto
-import conduit.model.Bio
-import conduit.model.Email
-import conduit.model.Token
-import conduit.model.Username
+import conduit.model.*
+import conduit.util.generateToken
 import conduit.util.toJsonTree
 import io.mockk.every
 import org.http4k.core.Method
@@ -16,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class GetCurrentUserEndpoint {
+class GetCurrentUserEndpointTest {
     lateinit var router: Router
 
     @BeforeEach
@@ -26,15 +24,15 @@ class GetCurrentUserEndpoint {
 
     @Test
     fun `should return current user information`() {
-//        every { router.getCurrentUserHandler(any()) } returns UserDto(
-//            Email("jake@jake.jake"),
-//            Token("jwt.token.here"),
-//            Username("jake"),
-//            Bio("I work at statefarm"),
-//            null
-//        )
+        every { router.getCurrentUserHandler(any()) } returns UserDto(
+            Email("jake@jake.jake"),
+            Token("jwt.token.here"),
+            Username("jake"),
+            Bio("I work at statefarm"),
+            null
+        )
 
-        val request = Request(Method.GET, "/api/users")
+        val request = Request(Method.GET, "/api/users").header("Authorization", "Token: ${generateTestToken().value}")
 
         val resp = router()(request)
 
