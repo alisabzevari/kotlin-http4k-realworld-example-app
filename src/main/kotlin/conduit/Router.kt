@@ -20,8 +20,8 @@ class Router(
     val getCurrentUserHandler: GetCurrentUserHandler,
     val updateCurrentUserHandler: UpdateCurrentUserHandler
 ) {
-    val contexts = RequestContexts()
-    val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
+    private val contexts = RequestContexts()
+    private val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
 
     operator fun invoke(): RoutingHttpHandler =
         CatchHttpExceptions()
@@ -44,7 +44,7 @@ class Router(
                 )
             )
 
-    fun login() = { req: Request ->
+    private fun login() = { req: Request ->
         val reqLens = Body.auto<LoginUserRequest>().toLens()
 
         val result = loginHandler(reqLens(req).user)
@@ -53,7 +53,7 @@ class Router(
         resLens(UserResponse(result), Response(Status.OK))
     }
 
-    fun registerUser() = { req: Request ->
+    private fun registerUser() = { req: Request ->
         val reqLens = Body.auto<NewUserRequest>().toLens()
 
         val result = registerUserHandler(reqLens(req).user)
@@ -63,7 +63,7 @@ class Router(
         resLens(UserResponse(result), Response(Status.CREATED))
     }
 
-    fun getCurrentUser() = { req: Request ->
+    private fun getCurrentUser() = { req: Request ->
 
         val tokenInfo = tokenInfoKey(req)
 
@@ -73,7 +73,7 @@ class Router(
         resLens(UserResponse(result), Response(Status.OK))
     }
 
-    fun updateCurrentUser() = { req: Request ->
+    private fun updateCurrentUser() = { req: Request ->
         val reqLens = Body.auto<UpdateUserRequest>().toLens()
 
         val tokenInfo = tokenInfoKey(req)

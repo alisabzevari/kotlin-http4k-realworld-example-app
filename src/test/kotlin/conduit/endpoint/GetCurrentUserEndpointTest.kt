@@ -2,9 +2,10 @@ package conduit.endpoint
 
 import conduit.Router
 import conduit.handler.UserDto
-import conduit.model.*
-import conduit.util.generateToken
-import conduit.util.toJsonTree
+import conduit.model.Bio
+import conduit.model.Email
+import conduit.model.Token
+import conduit.model.Username
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request

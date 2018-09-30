@@ -2,7 +2,6 @@ package conduit.util
 
 import conduit.model.Email
 import conduit.model.Token
-import conduit.model.User
 import conduit.model.Username
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm

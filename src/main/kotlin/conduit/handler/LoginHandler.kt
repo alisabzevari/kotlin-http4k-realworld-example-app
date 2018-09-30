@@ -17,9 +17,7 @@ class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
         val user =
             repository.findUserByEmail(loginUserDto.email) ?: throw UserNotFoundException(loginUserDto.email.value)
 
-        if (loginUserDto.password.hash() != user.password) {
-            throw InvalidUserPassException()
-        }
+        if (loginUserDto.password.hash() != user.password) throw InvalidUserPassException()
 
         val token = generateToken(user.username, user.email)
 
@@ -36,7 +34,7 @@ class LoginHandlerImpl(val repository: ConduitRepository) : LoginHandler {
 class UserNotFoundException(usernameOrEmail: String) :
     HttpException(Status.UNAUTHORIZED, "User $usernameOrEmail not found.")
 
-class InvalidUserPassException() : HttpException(Status.UNAUTHORIZED, "Invalid username or password.")
+class InvalidUserPassException : HttpException(Status.UNAUTHORIZED, "Invalid username or password.")
 
 data class LoginUserDto(val email: Email, val password: Password)
 data class UserDto(val email: Email, val token: Token, val username: Username, val bio: Bio?, val image: Image?)
