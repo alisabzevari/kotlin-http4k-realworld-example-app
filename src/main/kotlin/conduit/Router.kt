@@ -44,49 +44,39 @@ class Router(
                 )
             )
 
+    private val loginLens = Body.auto<LoginUserRequest>().toLens()
+    private val userLens = Body.auto<UserResponse>().toLens()
+
     private fun login() = { req: Request ->
-        val reqLens = Body.auto<LoginUserRequest>().toLens()
-
-        val result = loginHandler(reqLens(req).user)
-
-        val resLens = Body.auto<UserResponse>().toLens()
-        resLens(UserResponse(result), Response(Status.OK))
+        val result = loginHandler(loginLens(req).user)
+        userLens(UserResponse(result), Response(Status.OK))
     }
 
+    private val registerLens = Body.auto<NewUserRequest>().toLens()
+
     private fun registerUser() = { req: Request ->
-        val reqLens = Body.auto<NewUserRequest>().toLens()
-
-        val result = registerUserHandler(reqLens(req).user)
-
-        val resLens = Body.auto<UserResponse>().toLens()
-
-        resLens(UserResponse(result), Response(Status.CREATED))
+        val result = registerUserHandler(registerLens(req).user)
+        userLens(UserResponse(result), Response(Status.CREATED))
     }
 
     private fun getCurrentUser() = { req: Request ->
-
         val tokenInfo = tokenInfoKey(req)
-
         val result = getCurrentUserHandler(tokenInfo)
-
-        val resLens = Body.auto<UserResponse>().toLens()
-        resLens(UserResponse(result), Response(Status.OK))
+        userLens(UserResponse(result), Response(Status.OK))
     }
 
+    private val updateLens = Body.auto<UpdateUserRequest>().toLens()
+
     private fun updateCurrentUser() = { req: Request ->
-        val reqLens = Body.auto<UpdateUserRequest>().toLens()
-
         val tokenInfo = tokenInfoKey(req)
-        val updateUser = reqLens(req).user
-
+        val updateUser = updateLens(req).user
         val result = updateCurrentUserHandler(tokenInfo, updateUser)
-
-        val resLens = Body.auto<UserResponse>().toLens()
-        resLens(UserResponse(result), Response(Status.OK))
+        userLens(UserResponse(result), Response(Status.OK))
     }
 }
 
 data class LoginUserRequest(val user: LoginUserDto)
+
 data class UserResponse(val user: UserDto)
 
 data class NewUserRequest(val user: NewUserDto)
