@@ -43,42 +43,42 @@ class Router(
     fun login() = { req: Request ->
         val reqLens = Body.auto<LoginUserRequest>().toLens()
 
-        val result = loginHandler(reqLens.extract(req).user)
+        val result = loginHandler(reqLens(req).user)
 
         val resLens = Body.auto<UserResponse>().toLens()
-        resLens.inject(UserResponse(result), Response(Status.OK))
+        resLens(UserResponse(result), Response(Status.OK))
     }
 
     fun registerUser() = { req: Request ->
         val reqLens = Body.auto<NewUserRequest>().toLens()
 
-        val result = registerUserHandler(reqLens.extract(req).user)
+        val result = registerUserHandler(reqLens(req).user)
 
         val resLens = Body.auto<UserResponse>().toLens()
 
-        resLens.inject(UserResponse(result), Response(Status.CREATED))
+        resLens(UserResponse(result), Response(Status.CREATED))
     }
 
     fun getCurrentUser() = { req: Request ->
 
-        val tokenInfo = tokenInfoKey.extract(req)
+        val tokenInfo = tokenInfoKey(req)
 
         val result = getCurrentUserHandler(tokenInfo)
 
         val resLens = Body.auto<UserResponse>().toLens()
-        resLens.inject(UserResponse(result), Response(Status.OK))
+        resLens(UserResponse(result), Response(Status.OK))
     }
 
     fun updateCurrentUser() = { req: Request ->
         val reqLens = Body.auto<UpdateUserRequest>().toLens()
 
-        val tokenInfo = tokenInfoKey.extract(req)
-        val updateUser = reqLens.extract(req).user
+        val tokenInfo = tokenInfoKey(req)
+        val updateUser = reqLens(req).user
 
         val result = updateCurrentUserHandler(tokenInfo, updateUser)
 
         val resLens = Body.auto<UserResponse>().toLens()
-        resLens.inject(UserResponse(result), Response(Status.OK))
+        resLens(UserResponse(result), Response(Status.OK))
     }
 }
 
