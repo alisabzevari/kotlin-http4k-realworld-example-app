@@ -37,8 +37,8 @@ class Router(
                         "/login" bind Method.POST to login(),
                         "/" bind routes(
                             Method.POST to registerUser(),
-                            Method.GET to TokenAuth(tokenInfoKey)(getCurrentUser()),
-                            Method.PUT to TokenAuth(tokenInfoKey)(updateCurrentUser())
+                            Method.GET to TokenAuth(tokenInfoKey).then(getCurrentUser()),
+                            Method.PUT to TokenAuth(tokenInfoKey).then(updateCurrentUser())
                         )
                     )
                 )
