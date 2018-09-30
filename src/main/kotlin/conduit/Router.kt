@@ -33,10 +33,14 @@ class Router(
             .then(ServerFilters.InitialiseRequestContext(contexts))
             .then(
                 routes(
-                    "/api/users/login" bind Method.POST to login(),
-                    "/api/users" bind Method.POST to registerUser(),
-                    "/api/users" bind Method.GET to TokenAuth(tokenInfoKey)(getCurrentUser()),
-                    "/api/users" bind Method.PUT to TokenAuth(tokenInfoKey)(updateCurrentUser())
+                    "/api/users" bind routes(
+                        "/login" bind Method.POST to login(),
+                        "/" bind routes(
+                            Method.POST to registerUser(),
+                            Method.GET to TokenAuth(tokenInfoKey)(getCurrentUser()),
+                            Method.PUT to TokenAuth(tokenInfoKey)(updateCurrentUser())
+                        )
+                    )
                 )
             )
 
