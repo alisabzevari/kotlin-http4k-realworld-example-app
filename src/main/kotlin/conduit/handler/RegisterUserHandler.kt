@@ -1,6 +1,9 @@
 package conduit.handler
 
-import conduit.model.*
+import conduit.model.Email
+import conduit.model.NewUser
+import conduit.model.Password
+import conduit.model.Username
 import conduit.repository.ConduitRepository
 import conduit.util.HttpException
 import conduit.util.generateToken
@@ -34,4 +37,4 @@ data class NewUserDto(
     val email: Email
 )
 
-class UserAlreadyExistsException() : HttpException(Status.CONFLICT, "The specified user already exists.")
+class UserAlreadyExistsException : HttpException(Status.CONFLICT, "The specified user already exists.")

@@ -35,4 +35,4 @@ data class UpdateUser(
     val image: Image?
 )
 
-fun TokenAuth.TokenInfo.extractEmail() = Email(this.claims["email"].toString())
+fun TokenAuth.TokenInfo.extractEmail() = Email(claims["email"].toString())

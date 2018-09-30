@@ -1,6 +1,5 @@
 package conduit.handler
 
-import conduit.model.Email
 import conduit.model.extractEmail
 import conduit.repository.ConduitRepository
 import conduit.util.TokenAuth

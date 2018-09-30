@@ -20,8 +20,8 @@ class Router(
     val getCurrentUserHandler: GetCurrentUserHandler,
     val updateCurrentUserHandler: UpdateCurrentUserHandler
 ) {
-    val contexts = RequestContexts()
-    val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
+    private val contexts = RequestContexts()
+    private val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
 
     operator fun invoke(): RoutingHttpHandler =
         CatchHttpExceptions()
@@ -33,56 +33,50 @@ class Router(
             .then(ServerFilters.InitialiseRequestContext(contexts))
             .then(
                 routes(
-                    "/api/users/login" bind Method.POST to login(),
-                    "/api/users" bind Method.POST to registerUser(),
-                    "/api/users" bind Method.GET to TokenAuth(tokenInfoKey)(getCurrentUser()),
-                    "/api/users" bind Method.PUT to TokenAuth(tokenInfoKey)(updateCurrentUser())
+                    "/api/users" bind routes(
+                        "/login" bind Method.POST to login(),
+                        "/" bind routes(
+                            Method.POST to registerUser(),
+                            Method.GET to TokenAuth(tokenInfoKey).then(getCurrentUser()),
+                            Method.PUT to TokenAuth(tokenInfoKey).then(updateCurrentUser())
+                        )
+                    )
                 )
             )
 
-    fun login() = { req: Request ->
-        val reqLens = Body.auto<LoginUserRequest>().toLens()
+    private val loginLens = Body.auto<LoginUserRequest>().toLens()
+    private val userLens = Body.auto<UserResponse>().toLens()
 
-        val result = loginHandler(reqLens.extract(req).user)
-
-        val resLens = Body.auto<UserResponse>().toLens()
-        resLens.inject(UserResponse(result), Response(Status.OK))
+    private fun login() = { req: Request ->
+        val result = loginHandler(loginLens(req).user)
+        userLens(UserResponse(result), Response(Status.OK))
     }
 
-    fun registerUser() = { req: Request ->
-        val reqLens = Body.auto<NewUserRequest>().toLens()
+    private val registerLens = Body.auto<NewUserRequest>().toLens()
 
-        val result = registerUserHandler(reqLens.extract(req).user)
-
-        val resLens = Body.auto<UserResponse>().toLens()
-
-        resLens.inject(UserResponse(result), Response(Status.CREATED))
+    private fun registerUser() = { req: Request ->
+        val result = registerUserHandler(registerLens(req).user)
+        userLens(UserResponse(result), Response(Status.CREATED))
     }
 
-    fun getCurrentUser() = { req: Request ->
-
-        val tokenInfo = tokenInfoKey.extract(req)
-
+    private fun getCurrentUser() = { req: Request ->
+        val tokenInfo = tokenInfoKey(req)
         val result = getCurrentUserHandler(tokenInfo)
-
-        val resLens = Body.auto<UserResponse>().toLens()
-        resLens.inject(UserResponse(result), Response(Status.OK))
+        userLens(UserResponse(result), Response(Status.OK))
     }
 
-    fun updateCurrentUser() = { req: Request ->
-        val reqLens = Body.auto<UpdateUserRequest>().toLens()
+    private val updateLens = Body.auto<UpdateUserRequest>().toLens()
 
-        val tokenInfo = tokenInfoKey.extract(req)
-        val updateUser = reqLens.extract(req).user
-
+    private fun updateCurrentUser() = { req: Request ->
+        val tokenInfo = tokenInfoKey(req)
+        val updateUser = updateLens(req).user
         val result = updateCurrentUserHandler(tokenInfo, updateUser)
-
-        val resLens = Body.auto<UserResponse>().toLens()
-        resLens.inject(UserResponse(result), Response(Status.OK))
+        userLens(UserResponse(result), Response(Status.OK))
     }
 }
 
 data class LoginUserRequest(val user: LoginUserDto)
+
 data class UserResponse(val user: UserDto)
 
 data class NewUserRequest(val user: NewUserDto)

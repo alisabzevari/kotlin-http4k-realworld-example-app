@@ -8,7 +8,6 @@ import conduit.model.Bio
 import conduit.model.Email
 import conduit.model.Token
 import conduit.model.Username
-import conduit.util.toJsonTree
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -17,7 +16,6 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class AuthenticationEndpointTest {
     lateinit var router: Router

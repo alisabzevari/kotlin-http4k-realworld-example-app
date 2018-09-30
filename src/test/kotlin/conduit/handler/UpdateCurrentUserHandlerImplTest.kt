@@ -3,7 +3,6 @@ package conduit.handler
 import conduit.model.*
 import conduit.util.TokenAuth
 import conduit.util.hash
-import conduit.util.parse
 import io.jsonwebtoken.impl.DefaultClaims
 import io.mockk.every
 import io.mockk.mockk

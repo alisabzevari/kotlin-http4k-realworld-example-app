@@ -1,37 +1,27 @@
 package conduit.filter
 
-import conduit.Router
 import conduit.model.Email
 import conduit.model.Username
 import conduit.util.TokenAuth
 import conduit.util.generateToken
-import io.jsonwebtoken.Claims
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
 import org.http4k.lens.RequestContextKey
-import org.http4k.lens.RequestContextLens
-import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class TokenAuthTest {
-    lateinit var contexts: RequestContexts
-    lateinit var router: RoutingHttpHandler
+    private val contexts = RequestContexts()
+    private val key = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
 
-    @BeforeEach
-    fun beforeEach() {
-        contexts = RequestContexts()
-        val key = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
-        router = ServerFilters.InitialiseRequestContext(contexts)
-            .then(TokenAuth(key))
-            .then(
-                routes("/auth" bind Method.GET to { req -> Response(Status.OK).body(key.extract(req).claims.entries.toString()) })
-            )
-    }
+    private val router = ServerFilters.InitialiseRequestContext(contexts)
+        .then(TokenAuth(key))
+        .then(
+            routes("/auth" bind Method.GET to { req -> Response(Status.OK).body(key(req).claims.entries.toString()) })
+        )
 
     @Test
     fun `empty header`() {
