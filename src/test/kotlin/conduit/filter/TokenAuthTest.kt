@@ -46,7 +46,7 @@ class TokenAuthTest {
 
     @Test
     fun `authorization header with incorrect format - 2`() {
-        val res = router(Request(Method.GET, "/auth").header("Authorization", "Token:ssdsd"))
+        val res = router(Request(Method.GET, "/auth").header("Authorization", "Tokenssdsd"))
 
         assertEquals(Status.UNAUTHORIZED, res.status)
     }
@@ -56,7 +56,7 @@ class TokenAuthTest {
         val res = router(
             Request(Method.GET, "/auth").header(
                 "Authorization",
-                "Token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFsaSIsImVtYWlsIjoiYWxpc2FiemV2YXJzaUBnbWFpbC5jb20iLCJleHAiOjE1MzgyOTUyMzh9.jQlVD0b9Q2R0HYkiC6LHXgIm6VBcvBq9mOFGQVUgYNg"
+                "Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFsaSIsImVtYWlsIjoiYWxpc2FiemV2YXJzaUBnbWFpbC5jb20iLCJleHAiOjE1MzgyOTUyMzh9.jQlVD0b9Q2R0HYkiC6LHXgIm6VBcvBq9mOFGQVUgYNg"
             )
         )
 
@@ -67,7 +67,7 @@ class TokenAuthTest {
     fun `authorization header with valid token`() {
         val token = generateToken(Username("ali"), Email("alisabzevari@gmail.com"))
 
-        val res = router(Request(Method.GET, "/auth").header("Authorization", "Token: ${token.value}"))
+        val res = router(Request(Method.GET, "/auth").header("Authorization", "Token ${token.value}"))
 
         assertEquals(Status.OK, res.status)
         assertTrue(res.bodyString().matches(Regex("\\[username=ali, email=alisabzevari@gmail.com, exp=\\d*]")))

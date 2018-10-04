@@ -1,0 +1,24 @@
+{
+  "name": "Conduit - local Integration Test",
+  "values": [
+    {
+      "enabled": true,
+      "key": "apiUrl",
+      "value": "http://localhost:9000/api",
+      "type": "text"
+    },
+    {
+      "enabled": true,
+      "key": "token",
+      "value": "",
+      "type": "text"
+    },
+    {
+      "enabled": true,
+      "key": "isIntegrationTest",
+      "value": true,
+      "type": "boolean"
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

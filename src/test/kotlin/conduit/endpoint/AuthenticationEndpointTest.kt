@@ -27,7 +27,7 @@ class AuthenticationEndpointTest {
 
     @Test
     fun `should return a User on successful login`() {
-        every { router.loginHandler.invoke(any()) } returns UserDto(
+        every { router.login.invoke(any()) } returns UserDto(
             Email("jake@jake.jake"),
             Token("jwt.token.here"),
             Username("jake"),
@@ -84,7 +84,7 @@ class AuthenticationEndpointTest {
 
     @Test
     fun `should return error when the user not found`() {
-        every { router.loginHandler(any()) } throws UserNotFoundException("xxx")
+        every { router.login(any()) } throws UserNotFoundException("xxx")
 
         @Language("JSON")
         val requestBody = """
@@ -115,7 +115,7 @@ class AuthenticationEndpointTest {
 
     @Test
     fun `should return unauthorized when the user or password is invalid`() {
-        every { router.loginHandler(any()) } throws InvalidUserPassException()
+        every { router.login(any()) } throws InvalidUserPassException()
 
         @Language("JSON")
         val requestBody = """

@@ -29,7 +29,7 @@ class UpdateCurrentUserEndpointTest {
             Bio("new bio"),
             Image("new image")
         )
-        every { router.updateCurrentUserHandler(any(), any()) } returns user
+        every { router.updateCurrentUser(any(), any()) } returns user
 
         @Language("JSON")
         val requestBody = """

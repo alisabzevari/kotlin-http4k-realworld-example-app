@@ -10,12 +10,14 @@ interface ConduitRepository {
     fun findUserByEmail(email: Email): User?
     fun insertUser(newUser: NewUser)
     fun updateUser(email: Email, user: UpdateUser): User
+    fun getProfile(username: Username, currentUserEmail: Email?): Profile
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
     init {
         transaction(database) {
             SchemaUtils.create(Users)
+            SchemaUtils.create(Following)
         }
     }
 
@@ -28,12 +30,12 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
         }
 
     override fun insertUser(newUser: NewUser) {
-        val alreadyExists =
-            Users.select { Users.email eq newUser.email.value or (Users.username eq newUser.username.value) }
-                .firstOrNull() != null
-        if (alreadyExists) throw UserAlreadyExistsException()
-
         transaction(database) {
+            val alreadyExists =
+                Users.select { Users.email eq newUser.email.value }
+                    .firstOrNull() != null
+            if (alreadyExists) throw UserAlreadyExistsException()
+
             Users.insert {
                 it[email] = newUser.email.value
                 it[username] = newUser.username.value
@@ -59,6 +61,27 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
 
             Users.select { Users.id eq dbUser.id }.first().toUser()
         }
+
+    override fun getProfile(username: Username, currentUserEmail: Email?) =
+        transaction(database) {
+            val userProfile = (Users.select { Users.username eq username.value }.firstOrNull()
+                    ?: throw UserNotFoundException(username.value)).toUser()
+            val following = if (currentUserEmail == null) {
+                false
+            } else {
+                val targetUser = (Users.select { Users.email eq currentUserEmail.value }.firstOrNull()
+                        ?: throw UserNotFoundException(username.value)).toUser()
+                Following.select { (Following.sourceId eq userProfile.id) and (Following.targetId eq targetUser.id) }
+                    .any()
+            }
+
+            Profile(
+                userProfile.username,
+                userProfile.bio,
+                userProfile.image,
+                following
+            )
+        }
 }
 
 fun ResultRow.toUser() = User(
@@ -68,6 +91,6 @@ fun ResultRow.toUser() = User(
     token = null,
     username = Username(this[Users.username]),
     bio = this[Users.bio]?.let(::Bio),
-    image = this[Users.image]?.let { Image(it) }
+    image = this[Users.image]?.let(::Image)
 )
 

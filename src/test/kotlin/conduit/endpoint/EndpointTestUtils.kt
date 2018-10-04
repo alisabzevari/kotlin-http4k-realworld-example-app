@@ -10,10 +10,11 @@ import org.http4k.core.Response
 import kotlin.test.assertEquals
 
 fun getRouterToTest() = Router(
-    loginHandler = mockk(relaxed = true),
-    registerUserHandler = mockk(relaxed = true),
-    getCurrentUserHandler = mockk(relaxed = true),
-    updateCurrentUserHandler = mockk(relaxed = true)
+    login = mockk(relaxed = true),
+    registerUser = mockk(relaxed = true),
+    getCurrentUser = mockk(relaxed = true),
+    updateCurrentUser = mockk(relaxed = true),
+    getProfile = mockk(relaxed = true)
 )
 
 fun Response.expectJsonResponse(expectedBody: String? = null) {

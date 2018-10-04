@@ -26,7 +26,7 @@ class RegistrationEndpointTest {
 
     @Test
     fun `should return User on successful registration`() {
-        every { router.registerUserHandler(any()) } returns UserDto(
+        every { router.registerUser(any()) } returns UserDto(
             Email("jake@jake.jake"),
             Token("jwt.token.here"),
             Username("jake"),
@@ -66,7 +66,7 @@ class RegistrationEndpointTest {
 
     @Test
     fun `should return CONFLICT if user already exist`() {
-        every { router.registerUserHandler(any()) } throws UserAlreadyExistsException()
+        every { router.registerUser(any()) } throws UserAlreadyExistsException()
 
         @Language("JSON")
         val requestBody = """

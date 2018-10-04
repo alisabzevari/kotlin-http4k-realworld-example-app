@@ -25,7 +25,7 @@ class GetCurrentUserEndpointTest {
 
     @Test
     fun `should return current user information`() {
-        every { router.getCurrentUserHandler(any()) } returns UserDto(
+        every { router.getCurrentUser(any()) } returns UserDto(
             Email("jake@jake.jake"),
             Token("jwt.token.here"),
             Username("jake"),
