@@ -21,13 +21,15 @@ fun main(args: Array<String>) {
     val getCurrentUserHandler = GetCurrentUserHandlerImpl(repository)
     val updateCurrentUserHandler = UpdateCurrentUserHandlerImpl(repository)
     val getProfileHandler = GetProfileHandlerImpl(repository)
+    val followUserHandler = FollowUserHandlerImpl(repository)
 
     val app = Router(
         loginHandler,
         registerUserHandler,
         getCurrentUserHandler,
         updateCurrentUserHandler,
-        getProfileHandler
+        getProfileHandler,
+        followUserHandler
     )()
 
     logger.info("Starting server...")

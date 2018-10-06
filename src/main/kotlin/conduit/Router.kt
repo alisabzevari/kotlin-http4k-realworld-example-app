@@ -24,7 +24,8 @@ class Router(
     val registerUser: RegisterUserHandler,
     val getCurrentUser: GetCurrentUserHandler,
     val updateCurrentUser: UpdateCurrentUserHandler,
-    val getProfile: GetProfileHandler
+    val getProfile: GetProfileHandler,
+    val followUser: FollowUserHandler
 ) {
     private val contexts = RequestContexts()
     private val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
@@ -48,7 +49,8 @@ class Router(
                         )
                     ),
                     "/api/profiles/{username}" bind routes(
-                        "/" bind Method.GET to getProfile()
+                        "/" bind Method.GET to getProfile(),
+                        "/follow" bind Method.POST to TokenAuth(tokenInfoKey).then(followUser())
                     )
                 )
             )
@@ -89,8 +91,15 @@ class Router(
 
     private fun getProfile() = { req: Request ->
         val username = usernameLens(req)
-        val tokenInfo = tokenInfoLens.extract(req)
+        val tokenInfo = tokenInfoLens(req)
         val result = getProfile(username, tokenInfo)
+        profileLens(ProfileResponse(result), Response(Status.OK))
+    }
+
+    private fun followUser() = { req: Request ->
+        val username = usernameLens(req)
+        val tokenInfo = tokenInfoKey(req)
+        val result = followUser(username, tokenInfo)
         profileLens(ProfileResponse(result), Response(Status.OK))
     }
 }

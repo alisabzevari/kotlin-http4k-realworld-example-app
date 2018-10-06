@@ -1,10 +1,9 @@
 package conduit.endpoint
 
 import conduit.Router
-import conduit.handler.UserDto
 import conduit.model.Bio
-import conduit.model.Email
-import conduit.model.Token
+import conduit.model.Image
+import conduit.model.Profile
 import conduit.model.Username
 import io.mockk.every
 import org.http4k.core.Method
@@ -15,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class GetCurrentUserEndpointTest {
+class FollowUserEndpointTest {
     lateinit var router: Router
 
     @BeforeEach
@@ -24,28 +23,27 @@ class GetCurrentUserEndpointTest {
     }
 
     @Test
-    fun `should return current user information`() {
-        every { router.getCurrentUser(any()) } returns UserDto(
-            Email("jake@jake.jake"),
-            Token("jwt.token.here"),
+    fun `should follow the user`() {
+        every { router.followUser(any(), any()) } returns Profile(
             Username("jake"),
             Bio("I work at statefarm"),
-            null
+            Image("Image"),
+            true
         )
 
-        val request = Request(Method.GET, "/api/users").header("Authorization", "Token ${generateTestToken().value}")
+        val request = Request(Method.POST, "/api/profiles/user1/follow")
+            .header("Authorization", "Token ${generateTestToken().value}")
 
         val resp = router()(request)
 
         @Language("JSON")
         val expectedResponseBody = """
             {
-              "user": {
-                "email": "jake@jake.jake",
-                "token": "jwt.token.here",
+              "profile": {
                 "username": "jake",
                 "bio": "I work at statefarm",
-                "image": null
+                "image": "Image",
+                "following": true
               }
             }
         """.trimIndent()

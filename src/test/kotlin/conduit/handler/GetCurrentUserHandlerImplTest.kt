@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
-class GetCurrentUserHandlerTest {
+class GetCurrentUserHandlerImplTest {
     lateinit var unit: GetCurrentUserHandlerImpl
 
     @BeforeEach

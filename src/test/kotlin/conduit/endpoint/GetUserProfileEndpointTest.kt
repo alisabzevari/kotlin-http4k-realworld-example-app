@@ -29,7 +29,7 @@ class GetUserProfileEndpointTest {
             true
         )
 
-        val request = Request(Method.GET, "/api/profiles/user1").header("Authorization", "Token: ${generateTestToken().value}")
+        val request = Request(Method.GET, "/api/profiles/user1").header("Authorization", "Token ${generateTestToken().value}")
 
         val resp = router()(request)
 
@@ -54,7 +54,7 @@ class GetUserProfileEndpointTest {
             Username("jake"),
             Bio("I work at statefarm"),
             Image("Image"),
-            true
+            false
         )
 
         val request = Request(Method.GET, "/api/profiles/user1")
@@ -68,7 +68,7 @@ class GetUserProfileEndpointTest {
                 "username": "jake",
                 "bio": "I work at statefarm",
                 "image": "Image",
-                "following": true
+                "following": false
               }
             }
         """.trimIndent()

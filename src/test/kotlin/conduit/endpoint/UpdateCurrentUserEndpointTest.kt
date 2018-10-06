@@ -44,7 +44,7 @@ class UpdateCurrentUserEndpointTest {
             }
         """.trimIndent()
         val request = Request(Method.PUT, "/api/users")
-            .header("Authorization", "Token: ${generateTestToken().value}")
+            .header("Authorization", "Token ${generateTestToken().value}")
             .body(requestBody)
 
         val resp = router()(request)
