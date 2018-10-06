@@ -8,29 +8,29 @@ import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
-class FollowUserHandlerImplTest {
-    lateinit var unit: FollowUserHandlerImpl
+class UnfollowUserHandlerImplTest {
+    lateinit var unit: UnfollowUserHandlerImpl
 
     @BeforeEach
     fun beforeEach() {
-        unit = FollowUserHandlerImpl(
+        unit = UnfollowUserHandlerImpl(
             repository = mockk(relaxed = true)
         )
     }
 
     @Test
-    fun `should follow the user`() {
+    fun `should unfollow the user`() {
         val username = Username("jake")
         val profile = Profile(
             username,
             Bio("I work at statefarm"),
             Image("an image url"),
-            true
+            false
         )
         val followerEmail = Email("email@site.com")
-        every { unit.repository.followUser(username, followerEmail) } returns profile
+        every { unit.repository.unfollowUser(username, followerEmail) } returns profile
 
         val tokenInfo = TokenAuth.TokenInfo(Token("token"), DefaultClaims(mapOf("email" to followerEmail.value)))
 
@@ -39,6 +39,6 @@ class FollowUserHandlerImplTest {
         assertEquals(profile.bio, result.bio)
         assertEquals(profile.username, result.username)
         assertEquals(profile.image, result.image)
-        assertTrue(result.following)
+        assertFalse(result.following)
     }
 }

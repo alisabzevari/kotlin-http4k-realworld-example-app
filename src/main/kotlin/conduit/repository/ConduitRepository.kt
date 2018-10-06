@@ -12,6 +12,7 @@ interface ConduitRepository {
     fun updateUser(email: Email, user: UpdateUser): User
     fun getProfile(username: Username, currentUserEmail: Email?): Profile
     fun followUser(userToFollow: Username, followerEmail: Email): Profile
+    fun unfollowUser(userToFollow: Username, followerEmail: Email): Profile
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
@@ -66,12 +67,12 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
     override fun getProfile(username: Username, currentUserEmail: Email?) =
         transaction(database) {
             val userProfile = (Users.select { Users.username eq username.value }.firstOrNull()
-                    ?: throw UserNotFoundException(username.value)).toUser()
+                ?: throw UserNotFoundException(username.value)).toUser()
             val following = if (currentUserEmail == null) {
                 false
             } else {
                 val targetUser = (Users.select { Users.email eq currentUserEmail.value }.firstOrNull()
-                        ?: throw UserNotFoundException(currentUserEmail.value)).toUser()
+                    ?: throw UserNotFoundException(currentUserEmail.value)).toUser()
                 Following.select { (Following.sourceId eq userProfile.id) and (Following.targetId eq targetUser.id) }
                     .any()
             }
@@ -87,12 +88,13 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
     override fun followUser(userToFollow: Username, followerEmail: Email) =
         transaction(database) {
             val targetUser = (Users.select { Users.username eq userToFollow.value }.firstOrNull()
-                    ?: throw UserNotFoundException(userToFollow.value)).toUser()
+                ?: throw UserNotFoundException(userToFollow.value)).toUser()
             val sourceUser = (Users.select { Users.email eq followerEmail.value }.firstOrNull()
-                    ?: throw UserNotFoundException(followerEmail.value)).toUser()
+                ?: throw UserNotFoundException(followerEmail.value)).toUser()
 
-            val isFollowing = Following.select { (Following.sourceId eq sourceUser.id) and (Following.targetId eq targetUser.id) }
-                .any()
+            val isFollowing =
+                Following.select { (Following.sourceId eq sourceUser.id) and (Following.targetId eq targetUser.id) }
+                    .any()
             if (!isFollowing) {
                 Following.insert {
                     it[sourceId] = sourceUser.id
@@ -105,6 +107,28 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
                 targetUser.bio,
                 targetUser.image,
                 true
+            )
+        }
+
+    override fun unfollowUser(userToFollow: Username, followerEmail: Email) =
+        transaction(database) {
+            val targetUser = (Users.select { Users.username eq userToFollow.value }.firstOrNull()
+                ?: throw UserNotFoundException(userToFollow.value)).toUser()
+            val sourceUser = (Users.select { Users.email eq followerEmail.value }.firstOrNull()
+                ?: throw UserNotFoundException(followerEmail.value)).toUser()
+
+            val isFollowing =
+                Following.select { (Following.sourceId eq sourceUser.id) and (Following.targetId eq targetUser.id) }
+                    .any()
+            if (isFollowing) {
+                Following.deleteWhere { (Following.sourceId eq sourceUser.id) and (Following.targetId eq targetUser.id) }
+            }
+
+            Profile(
+                targetUser.username,
+                targetUser.bio,
+                targetUser.image,
+                false
             )
         }
 }

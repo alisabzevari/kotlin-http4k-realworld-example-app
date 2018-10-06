@@ -25,7 +25,8 @@ class Router(
     val getCurrentUser: GetCurrentUserHandler,
     val updateCurrentUser: UpdateCurrentUserHandler,
     val getProfile: GetProfileHandler,
-    val followUser: FollowUserHandler
+    val followUser: FollowUserHandler,
+    val unfollowUser: UnfollowUserHandler
 ) {
     private val contexts = RequestContexts()
     private val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
@@ -50,7 +51,10 @@ class Router(
                     ),
                     "/api/profiles/{username}" bind routes(
                         "/" bind Method.GET to getProfile(),
-                        "/follow" bind Method.POST to TokenAuth(tokenInfoKey).then(followUser())
+                        "/follow" bind routes(
+                            "/" bind Method.POST to TokenAuth(tokenInfoKey).then(followUser()),
+                            "/" bind Method.DELETE to TokenAuth(tokenInfoKey).then(unfollowUser())
+                        )
                     )
                 )
             )
@@ -100,6 +104,13 @@ class Router(
         val username = usernameLens(req)
         val tokenInfo = tokenInfoKey(req)
         val result = followUser(username, tokenInfo)
+        profileLens(ProfileResponse(result), Response(Status.OK))
+    }
+
+    private fun unfollowUser() = { req: Request ->
+        val username = usernameLens(req)
+        val tokenInfo = tokenInfoKey(req)
+        val result = unfollowUser(username, tokenInfo)
         profileLens(ProfileResponse(result), Response(Status.OK))
     }
 }
