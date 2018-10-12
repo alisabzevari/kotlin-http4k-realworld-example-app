@@ -24,6 +24,7 @@ fun main(args: Array<String>) {
     val followUserHandler = FollowUserHandlerImpl(repository)
     val unfollowUserHandler = UnfollowUserHandlerImpl(repository)
     val getArticlesFeed = GetArticlesFeedHandlerImpl(repository)
+    val getTags = GetTagsHandlerImpl(repository)
 
     val app = Router(
         loginHandler,
@@ -33,7 +34,8 @@ fun main(args: Array<String>) {
         getProfileHandler,
         followUserHandler,
         unfollowUserHandler,
-        getArticlesFeed
+        getArticlesFeed,
+        getTags
     )()
 
     logger.info("Starting server...")

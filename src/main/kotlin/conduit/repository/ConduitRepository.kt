@@ -18,6 +18,7 @@ interface ConduitRepository {
     fun followUser(userToFollow: Username, followerEmail: Email): Profile
     fun unfollowUser(userToFollow: Username, followerEmail: Email): Profile
     fun getArticlesFeed(email: Email, offset: Int, limit: Int): MultipleArticles
+    fun getTags(): List<ArticleTag>
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
@@ -186,6 +187,10 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
         }
 
         MultipleArticles(resultArticles, articlesCount)
+    }
+
+    override fun getTags() = transaction(database) {
+        Tags.selectAll().map { ArticleTag(it[Tags.tag]) }
     }
 }
 

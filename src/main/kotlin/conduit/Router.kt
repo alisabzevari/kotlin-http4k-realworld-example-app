@@ -1,10 +1,7 @@
 package conduit
 
 import conduit.handler.*
-import conduit.model.Article
-import conduit.model.Profile
-import conduit.model.UpdateUser
-import conduit.model.Username
+import conduit.model.*
 import conduit.util.CatchHttpExceptions
 import conduit.util.TokenAuth
 import conduit.util.createErrorResponse
@@ -25,7 +22,8 @@ class Router(
     val getProfile: GetProfileHandler,
     val followUser: FollowUserHandler,
     val unfollowUser: UnfollowUserHandler,
-    val getArticlesFeed: GetArticlesFeedHandler
+    val getArticlesFeed: GetArticlesFeedHandler,
+    val getTags: GetTagsHandler
 ) {
     private val contexts = RequestContexts()
     private val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
@@ -57,7 +55,8 @@ class Router(
                     ),
                     "/api/articles" bind routes(
                         "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed())
-                    )
+                    ),
+                    "/api/tags" bind Method.GET to getTagsHandler()
                 )
             )
 
@@ -130,6 +129,16 @@ class Router(
             Response(Status.OK)
         )
     }
+
+    private val tagsResponseLens = Body.auto<TagsResponse>().toLens()
+
+    private fun getTagsHandler() = { re: Request ->
+        val result = getTags()
+        tagsResponseLens(
+            TagsResponse(result),
+            Response(Status.OK)
+        )
+    }
 }
 
 data class LoginUserRequest(val user: LoginUserDto)
@@ -143,3 +152,5 @@ data class UpdateUserRequest(val user: UpdateUser)
 data class ProfileResponse(val profile: Profile)
 
 data class MultipleArticlesResponse(val articles: List<Article>, val articlesCount: Int)
+
+data class TagsResponse(val tags: List<ArticleTag>)
