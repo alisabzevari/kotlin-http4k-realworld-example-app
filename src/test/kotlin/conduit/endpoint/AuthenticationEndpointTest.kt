@@ -3,11 +3,11 @@ package conduit.endpoint
 import conduit.Router
 import conduit.handler.InvalidUserPassException
 import conduit.handler.UserDto
-import conduit.handler.UserNotFoundException
 import conduit.model.Bio
 import conduit.model.Email
 import conduit.model.Token
 import conduit.model.Username
+import conduit.repository.UserNotFoundException
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -84,7 +84,7 @@ class AuthenticationEndpointTest {
 
     @Test
     fun `should return error when the user not found`() {
-        every { router.login(any()) } throws UserNotFoundException("xxx")
+        every { router.login(any()) } throws InvalidUserPassException()
 
         @Language("JSON")
         val requestBody = """
@@ -104,7 +104,7 @@ class AuthenticationEndpointTest {
             {
               "errors": {
                 "body": [
-                  "User xxx not found."
+                  "Invalid username or password."
                 ]
               }
             }

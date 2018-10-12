@@ -3,6 +3,7 @@ package conduit.handler
 import conduit.model.Email
 import conduit.model.Password
 import conduit.model.Username
+import conduit.repository.UserAlreadyExistsException
 import conduit.util.parse
 import io.mockk.every
 import io.mockk.mockk

@@ -1,12 +1,12 @@
 package conduit.endpoint
 
 import conduit.Router
-import conduit.handler.UserAlreadyExistsException
 import conduit.handler.UserDto
 import conduit.model.Bio
 import conduit.model.Email
 import conduit.model.Token
 import conduit.model.Username
+import conduit.repository.UserAlreadyExistsException
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request

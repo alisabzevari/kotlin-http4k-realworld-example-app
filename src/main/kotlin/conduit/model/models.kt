@@ -3,6 +3,7 @@ package conduit.model
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
 import conduit.util.TokenAuth
+import org.joda.time.Instant
 import com.fasterxml.jackson.annotation.JsonCreator.Mode.DELEGATING as m
 
 data class Email @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
@@ -60,3 +61,36 @@ data class Profile(
 )
 
 fun TokenAuth.TokenInfo.extractEmail() = Email(claims["email"].toString())
+
+data class ArticleSlug @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
+    override fun toString(): String = this.value
+}
+
+data class ArticleTitle @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
+    override fun toString(): String = this.value
+}
+
+data class ArticleDescription @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
+    override fun toString(): String = this.value
+}
+
+data class ArticleBody @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
+    override fun toString(): String = this.value
+}
+
+data class ArticleTag @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
+    override fun toString(): String = this.value
+}
+
+data class Article(
+    val slug: ArticleSlug,
+    val title: ArticleTitle,
+    val description: ArticleDescription,
+    val body: ArticleBody,
+    val tagList: List<ArticleTag>,
+    val createdAt: Instant,
+    val updatedAt: Instant,
+    val favorited: Boolean,
+    val favoritesCount: Int,
+    val author: Profile
+)

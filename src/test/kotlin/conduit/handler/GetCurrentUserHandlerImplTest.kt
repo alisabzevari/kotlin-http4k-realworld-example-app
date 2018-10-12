@@ -1,6 +1,7 @@
 package conduit.handler
 
 import conduit.model.*
+import conduit.repository.UserNotFoundException
 import conduit.util.TokenAuth
 import conduit.util.hash
 import io.jsonwebtoken.impl.DefaultClaims

@@ -2,6 +2,7 @@ package conduit.handler
 
 import conduit.model.extractEmail
 import conduit.repository.ConduitRepository
+import conduit.repository.UserNotFoundException
 import conduit.util.TokenAuth
 
 interface GetCurrentUserHandler {

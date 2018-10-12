@@ -1,6 +1,7 @@
 package conduit
 
 import conduit.handler.*
+import conduit.model.Article
 import conduit.model.Profile
 import conduit.model.UpdateUser
 import conduit.model.Username
@@ -10,10 +11,7 @@ import conduit.util.createErrorResponse
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
 import org.http4k.format.Jackson.auto
-import org.http4k.lens.Header
-import org.http4k.lens.Path
-import org.http4k.lens.RequestContextKey
-import org.http4k.lens.nonEmptyString
+import org.http4k.lens.*
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
@@ -26,7 +24,8 @@ class Router(
     val updateCurrentUser: UpdateCurrentUserHandler,
     val getProfile: GetProfileHandler,
     val followUser: FollowUserHandler,
-    val unfollowUser: UnfollowUserHandler
+    val unfollowUser: UnfollowUserHandler,
+    val getArticlesFeed: GetArticlesFeedHandler
 ) {
     private val contexts = RequestContexts()
     private val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
@@ -55,6 +54,9 @@ class Router(
                             "/" bind Method.POST to TokenAuth(tokenInfoKey).then(followUser()),
                             "/" bind Method.DELETE to TokenAuth(tokenInfoKey).then(unfollowUser())
                         )
+                    ),
+                    "/api/articles" bind routes(
+                        "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed())
                     )
                 )
             )
@@ -113,6 +115,21 @@ class Router(
         val result = unfollowUser(username, tokenInfo)
         profileLens(ProfileResponse(result), Response(Status.OK))
     }
+
+    private val limitLens = Query.int().defaulted("limit", 20)
+    private val offsetLens = Query.int().defaulted("offset", 0)
+    private val multipleArticlesResponseLens = Body.auto<MultipleArticlesResponse>().toLens()
+
+    private fun getArticlesFeed() = { req: Request ->
+        val tokenInfo = tokenInfoKey(req)
+        val offset = offsetLens(req)
+        val limit = limitLens(req)
+        val result = getArticlesFeed(tokenInfo, offset, limit)
+        multipleArticlesResponseLens(
+            MultipleArticlesResponse(result.articles, result.articlesCount),
+            Response(Status.OK)
+        )
+    }
 }
 
 data class LoginUserRequest(val user: LoginUserDto)
@@ -124,3 +141,5 @@ data class NewUserRequest(val user: NewUserDto)
 data class UpdateUserRequest(val user: UpdateUser)
 
 data class ProfileResponse(val profile: Profile)
+
+data class MultipleArticlesResponse(val articles: List<Article>, val articlesCount: Int)
