@@ -20,6 +20,7 @@
           <option name="pluginClasspaths">
             <array />
           </option>
+          <option name="coroutinesState" value="warn" />
         </compilerArguments>
       </configuration>
     </facet>
@@ -31,7 +32,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../../src/main/kotlin" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/main/resources" type="java-resource" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: org.http4k:http4k-server-jetty:3.33.1" level="project" />
     <orderEntry type="library" name="Gradle: org.http4k:http4k-format-jackson:3.33.1" level="project" />

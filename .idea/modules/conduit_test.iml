@@ -20,6 +20,7 @@
           <option name="pluginClasspaths">
             <array />
           </option>
+          <option name="coroutinesState" value="warn" />
         </compilerArguments>
       </configuration>
     </facet>
@@ -30,7 +31,7 @@
     <content url="file://$MODULE_DIR$/../../src/test">
       <sourceFolder url="file://$MODULE_DIR$/../../src/test/kotlin" isTestSource="true" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="conduit_main" />
     <orderEntry type="library" name="Gradle: org.http4k:http4k-server-jetty:3.33.1" level="project" />
