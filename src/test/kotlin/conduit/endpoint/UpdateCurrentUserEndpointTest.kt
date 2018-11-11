@@ -3,36 +3,35 @@ package conduit.endpoint
 import conduit.Router
 import conduit.handler.UserDto
 import conduit.model.*
+import io.kotlintest.Description
+import io.kotlintest.shouldBe
+import io.kotlintest.specs.StringSpec
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
 import org.intellij.lang.annotations.Language
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
-class UpdateCurrentUserEndpointTest {
+class UpdateCurrentUserEndpointTest : StringSpec() {
     lateinit var router: Router
 
-    @BeforeEach
-    fun beforeEach() {
+    override fun beforeTest(description: Description) {
         router = getRouterToTest()
     }
 
-    @Test
-    fun `should update current user information`() {
-        val user = UserDto(
-            Email("newemail@site.com"),
-            Token("jwt.token.here"),
-            Username("new username"),
-            Bio("new bio"),
-            Image("new image")
-        )
-        every { router.updateCurrentUser(any(), any()) } returns user
+    init {
+        "should update current user information" {
+            val user = UserDto(
+                Email("newemail@site.com"),
+                Token("jwt.token.here"),
+                Username("new username"),
+                Bio("new bio"),
+                Image("new image")
+            )
+            every { router.updateCurrentUser(any(), any()) } returns user
 
-        @Language("JSON")
-        val requestBody = """
+            @Language("JSON")
+            val requestBody = """
             {
               "user": {
                 "email": "newemail@site.com",
@@ -43,14 +42,14 @@ class UpdateCurrentUserEndpointTest {
               }
             }
         """.trimIndent()
-        val request = Request(Method.PUT, "/api/users")
-            .header("Authorization", "Token ${generateTestToken().value}")
-            .body(requestBody)
+            val request = Request(Method.PUT, "/api/users")
+                .header("Authorization", "Token ${generateTestToken().value}")
+                .body(requestBody)
 
-        val resp = router()(request)
+            val resp = router()(request)
 
-        @Language("JSON")
-        val expectedResponseBody = """
+            @Language("JSON")
+            val expectedResponseBody = """
             {
               "user": {
                 "email": "${user.email.value}",
@@ -61,7 +60,8 @@ class UpdateCurrentUserEndpointTest {
               }
             }
         """.trimIndent()
-        assertEquals(Status.OK, resp.status)
-        resp.expectJsonResponse(expectedResponseBody)
+            resp.status.shouldBe(Status.OK)
+            resp.expectJsonResponse(expectedResponseBody)
+        }
     }
 }

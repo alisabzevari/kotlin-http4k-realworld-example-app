@@ -4,37 +4,36 @@ import conduit.model.Email
 import conduit.model.Token
 import conduit.util.TokenAuth
 import io.jsonwebtoken.impl.DefaultClaims
+import io.kotlintest.Description
+import io.kotlintest.shouldBe
+import io.kotlintest.specs.StringSpec
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
-class GetArticlesFeedHandlerImplTest {
+class GetArticlesFeedHandlerImplTest : StringSpec() {
     lateinit var unit: GetArticlesFeedHandlerImpl
 
-    @BeforeEach
-    fun beforeEach() {
+    override fun beforeTest(description: Description) {
         unit = GetArticlesFeedHandlerImpl(
             repository = mockk(relaxed = true)
         )
     }
 
-    @Test
-    fun `should return articles feed`() {
-        val articlesFeed = MultipleArticles(
-            emptyList(),
-            10
-        )
-        every { unit.repository.getArticlesFeed(any(), any(), any()) } returns articlesFeed
+    init {
+        "should return articles feed" {
+            val articlesFeed = MultipleArticles(
+                emptyList(),
+                10
+            )
+            every { unit.repository.getArticlesFeed(any(), any(), any()) } returns articlesFeed
 
-        val followerEmail = Email("email@site.com")
-        val tokenInfo = TokenAuth.TokenInfo(Token("token"), DefaultClaims(mapOf("email" to followerEmail.value)))
+            val followerEmail = Email("email@site.com")
+            val tokenInfo = TokenAuth.TokenInfo(Token("token"), DefaultClaims(mapOf("email" to followerEmail.value)))
 
-        val result = unit(tokenInfo, 10, 10)
+            val result = unit(tokenInfo, 10, 10)
 
-        assertEquals(articlesFeed.articlesCount, result.articlesCount)
-        assertEquals(articlesFeed.articles, result.articles)
+            result.articlesCount.shouldBe(articlesFeed.articlesCount)
+            result.articles.shouldBe(articlesFeed.articles)
+        }
     }
-
 }

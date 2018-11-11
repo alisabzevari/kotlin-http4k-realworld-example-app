@@ -7,92 +7,91 @@ import conduit.model.Email
 import conduit.model.Token
 import conduit.model.Username
 import conduit.repository.UserAlreadyExistsException
+import io.kotlintest.Description
+import io.kotlintest.shouldBe
+import io.kotlintest.specs.StringSpec
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
 import org.intellij.lang.annotations.Language
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
-class RegistrationEndpointTest {
+class RegistrationEndpointTest : StringSpec() {
     lateinit var router: Router
 
-    @BeforeEach
-    fun beforeEach() {
+    override fun beforeTest(description: Description) {
         router = getRouterToTest()
     }
 
-    @Test
-    fun `should return User on successful registration`() {
-        every { router.registerUser(any()) } returns UserDto(
-            Email("jake@jake.jake"),
-            Token("jwt.token.here"),
-            Username("jake"),
-            Bio("I work at statefarm"),
-            null
-        )
+    init {
+        "should return User on successful registration" {
+            every { router.registerUser(any()) } returns UserDto(
+                Email("jake@jake.jake"),
+                Token("jwt.token.here"),
+                Username("jake"),
+                Bio("I work at statefarm"),
+                null
+            )
 
-        @Language("JSON")
-        val requestBody = """
-            {
-              "user":{
-                "username": "Jacob",
-                "email": "jake@jake.jake",
-                "password": "jakejake"
-              }
-            }
-        """.trimIndent()
-        val request = Request(Method.POST, "/api/users").body(requestBody)
+            @Language("JSON")
+            val requestBody = """
+                {
+                  "user":{
+                    "username": "Jacob",
+                    "email": "jake@jake.jake",
+                    "password": "jakejake"
+                  }
+                }
+            """.trimIndent()
+            val request = Request(Method.POST, "/api/users").body(requestBody)
 
-        val resp = router()(request)
+            val resp = router()(request)
 
-        @Language("JSON")
-        val expectedResponseBody = """
-            {
-              "user": {
-                "email": "jake@jake.jake",
-                "token": "jwt.token.here",
-                "username": "jake",
-                "bio": "I work at statefarm",
-                "image": null
-              }
-            }
-        """.trimIndent()
-        assertEquals(Status.CREATED, resp.status)
-        resp.expectJsonResponse(expectedResponseBody)
-    }
+            @Language("JSON")
+            val expectedResponseBody = """
+                {
+                  "user": {
+                    "email": "jake@jake.jake",
+                    "token": "jwt.token.here",
+                    "username": "jake",
+                    "bio": "I work at statefarm",
+                    "image": null
+                  }
+                }
+          """.trimIndent()
+            resp.status.shouldBe(Status.CREATED)
+            resp.expectJsonResponse(expectedResponseBody)
+        }
 
-    @Test
-    fun `should return CONFLICT if user already exist`() {
-        every { router.registerUser(any()) } throws UserAlreadyExistsException()
+        "should return CONFLICT if user already exist" {
+            every { router.registerUser(any()) } throws UserAlreadyExistsException()
 
-        @Language("JSON")
-        val requestBody = """
-            {
-              "user":{
-                "username": "Jacob",
-                "email": "jake@jake.jake",
-                "password": "jakejake"
-              }
-            }
-        """.trimIndent()
-        val request = Request(Method.POST, "/api/users").body(requestBody)
+            @Language("JSON")
+            val requestBody = """
+                {
+                  "user":{
+                    "username": "Jacob",
+                    "email": "jake@jake.jake",
+                    "password": "jakejake"
+                  }
+                }
+            """.trimIndent()
+            val request = Request(Method.POST, "/api/users").body(requestBody)
 
-        val resp = router()(request)
+            val resp = router()(request)
 
-        @Language("JSON")
-        val expectedResponseBody = """
-            {
-              "errors": {
-                "body": [
-                  "The specified user already exists."
-                ]
-              }
-            }
-        """.trimIndent()
-        resp.expectJsonResponse(expectedResponseBody)
-        assertEquals(Status.CONFLICT, resp.status)
+            @Language("JSON")
+            val expectedResponseBody = """
+                {
+                  "errors": {
+                    "body": [
+                      "The specified user already exists."
+                    ]
+                  }
+                }
+            """.trimIndent()
+            resp.expectJsonResponse(expectedResponseBody)
+            resp.status.shouldBe(Status.CONFLICT)
+        }
     }
 }

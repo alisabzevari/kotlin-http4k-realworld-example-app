@@ -32,10 +32,11 @@
       <sourceFolder url="file://$MODULE_DIR$/../../src/main/kotlin" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/main/resources" type="java-resource" />
     </content>
-    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: org.http4k:http4k-server-jetty:3.33.1" level="project" />
     <orderEntry type="library" name="Gradle: org.http4k:http4k-format-jackson:3.33.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.http4k:http4k-client-apache:3.33.1" level="project" />
     <orderEntry type="library" name="Gradle: org.http4k:http4k-core:3.33.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.51" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.exposed:exposed:0.10.3" level="project" />
@@ -66,9 +67,12 @@
     <orderEntry type="library" name="Gradle: javax.servlet:javax.servlet-api:4.0.0" level="project" />
     <orderEntry type="library" name="Gradle: javax.websocket:javax.websocket-api:1.1" level="project" />
     <orderEntry type="library" name="Gradle: org.mortbay.jetty.alpn:alpn-boot:8.1.12.v20180117" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.5.4" level="project" />
     <orderEntry type="library" name="Gradle: joda-time:joda-time:2.9.9" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.8.0-alpha2" level="project" />
     <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.18" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.51" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.http2:http2-common:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.http2:http2-hpack:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:javax-websocket-client-impl:9.4.11.v20180605" level="project" />
@@ -79,6 +83,9 @@
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-io:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: org.conscrypt:conscrypt-openjdk-uber:1.0.0.RC11" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.7" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.10" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-jndi:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-xml:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-util:9.4.11.v20180605" level="project" />
@@ -89,7 +96,5 @@
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm:6.2" level="project" />
     <orderEntry type="library" name="Gradle: javax.websocket:javax.websocket-client-api:1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:websocket-api:9.4.11.v20180605" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.51" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
   </component>
 </module>

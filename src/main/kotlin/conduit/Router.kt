@@ -38,6 +38,7 @@ class Router(
             .then(ServerFilters.InitialiseRequestContext(contexts))
             .then(
                 routes(
+                    "/healthcheck" bind Method.GET to { Response(Status.OK) },
                     "/api/users" bind routes(
                         "/login" bind Method.POST to login(),
                         "/" bind routes(

@@ -5,9 +5,9 @@ import conduit.model.Email
 import conduit.model.Username
 import conduit.util.generateToken
 import conduit.util.toJsonTree
+import io.kotlintest.shouldBe
 import io.mockk.mockk
 import org.http4k.core.Response
-import kotlin.test.assertEquals
 
 fun getRouterToTest() = Router(
     login = mockk(relaxed = true),
@@ -22,9 +22,9 @@ fun getRouterToTest() = Router(
 )
 
 fun Response.expectJsonResponse(expectedBody: String? = null) {
-    assertEquals("application/json; charset=utf-8", this.header("Content-Type"))
+    this.header("Content-Type").shouldBe("application/json; charset=utf-8")
     if (expectedBody != null) {
-        assertEquals(expectedBody.toJsonTree(), this.bodyString().toJsonTree())
+        this.bodyString().toJsonTree().shouldBe(expectedBody.toJsonTree())
     }
 }
 

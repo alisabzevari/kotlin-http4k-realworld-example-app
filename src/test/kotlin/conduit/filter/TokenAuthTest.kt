@@ -4,16 +4,16 @@ import conduit.model.Email
 import conduit.model.Username
 import conduit.util.TokenAuth
 import conduit.util.generateToken
+import io.kotlintest.matchers.string.shouldMatch
+import io.kotlintest.shouldBe
+import io.kotlintest.specs.StringSpec
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
 import org.http4k.lens.RequestContextKey
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
-class TokenAuthTest {
+class TokenAuthTest: StringSpec() {
     private val contexts = RequestContexts()
     private val key = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
 
@@ -23,53 +23,49 @@ class TokenAuthTest {
             routes("/auth" bind Method.GET to { req -> Response(Status.OK).body(key(req).claims.entries.toString()) })
         )
 
-    @Test
-    fun `empty header`() {
-        val res = router(Request(Method.GET, "/auth"))
+    init {
+        "empty header" {
+            val res = router(Request(Method.GET, "/auth"))
 
-        assertEquals(Status.UNAUTHORIZED, res.status)
-    }
+            res.status.shouldBe(Status.UNAUTHORIZED)
+        }
 
-    @Test
-    fun `empty authorization header`() {
-        val res = router(Request(Method.GET, "/auth").header("Authorization", ""))
+        "empty authorization header" {
+            val res = router(Request(Method.GET, "/auth").header("Authorization", ""))
 
-        assertEquals(Status.UNAUTHORIZED, res.status)
-    }
+            res.status.shouldBe(Status.UNAUTHORIZED)
+        }
 
-    @Test
-    fun `authorization header with incorrect format - 1`() {
-        val res = router(Request(Method.GET, "/auth").header("Authorization", "Basic test"))
+        "authorization header with incorrect format - 1" {
+            val res = router(Request(Method.GET, "/auth").header("Authorization", "Basic test"))
 
-        assertEquals(Status.UNAUTHORIZED, res.status)
-    }
+            res.status.shouldBe(Status.UNAUTHORIZED)
+        }
 
-    @Test
-    fun `authorization header with incorrect format - 2`() {
-        val res = router(Request(Method.GET, "/auth").header("Authorization", "Tokenssdsd"))
+        "authorization header with incorrect format - 2" {
+            val res = router(Request(Method.GET, "/auth").header("Authorization", "Tokenssdsd"))
 
-        assertEquals(Status.UNAUTHORIZED, res.status)
-    }
+            res.status.shouldBe(Status.UNAUTHORIZED)
+        }
 
-    @Test
-    fun `authorization header with invalid token`() {
-        val res = router(
-            Request(Method.GET, "/auth").header(
-                "Authorization",
-                "Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFsaSIsImVtYWlsIjoiYWxpc2FiemV2YXJzaUBnbWFpbC5jb20iLCJleHAiOjE1MzgyOTUyMzh9.jQlVD0b9Q2R0HYkiC6LHXgIm6VBcvBq9mOFGQVUgYNg"
+        "authorization header with invalid token" {
+            val res = router(
+                Request(Method.GET, "/auth").header(
+                    "Authorization",
+                    "Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFsaSIsImVtYWlsIjoiYWxpc2FiemV2YXJzaUBnbWFpbC5jb20iLCJleHAiOjE1MzgyOTUyMzh9.jQlVD0b9Q2R0HYkiC6LHXgIm6VBcvBq9mOFGQVUgYNg"
+                )
             )
-        )
 
-        assertEquals(Status.UNAUTHORIZED, res.status)
-    }
+            res.status.shouldBe(Status.UNAUTHORIZED)
+        }
 
-    @Test
-    fun `authorization header with valid token`() {
-        val token = generateToken(Username("ali"), Email("alisabzevari@gmail.com"))
+        "authorization header with valid token" {
+            val token = generateToken(Username("ali"), Email("alisabzevari@gmail.com"))
 
-        val res = router(Request(Method.GET, "/auth").header("Authorization", "Token ${token.value}"))
+            val res = router(Request(Method.GET, "/auth").header("Authorization", "Token ${token.value}"))
 
-        assertEquals(Status.OK, res.status)
-        assertTrue(res.bodyString().matches(Regex("\\[username=ali, email=alisabzevari@gmail.com, exp=\\d*]")))
+            res.status.shouldBe(Status.OK)
+            res.bodyString().shouldMatch(Regex("\\[username=ali, email=alisabzevari@gmail.com, exp=\\d*]"))
+        }
     }
 }

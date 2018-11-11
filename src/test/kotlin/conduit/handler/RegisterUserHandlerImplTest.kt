@@ -5,55 +5,54 @@ import conduit.model.Password
 import conduit.model.Username
 import conduit.repository.UserAlreadyExistsException
 import conduit.util.parse
+import io.kotlintest.Description
+import io.kotlintest.matchers.string.shouldContain
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
+import io.kotlintest.specs.StringSpec
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
-class RegisterUserHandlerImplTest {
+class RegisterUserHandlerImplTest : StringSpec() {
     lateinit var unit: RegisterUserHandlerImpl
 
-    @BeforeEach
-    fun beforeEach() {
+    override fun beforeTest(description: Description) {
         unit = RegisterUserHandlerImpl(
             repository = mockk(relaxed = true)
         )
     }
 
-    @Test
-    fun `should return a user object on successful result`() {
-        val newUser = NewUserDto(
-            Username("name"),
-            Password("password"),
-            Email("email@site.com")
-        )
+    init {
+        "should return a user object on successful result" {
+            val newUser = NewUserDto(
+                Username("name"),
+                Password("password"),
+                Email("email@site.com")
+            )
 
-        val result = unit(newUser)
+            val result = unit(newUser)
 
-        assertEquals(newUser.email, result.email)
-        assertEquals(newUser.username, result.username)
-        val parsedToken = result.token.parse()
-        assertEquals(newUser.username.value, parsedToken["username"])
-        assertEquals(newUser.email.value, parsedToken["email"])
-    }
+            val parsedToken = result.token.parse()
 
-    @Test
-    fun `should throw exception if the user already exists`() {
-        every { unit.repository.insertUser(any()) } throws UserAlreadyExistsException()
-        val newUser = NewUserDto(
-            Username("name"),
-            Password("password"),
-            Email("email@site.com")
-        )
-
-        val exception = assertThrows<UserAlreadyExistsException> {
-            unit(newUser)
+            result.email.shouldBe(newUser.email)
+            result.username.shouldBe(newUser.username)
+            parsedToken["username"].shouldBe(newUser.username.value)
+            parsedToken["email"].shouldBe(newUser.email.value)
         }
 
-        assertTrue(exception.message!!.contains("The specified user already exists."))
-    }
+        "should throw exception if the user already exists" {
+            every { unit.repository.insertUser(any()) } throws UserAlreadyExistsException()
+            val newUser = NewUserDto(
+                Username("name"),
+                Password("password"),
+                Email("email@site.com")
+            )
 
+            val exception = shouldThrow<UserAlreadyExistsException> {
+                unit(newUser)
+            }
+
+            exception.message!!.shouldContain("The specified user already exists.")
+        }
+    }
 }

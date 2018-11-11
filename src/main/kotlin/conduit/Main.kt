@@ -1,19 +1,26 @@
 package conduit
 
+import conduit.config.AppConfig
 import conduit.handler.*
 import conduit.repository.ConduitRepositoryImpl
 import org.apache.logging.log4j.core.config.Configurator
+import org.http4k.server.Http4kServer
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
 
 fun main(args: Array<String>) {
-    Configurator.initialize(null, "log4j2-local.yaml")
+    val server = startApp(conduit.config.local)
+    server.block()
+}
+
+fun startApp(config: AppConfig): Http4kServer {
+    Configurator.initialize(null, config.logConfig)
 
     val logger = LoggerFactory.getLogger("main")
 
-    val database = Database.connect("jdbc:h2:~/conduit-db/conduit", driver = "org.h2.Driver")
+    val database = Database.connect(config.db.url, driver = config.db.driver)
     val repository = ConduitRepositoryImpl(database)
 
     val loginHandler = LoginHandlerImpl(repository)
@@ -39,6 +46,7 @@ fun main(args: Array<String>) {
     )()
 
     logger.info("Starting server...")
-    app.asServer(Jetty(9000)).start()
-    logger.info("Server started on port 9000")
+    val server = app.asServer(Jetty(config.port)).start()
+    logger.info("Server started on port ${config.port}")
+    return server
 }
