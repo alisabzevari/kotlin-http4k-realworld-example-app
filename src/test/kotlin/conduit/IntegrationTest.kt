@@ -16,7 +16,7 @@ class App : Closeable {
     val config: AppConfig = AppConfig(
         "log4j2.yaml",
         DbConfig(
-            "jdbc:h2:mem:conduit-test-db",
+            "jdbc:h2:mem:conduittestdb;DB_CLOSE_DELAY=-1",
             "org.h2.Driver"
         ),
         9192
@@ -28,7 +28,24 @@ class App : Closeable {
     }
 
     fun resetDb() {
-        // ...
+        val command = "SET REFERENTIAL_INTEGRITY FALSE;" +
+                getAllTables().map { "TRUNCATE TABLE $it;" }.joinToString("") +
+                "SET REFERENTIAL_INTEGRITY TRUE;"
+        val statement = db.connector().createStatement()
+
+        statement.execute(command)
+        db.connector().commit()
+    }
+
+    private fun getAllTables(): MutableList<String> {
+        val statement = db.connector().createStatement()
+        val sqlResult = statement.executeQuery("SHOW TABLES")
+        val result = mutableListOf<String>()
+
+        while (sqlResult.next()) {
+            result.add(sqlResult.getString(1))
+        }
+        return result
     }
 
     override fun close() {

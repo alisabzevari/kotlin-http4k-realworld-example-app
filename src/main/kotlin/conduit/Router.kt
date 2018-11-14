@@ -33,7 +33,8 @@ class Router(
             .then(ServerFilters.CatchLensFailure {
                 createErrorResponse(
                     Status.BAD_REQUEST,
-                    it.failures.map { it.toString() })
+                    if (it.cause != null) listOf(it.cause?.message!!) else it.failures.map { it.toString() } // TODO: improve error message creation logic
+                )
             })
             .then(ServerFilters.InitialiseRequestContext(contexts))
             .then(

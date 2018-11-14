@@ -11,12 +11,10 @@ import org.http4k.core.Status
 class HealthcheckTest: StringSpec() {
     init {
         val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
-        val client = ApacheClient()
+        val send = ApacheClient()
 
         "healthcheck should work" {
-            val response = client(
-                Request(Method.GET, "$baseUrl/healthcheck")
-            )
+            val response = send(Request(Method.GET, "$baseUrl/healthcheck"))
 
             response.status.shouldBe(Status.OK)
         }

@@ -5,10 +5,8 @@ import conduit.model.*
 import conduit.util.HttpException
 import org.http4k.core.Status
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import org.jetbrains.exposed.sql.transactions.transaction
 
 interface ConduitRepository {
     fun findUserByEmail(email: Email): User?
