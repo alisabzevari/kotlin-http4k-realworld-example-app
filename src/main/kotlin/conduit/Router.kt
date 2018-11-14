@@ -134,7 +134,7 @@ class Router(
 
     private val tagsResponseLens = Body.auto<TagsResponse>().toLens()
 
-    private fun getTagsHandler() = { re: Request ->
+    private fun getTagsHandler() = { _: Request ->
         val result = getTags()
         tagsResponseLens(
             TagsResponse(result),
