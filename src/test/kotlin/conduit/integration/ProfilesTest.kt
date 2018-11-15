@@ -3,7 +3,6 @@ package conduit.integration
 import conduit.IntegrationTest
 import conduit.util.toJsonTree
 import conduit.utils.shouldContainJsonNode
-import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.http4k.client.ApacheClient
@@ -12,113 +11,49 @@ import org.http4k.core.Request
 import org.http4k.core.Status
 import org.intellij.lang.annotations.Language
 
-class AuthTest : StringSpec() {
+class ProfilesTest : StringSpec() {
     val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
     val send = ApacheClient()
 
     init {
-        "Register" {
-            IntegrationTest.app.resetDb()
-
-            val response = registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
-
-            @Language("JSON")
-            val expectedResponse = """
-            {
-              "user": {
-                "email": "jjacob@gmail.com",
-                "username": "johnjacob",
-                "bio": null,
-                "image": null
-              }
-            }""".trimIndent().toJsonTree()
-            val responseBody = response.bodyString().toJsonTree()
-
-            responseBody.shouldContainJsonNode(expectedResponse)
-            responseBody["user"]["token"].isValueNode.shouldBeTrue()
-        }
-
-        "Login" {
-            IntegrationTest.app.resetDb()
-            registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
-
-            @Language("JSON")
-            val loginReqBody = """
-              {
-                "user": {
-                  "email": "jjacob@gmail.com",
-                  "password": "jjcb"
-                }
-              }
-            """.trimIndent()
-
-            val response = send(Request(Method.POST, "$baseUrl/api/users/login").body(loginReqBody))
-            val responseBody = response.bodyString().toJsonTree()
-
-            @Language("JSON")
-            val expectedResponse = """
-              {
-                "user": {
-                  "email": "jjacob@gmail.com",
-                  "username": "johnjacob",
-                  "bio": "",
-                  "image": null
-                }
-              }
-            """.trimIndent().toJsonTree()
-            response.status.shouldBe(Status.OK)
-            responseBody.shouldContainJsonNode(expectedResponse)
-            responseBody["user"]["token"].isValueNode.shouldBeTrue()
-        }
-
-        "Current User" {
+        "Profile" {
             IntegrationTest.app.resetDb()
             registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
             val token = login("jjacob@gmail.com", "jjcb")
-            val request = Request(Method.GET, "$baseUrl/api/user")
+            val request = Request(Method.GET, "$baseUrl/api/profiles/johnjacob")
                 .header("Content-Type", "application/json")
                 .header("X-Requested-With", "XMLHttpRequest")
                 .header("Authorization", "Token $token")
 
             val response = send(request)
-
             response.status.shouldBe(Status.OK)
             val responseBody = response.bodyString().toJsonTree()
 
             @Language("JSON")
             val expectedResponse = """
               {
-                "user": {
-                  "email": "jjacob@gmail.com",
+                "profile": {
                   "username": "johnjacob",
                   "bio": "",
-                  "image": null
+                  "image": null,
+                  "following": false
                 }
               }
             """.trimIndent().toJsonTree()
             responseBody.shouldContainJsonNode(expectedResponse)
-            responseBody["user"]["token"].isValueNode.shouldBeTrue()
         }
 
-        "Update User" {
+        "Follow Profile" {
             IntegrationTest.app.resetDb()
             registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
             val token = login("jjacob@gmail.com", "jjcb")
-            val newEmail = "jjacob2@gmail.com"
 
-            @Language("JSON")
-            val reqBody = """
-              {
-                "user": {
-                  "email": "$newEmail"
-                }
-              }
-            """.trimIndent()
-            val request = Request(Method.PUT, "$baseUrl/api/user")
+            registerUser("rick@gmail.com", "rick", "rck")
+
+            val request = Request(Method.POST, "$baseUrl/api/profiles/rick/follow")
                 .header("Content-Type", "application/json")
                 .header("X-Requested-With", "XMLHttpRequest")
                 .header("Authorization", "Token $token")
-                .body(reqBody)
 
             val response = send(request)
             response.status.shouldBe(Status.OK)
@@ -127,11 +62,47 @@ class AuthTest : StringSpec() {
             @Language("JSON")
             val expectedResponse = """
               {
-                "user": {
-                  "email": "$newEmail",
-                  "username": "johnjacob",
+                "profile": {
+                  "username": "rick",
                   "bio": "",
-                  "image": null
+                  "image": null,
+                  "following": true
+                }
+              }
+            """.trimIndent().toJsonTree()
+            responseBody.shouldContainJsonNode(expectedResponse)
+        }
+
+        "Unfollow Profile" {
+            IntegrationTest.app.resetDb()
+            registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
+            val token = login("jjacob@gmail.com", "jjcb")
+
+            registerUser("rick@gmail.com", "rick", "rck")
+
+            val request = Request(Method.POST, "$baseUrl/api/profiles/rick/follow")
+                .header("Content-Type", "application/json")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .header("Authorization", "Token $token")
+            val response = send(request)
+            response.status.shouldBe(Status.OK)
+
+            val unfollowReq = Request(Method.DELETE, "$baseUrl/api/profiles/rick/follow")
+                .header("Content-Type", "application/json")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .header("Authorization", "Token $token")
+            val unfollowRes = send(unfollowReq)
+            unfollowRes.status.shouldBe(Status.OK)
+            val responseBody = unfollowRes.bodyString().toJsonTree()
+
+            @Language("JSON")
+            val expectedResponse = """
+              {
+                "profile": {
+                  "username": "rick",
+                  "bio": "",
+                  "image": null,
+                  "following": false
                 }
               }
             """.trimIndent().toJsonTree()

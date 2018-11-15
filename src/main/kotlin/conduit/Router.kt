@@ -48,6 +48,10 @@ class Router(
                             Method.PUT to TokenAuth(tokenInfoKey).then(updateCurrentUser())
                         )
                     ),
+                    "/api/user" bind routes( // postman tests calls this endpoint
+                        Method.GET to TokenAuth(tokenInfoKey).then(getCurrentUser()),
+                        Method.PUT to TokenAuth(tokenInfoKey).then(updateCurrentUser())
+                    ),
                     "/api/profiles/{username}" bind routes(
                         "/" bind Method.GET to getProfile(),
                         "/follow" bind routes(
