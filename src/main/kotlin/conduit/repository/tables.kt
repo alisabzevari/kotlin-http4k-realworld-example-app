@@ -1,6 +1,9 @@
 package conduit.repository
 
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.transactions.transaction
 
 object Users : Table("users") {
     val id = integer("id").primaryKey().autoIncrement()
@@ -43,4 +46,17 @@ object Comments : Table("comments") {
     val updatedAt = datetime("updatedAt")
     val body = text("body")
     val authorId = integer("author_id") references Users.id
+}
+
+fun createDb(url: String, driver: String): Database {
+    val database = Database.connect(url, driver = driver)
+    transaction(database) {
+        SchemaUtils.create(Users)
+        SchemaUtils.create(Following)
+        SchemaUtils.create(Articles)
+        SchemaUtils.create(Tags)
+        SchemaUtils.create(Favorites)
+        SchemaUtils.create(Comments)
+    }
+    return database
 }

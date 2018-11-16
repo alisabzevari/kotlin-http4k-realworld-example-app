@@ -1,12 +1,14 @@
 package conduit.repository
 
 import conduit.handler.MultipleArticles
+import conduit.handler.NewArticle
 import conduit.model.*
 import conduit.util.HttpException
 import org.http4k.core.Status
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
 
 interface ConduitRepository {
     fun findUserByEmail(email: Email): User?
@@ -15,21 +17,12 @@ interface ConduitRepository {
     fun getProfile(username: Username, currentUserEmail: Email?): Profile
     fun followUser(userToFollow: Username, followerEmail: Email): Profile
     fun unfollowUser(userToFollow: Username, followerEmail: Email): Profile
+    fun createArticle(newArticle: NewArticle, authorEmail: Email): Article
     fun getArticlesFeed(email: Email, offset: Int, limit: Int): MultipleArticles
     fun getTags(): List<ArticleTag>
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
-    init {
-        transaction(database) {
-            SchemaUtils.create(Users)
-            SchemaUtils.create(Following)
-            SchemaUtils.create(Articles)
-            SchemaUtils.create(Tags)
-            SchemaUtils.create(Favorites)
-            SchemaUtils.create(Comments)
-        }
-    }
 
     private fun byEmail(email: Email) = Users.email eq email.value
     private fun byUsername(username: Username): Op<Boolean> = Users.username eq username.value
@@ -81,7 +74,7 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
                     false
                 } else {
                     val targetUser = (Users.select { Users.email eq currentUserEmail.value }.firstOrNull()
-                            ?: throw UserNotFoundException(currentUserEmail.value)).toUser()
+                        ?: throw UserNotFoundException(currentUserEmail.value)).toUser()
                     Following.select { (Following.sourceId eq userProfile.id) and (Following.targetId eq targetUser.id) }
                         .any()
                 }
@@ -138,9 +131,42 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
             )
         }
 
+    override fun createArticle(newArticle: NewArticle, authorEmail: Email): Article =
+        transaction(database) {
+            val authorUser = getUser(byEmail(authorEmail)) ?: throw UserNotFoundException(authorEmail.value)
+
+            val id = Articles.insert {
+                it[authorId] = authorUser.id
+                it[body] = newArticle.body.value
+                it[createdAt] = DateTime.now()
+                it[description] = newArticle.description.value
+                it[slug] = newArticle.title.value.replace(" ", "-")
+                it[title] = newArticle.title.value
+                it[updatedAt] = DateTime.now()
+            }.get(Articles.id)!!
+
+            newArticle.tagList.forEach { tag ->
+                Tags.insert {
+                    it[Tags.articleId] = id
+                    it[Tags.tag] = tag.value
+                }
+            }
+
+            val articleRow = Articles.select { Articles.id eq id }.single()
+            val authorProfile = Profile(authorUser.username, authorUser.bio, authorUser.image, false)
+
+            articleRow.toArticle(
+                authorProfile,
+                newArticle.tagList,
+                false,
+                0
+            )
+        }
+
+
     override fun getArticlesFeed(email: Email, offset: Int, limit: Int): MultipleArticles = transaction(database) {
         val user = (Users.select { Users.email eq email.value }.firstOrNull()
-                ?: throw UserNotFoundException(email.value)).toUser()
+            ?: throw UserNotFoundException(email.value)).toUser()
         val followedUsers = Following.select { Following.sourceId eq user.id }.map { it.toUser() }
         val articlesCount = Articles.select { Articles.authorId inList followedUsers.map { it.id } }.count()
         val articles = Articles.select { Articles.authorId inList followedUsers.map { it.id } }
@@ -200,6 +226,19 @@ fun ResultRow.toUser() = User(
     username = Username(this[Users.username]),
     bio = this[Users.bio]?.let(::Bio),
     image = this[Users.image]?.let(::Image)
+)
+
+fun ResultRow.toArticle(author: Profile, tags: List<ArticleTag>, favorited: Boolean, favoritesCount: Int) = Article(
+    slug = ArticleSlug(this[Articles.slug]),
+    author = author,
+    body = ArticleBody(this[Articles.body]),
+    createdAt = this[Articles.createdAt].toInstant(),
+    description = ArticleDescription(this[Articles.description]),
+    favorited = favorited,
+    favoritesCount = favoritesCount,
+    tagList = tags,
+    title = ArticleTitle(this[Articles.title]),
+    updatedAt = this[Articles.updatedAt].toInstant()
 )
 
 class UserAlreadyExistsException : HttpException(Status.CONFLICT, "The specified user already exists.")

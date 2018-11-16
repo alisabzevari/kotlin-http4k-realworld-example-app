@@ -3,11 +3,11 @@ package conduit
 import conduit.config.AppConfig
 import conduit.handler.*
 import conduit.repository.ConduitRepositoryImpl
+import conduit.repository.createDb
 import org.apache.logging.log4j.core.config.Configurator
 import org.http4k.server.Http4kServer
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
-import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
 
 fun main(args: Array<String>) {
@@ -20,7 +20,7 @@ fun startApp(config: AppConfig): Http4kServer {
 
     val logger = LoggerFactory.getLogger("main")
 
-    val database = Database.connect(config.db.url, driver = config.db.driver)
+    val database = createDb(config.db.url, driver = config.db.driver)
     val repository = ConduitRepositoryImpl(database)
 
     val loginHandler = LoginHandlerImpl(repository)
@@ -31,6 +31,7 @@ fun startApp(config: AppConfig): Http4kServer {
     val followUserHandler = FollowUserHandlerImpl(repository)
     val unfollowUserHandler = UnfollowUserHandlerImpl(repository)
     val getArticlesFeed = GetArticlesFeedHandlerImpl(repository)
+    val createArticle = CreateArticleHandlerImpl(repository)
     val getTags = GetTagsHandlerImpl(repository)
 
     val app = Router(
@@ -41,6 +42,7 @@ fun startApp(config: AppConfig): Http4kServer {
         getProfileHandler,
         followUserHandler,
         unfollowUserHandler,
+        createArticle,
         getArticlesFeed,
         getTags
     )()

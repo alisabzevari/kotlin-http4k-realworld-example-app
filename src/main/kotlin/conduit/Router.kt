@@ -22,6 +22,7 @@ class Router(
     val getProfile: GetProfileHandler,
     val followUser: FollowUserHandler,
     val unfollowUser: UnfollowUserHandler,
+    val createArticle: CreateArticleHandler,
     val getArticlesFeed: GetArticlesFeedHandler,
     val getTags: GetTagsHandler
 ) {
@@ -60,6 +61,7 @@ class Router(
                         )
                     ),
                     "/api/articles" bind routes(
+                        "/" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticle()),
                         "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed())
                     ),
                     "/api/tags" bind Method.GET to getTagsHandler()
@@ -145,6 +147,18 @@ class Router(
             Response(Status.OK)
         )
     }
+
+    private val newArticleRequestLens = Body.auto<NewArticleRequest>().toLens()
+    private val singleArticleResponseLens = Body.auto<SingleArticleResponse>().toLens()
+
+    private fun createArticle() = { req: Request ->
+        val tokenInfo = tokenInfoKey(req)
+        val newArticle = newArticleRequestLens(req).article
+        singleArticleResponseLens(
+            SingleArticleResponse(createArticle(newArticle, tokenInfo)),
+            Response(Status.CREATED)
+        )
+    }
 }
 
 data class LoginUserRequest(val user: LoginUserDto)
@@ -160,3 +174,7 @@ data class ProfileResponse(val profile: Profile)
 data class MultipleArticlesResponse(val articles: List<Article>, val articlesCount: Int)
 
 data class TagsResponse(val tags: List<ArticleTag>)
+
+data class NewArticleRequest(val article: NewArticle)
+
+data class SingleArticleResponse(val article: Article)
