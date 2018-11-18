@@ -46,6 +46,7 @@
     <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-core:2.10.0" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-api:2.10.0" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.datatype:jackson-datatype-joda:2.9.6" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.module:jackson-module-kotlin:2.9.6" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.9.6" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.9.6" level="project" />
@@ -71,6 +72,7 @@
     <orderEntry type="library" name="Gradle: joda-time:joda-time:2.9.9" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.8.0-alpha2" level="project" />
     <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.18" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.51" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.http2:http2-common:9.4.11.v20180605" level="project" />
@@ -82,7 +84,6 @@
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:websocket-common:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-io:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: org.conscrypt:conscrypt-openjdk-uber:1.0.0.RC11" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.7" level="project" />
     <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
     <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.10" level="project" />

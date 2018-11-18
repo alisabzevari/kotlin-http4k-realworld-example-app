@@ -1,9 +1,9 @@
 package conduit.util
 
 import conduit.model.Token
+import conduit.util.ConduitJackson.auto
 import io.jsonwebtoken.Claims
 import org.http4k.core.*
-import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header
 import org.http4k.lens.RequestContextLens
 import org.slf4j.LoggerFactory

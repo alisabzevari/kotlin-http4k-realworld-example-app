@@ -11,8 +11,6 @@ interface CreateArticleHandler {
 class CreateArticleHandlerImpl(val repository: ConduitRepository) : CreateArticleHandler {
     override fun invoke(newArticle: NewArticle, tokenInfo: TokenAuth.TokenInfo): Article =
         repository.createArticle(newArticle, tokenInfo.extractEmail())
-
-
 }
 
 data class NewArticle(

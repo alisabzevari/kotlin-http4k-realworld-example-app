@@ -3,7 +3,7 @@ package conduit.model
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
 import conduit.util.TokenAuth
-import org.joda.time.Instant
+import org.joda.time.DateTime
 import com.fasterxml.jackson.annotation.JsonCreator.Mode.DELEGATING as m
 
 data class Email @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
@@ -88,9 +88,21 @@ data class Article(
     val description: ArticleDescription,
     val body: ArticleBody,
     val tagList: List<ArticleTag>,
-    val createdAt: Instant,
-    val updatedAt: Instant,
+    val createdAt: DateTime,
+    val updatedAt: DateTime,
     val favorited: Boolean,
     val favoritesCount: Int,
+    val author: Profile
+)
+
+data class CommentBody @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
+    override fun toString(): String = this.value
+}
+
+data class Comment(
+    val id: Int,
+    val createdAt: DateTime,
+    val updatedAt: DateTime,
+    val body: CommentBody,
     val author: Profile
 )

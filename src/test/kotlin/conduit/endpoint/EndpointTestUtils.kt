@@ -19,7 +19,8 @@ fun getRouterToTest() = Router(
     unfollowUser = mockk(relaxed = true),
     getArticlesFeed = mockk(relaxed = true),
     getTags = mockk(relaxed = true),
-    createArticle = mockk(relaxed = true)
+    createArticle = mockk(relaxed = true),
+    createArticleComment = mockk(relaxed = true)
 )
 
 fun Response.expectJsonResponse(expectedBody: String? = null) {

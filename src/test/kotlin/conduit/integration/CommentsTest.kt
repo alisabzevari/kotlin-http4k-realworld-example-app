@@ -12,48 +12,40 @@ import org.http4k.core.Request
 import org.http4k.core.Status
 import org.intellij.lang.annotations.Language
 
-class ArticlesTest: StringSpec() {
+class CommentsTest: StringSpec() {
     val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
     val send = ApacheClient()
 
     init {
-        "POST Article" {
+        "Create a comment for an article" {
             IntegrationTest.app.resetDb()
             registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
             val token = login("jjacob@gmail.com", "jjcb")
+            createArticle(token)
 
             @Language("JSON")
             val requestBody = """
               {
-                "article": {
-                  "title": "article title",
-                  "description": "article description",
-                  "body": "article body",
-                  "tagList": ["tag-1", "tag-2"]
+                "comment": {
+                  "body": "test comment body"
                 }
               }
             """.trimIndent()
-            val request = Request(Method.POST, "$baseUrl/api/articles/")
+            val request = Request(Method.POST, "$baseUrl/api/articles/article-title/comments")
                 .header("Content-Type", "application/json")
                 .header("X-Requested-With", "XMLHttpRequest")
                 .header("Authorization", "Token $token")
                 .body(requestBody)
 
             val response = send(request)
-            response.status.shouldBe(Status.CREATED)
+            response.status.shouldBe(Status.OK)
             val responseBody = response.bodyString().toJsonTree()
 
             @Language("JSON")
             val expectedResponse = """
               {
-                "article": {
-                  "slug": "article-title",
-                  "title": "article title",
-                  "description": "article description",
-                  "body": "article body",
-                  "tagList": ["tag-1", "tag-2"],
-                  "favorited": false,
-                  "favoritesCount": 0,
+                "comment": {
+                  "body": "test comment body",
                   "author": {
                     "username": "johnjacob",
                     "bio": "",
@@ -65,8 +57,31 @@ class ArticlesTest: StringSpec() {
             """.trimIndent().toJsonTree()
 
             responseBody.shouldContainJsonNode(expectedResponse)
-            responseBody["article"]["createdAt"].isTextual.shouldBeTrue()
-            responseBody["article"]["updatedAt"].isTextual.shouldBeTrue()
+            responseBody["comment"]["createdAt"].isTextual.shouldBeTrue()
+            responseBody["comment"]["updatedAt"].isTextual.shouldBeTrue()
+            responseBody["comment"]["id"].isIntegralNumber.shouldBeTrue()
         }
+    }
+
+    fun createArticle(token: String) {
+        @Language("JSON")
+        val requestBody = """
+              {
+                "article": {
+                  "title": "article title",
+                  "description": "article description",
+                  "body": "article body",
+                  "tagList": ["tag-1", "tag-2"]
+                }
+              }
+            """.trimIndent()
+        val request = Request(Method.POST, "$baseUrl/api/articles/")
+            .header("Content-Type", "application/json")
+            .header("X-Requested-With", "XMLHttpRequest")
+            .header("Authorization", "Token $token")
+            .body(requestBody)
+
+        val response = send(request)
+        response.status.shouldBe(Status.CREATED)
     }
 }

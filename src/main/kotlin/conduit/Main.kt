@@ -32,6 +32,7 @@ fun startApp(config: AppConfig): Http4kServer {
     val unfollowUserHandler = UnfollowUserHandlerImpl(repository)
     val getArticlesFeed = GetArticlesFeedHandlerImpl(repository)
     val createArticle = CreateArticleHandlerImpl(repository)
+    val createArticleComment = CreateArticleCommentHandlerImpl(repository)
     val getTags = GetTagsHandlerImpl(repository)
 
     val app = Router(
@@ -43,6 +44,7 @@ fun startApp(config: AppConfig): Http4kServer {
         followUserHandler,
         unfollowUserHandler,
         createArticle,
+        createArticleComment,
         getArticlesFeed,
         getTags
     )()

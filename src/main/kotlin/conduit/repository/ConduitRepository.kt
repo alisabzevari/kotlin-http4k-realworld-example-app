@@ -2,6 +2,7 @@ package conduit.repository
 
 import conduit.handler.MultipleArticles
 import conduit.handler.NewArticle
+import conduit.handler.NewComment
 import conduit.model.*
 import conduit.util.HttpException
 import org.http4k.core.Status
@@ -20,10 +21,10 @@ interface ConduitRepository {
     fun createArticle(newArticle: NewArticle, authorEmail: Email): Article
     fun getArticlesFeed(email: Email, offset: Int, limit: Int): MultipleArticles
     fun getTags(): List<ArticleTag>
+    fun createArticleComment(newComment: NewComment, slug: ArticleSlug, currentUserEmail: Email): Comment
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
-
     private fun byEmail(email: Email) = Users.email eq email.value
     private fun byUsername(username: Username): Op<Boolean> = Users.username eq username.value
     private fun byUserId(id: Int) = Users.id eq id
@@ -202,8 +203,8 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
                 ArticleDescription(it[Articles.description]),
                 ArticleBody(it[Articles.body]),
                 articleTags[it[Articles.id]] ?: emptyList(),
-                it[Articles.createdAt].toInstant(),
-                it[Articles.updatedAt].toInstant(),
+                it[Articles.createdAt],
+                it[Articles.updatedAt],
                 favorited[it[Articles.id]] ?: false,
                 favoritesCount[it[Articles.id]] ?: 0,
                 articleAuthorProfiles[it[Articles.id]] ?: throw Error("Article ${it[Articles.id]} doesn't have Author.")
@@ -212,6 +213,27 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
 
         MultipleArticles(resultArticles, articlesCount)
     }
+
+    override fun createArticleComment(newComment: NewComment, slug: ArticleSlug, currentUserEmail: Email): Comment =
+        transaction(database) {
+            val authorUser = getUser(byEmail(currentUserEmail)) ?: throw UserNotFoundException(currentUserEmail.value)
+
+            val article = Articles.select { Articles.slug eq slug.value }.singleOrNull() ?: throw HttpException(
+                Status.NOT_FOUND,
+                "Article with slug [$slug] not found."
+            )
+
+            val commentId = Comments.insert {
+                it[authorId] = authorUser.id
+                it[body] = newComment.body.value
+                it[createdAt] = DateTime.now()
+                it[updatedAt] = DateTime.now()
+                it[articleId] = article[Articles.id]
+            }.get(Comments.id)!!
+
+            Comments.select { Comments.id eq commentId }.single()
+                .toComment(Profile(authorUser.username, authorUser.bio, authorUser.image, false))
+        }
 
     override fun getTags() = transaction(database) {
         Tags.selectAll().map { ArticleTag(it[Tags.tag]) }
@@ -232,13 +254,21 @@ fun ResultRow.toArticle(author: Profile, tags: List<ArticleTag>, favorited: Bool
     slug = ArticleSlug(this[Articles.slug]),
     author = author,
     body = ArticleBody(this[Articles.body]),
-    createdAt = this[Articles.createdAt].toInstant(),
+    createdAt = this[Articles.createdAt],
     description = ArticleDescription(this[Articles.description]),
     favorited = favorited,
     favoritesCount = favoritesCount,
     tagList = tags,
     title = ArticleTitle(this[Articles.title]),
-    updatedAt = this[Articles.updatedAt].toInstant()
+    updatedAt = this[Articles.updatedAt]
+)
+
+fun ResultRow.toComment(author: Profile) = Comment(
+    id = this[Comments.id],
+    body = CommentBody(this[Comments.body]),
+    createdAt = this[Comments.createdAt],
+    updatedAt = this[Comments.updatedAt],
+    author = author
 )
 
 class UserAlreadyExistsException : HttpException(Status.CONFLICT, "The specified user already exists.")

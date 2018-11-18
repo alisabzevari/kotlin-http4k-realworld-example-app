@@ -41,11 +41,12 @@ object Favorites : Table("favorites") {
 }
 
 object Comments : Table("comments") {
-    val id = integer("id").primaryKey()
+    val id = integer("id").primaryKey().autoIncrement()
     val createdAt = datetime("createdAt")
     val updatedAt = datetime("updatedAt")
     val body = text("body")
     val authorId = integer("author_id") references Users.id
+    val articleId = integer("article_id") references Articles.id
 }
 
 fun createDb(url: String, driver: String): Database {

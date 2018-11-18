@@ -3,11 +3,11 @@ package conduit
 import conduit.handler.*
 import conduit.model.*
 import conduit.util.CatchHttpExceptions
+import conduit.util.ConduitJackson.auto
 import conduit.util.TokenAuth
 import conduit.util.createErrorResponse
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
-import org.http4k.format.Jackson.auto
 import org.http4k.lens.*
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
@@ -23,6 +23,7 @@ class Router(
     val followUser: FollowUserHandler,
     val unfollowUser: UnfollowUserHandler,
     val createArticle: CreateArticleHandler,
+    val createArticleComment: CreateArticleCommentHandler,
     val getArticlesFeed: GetArticlesFeedHandler,
     val getTags: GetTagsHandler
 ) {
@@ -62,7 +63,8 @@ class Router(
                     ),
                     "/api/articles" bind routes(
                         "/" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticle()),
-                        "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed())
+                        "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed()),
+                        "{slug}/comments" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleComment())
                     ),
                     "/api/tags" bind Method.GET to getTagsHandler()
                 )
@@ -159,6 +161,20 @@ class Router(
             Response(Status.CREATED)
         )
     }
+
+    private val newCommentRequestLens = Body.auto<NewCommentRequest>().toLens()
+    private val singleCommentResponseLens = Body.auto<SingleCommentResponse>().toLens()
+    private val articleSlugLens = Path.nonEmptyString().map(::ArticleSlug).of("slug")
+
+    private fun createArticleComment() = { req: Request ->
+        val tokenInfo = tokenInfoKey(req)
+        val newComment = newCommentRequestLens(req)
+        val slug = articleSlugLens(req)
+        singleCommentResponseLens(
+            SingleCommentResponse(createArticleComment(newComment.comment, slug, tokenInfo)),
+            Response(Status.OK)
+        )
+    }
 }
 
 data class LoginUserRequest(val user: LoginUserDto)
@@ -178,3 +194,7 @@ data class TagsResponse(val tags: List<ArticleTag>)
 data class NewArticleRequest(val article: NewArticle)
 
 data class SingleArticleResponse(val article: Article)
+
+data class NewCommentRequest(val comment: NewComment)
+
+data class SingleCommentResponse(val comment: Comment)
