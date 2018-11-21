@@ -24,6 +24,7 @@ class Router(
     val unfollowUser: UnfollowUserHandler,
     val createArticle: CreateArticleHandler,
     val createArticleComment: CreateArticleCommentHandler,
+    val createArticleFavorite: CreateArticleFavoriteHandler,
     val getArticlesFeed: GetArticlesFeedHandler,
     val getTags: GetTagsHandler
 ) {
@@ -64,7 +65,10 @@ class Router(
                     "/api/articles" bind routes(
                         "/" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticle()),
                         "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed()),
-                        "{slug}/comments" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleComment())
+                        "{slug}" bind routes(
+                            "/comments" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleComment()),
+                            "/favorite" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleFavorite())
+                        )
                     ),
                     "/api/tags" bind Method.GET to getTagsHandler()
                 )
@@ -172,6 +176,15 @@ class Router(
         val slug = articleSlugLens(req)
         singleCommentResponseLens(
             SingleCommentResponse(createArticleComment(newComment.comment, slug, tokenInfo)),
+            Response(Status.OK)
+        )
+    }
+
+    private fun createArticleFavorite() = { req: Request ->
+        val tokenInfo = tokenInfoKey(req)
+        val slug = articleSlugLens(req)
+        singleArticleResponseLens(
+            SingleArticleResponse(createArticleFavorite(slug, tokenInfo)),
             Response(Status.OK)
         )
     }

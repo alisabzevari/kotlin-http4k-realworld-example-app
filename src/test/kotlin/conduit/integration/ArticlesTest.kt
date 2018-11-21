@@ -68,5 +68,46 @@ class ArticlesTest: StringSpec() {
             responseBody["article"]["createdAt"].isTextual.shouldBeTrue()
             responseBody["article"]["updatedAt"].isTextual.shouldBeTrue()
         }
+
+        "favorite an article" {
+            IntegrationTest.app.resetDb()
+            registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
+            val token = login("jjacob@gmail.com", "jjcb")
+            val article = createArticle(token)
+
+            val request = Request(Method.POST, "$baseUrl/api/articles/${article["article"]["slug"].asText()}/favorite")
+                .header("Content-Type", "application/json")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .header("Authorization", "Token $token")
+
+            val response = send(request)
+            response.status.shouldBe(Status.OK)
+            val responseBody = response.bodyString().toJsonTree()
+
+            @Language("JSON")
+            val expectedResponse = """
+              {
+                "article": {
+                  "slug": "article-title",
+                  "title": "article title",
+                  "description": "article description",
+                  "body": "article body",
+                  "tagList": ["tag-1", "tag-2"],
+                  "favorited": true,
+                  "favoritesCount": 1,
+                  "author": {
+                    "username": "johnjacob",
+                    "bio": "",
+                    "image": null,
+                    "following": false
+                  }
+                }
+              }
+            """.trimIndent().toJsonTree()
+
+            responseBody.shouldContainJsonNode(expectedResponse)
+            responseBody["article"]["createdAt"].isTextual.shouldBeTrue()
+            responseBody["article"]["updatedAt"].isTextual.shouldBeTrue()
+        }
     }
 }

@@ -1,5 +1,6 @@
 package conduit.integration
 
+import com.fasterxml.jackson.databind.JsonNode
 import conduit.IntegrationTest
 import conduit.util.toJsonTree
 import io.kotlintest.shouldBe
@@ -40,4 +41,28 @@ fun login(email: String, password: String): String {
     val send = ApacheClient()
     val response = send(Request(Method.POST, "http://localhost:${IntegrationTest.app.config.port}/api/users/login").body(loginReqBody))
     return response.bodyString().toJsonTree()["user"]["token"].asText()
+}
+
+fun createArticle(token: String): JsonNode {
+    @Language("JSON")
+    val requestBody = """
+              {
+                "article": {
+                  "title": "article title",
+                  "description": "article description",
+                  "body": "article body",
+                  "tagList": ["tag-1", "tag-2"]
+                }
+              }
+            """.trimIndent()
+    val request = Request(Method.POST, "http://localhost:${IntegrationTest.app.config.port}/api/articles/")
+        .header("Content-Type", "application/json")
+        .header("X-Requested-With", "XMLHttpRequest")
+        .header("Authorization", "Token $token")
+        .body(requestBody)
+
+    val send = ApacheClient()
+    val response = send(request)
+    response.status.shouldBe(Status.CREATED)
+    return response.bodyString().toJsonTree()!!
 }

@@ -22,6 +22,7 @@ interface ConduitRepository {
     fun getArticlesFeed(email: Email, offset: Int, limit: Int): MultipleArticles
     fun getTags(): List<ArticleTag>
     fun createArticleComment(newComment: NewComment, slug: ArticleSlug, currentUserEmail: Email): Comment
+    fun createArticleFavorite(slug: ArticleSlug, currentUserEmail: Email): Article
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
@@ -238,6 +239,37 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
     override fun getTags() = transaction(database) {
         Tags.selectAll().map { ArticleTag(it[Tags.tag]) }
     }
+
+    override fun createArticleFavorite(slug: ArticleSlug, currentUserEmail: Email): Article =
+        transaction(database) {
+            val currentUser = getUser(byEmail(currentUserEmail)) ?: throw UserNotFoundException(currentUserEmail.value)
+            val article = Articles.select { Articles.slug eq slug.value }.firstOrNull() ?: throw HttpException(
+                Status.NOT_FOUND,
+                "Article with slug [$slug] not found."
+            )
+            val favoriteExist =
+                Favorites.select { (Favorites.articleId eq article[Articles.id]) and (Favorites.userId eq currentUser.id) }
+                    .any()
+
+            if (!favoriteExist) {
+                Favorites.insert {
+                    it[articleId] = article[Articles.id]
+                    it[userId] = currentUser.id
+                }
+            }
+
+            val favoritesCount = Favorites.select { Favorites.articleId eq article[Articles.id] }.count()
+            val articleAuthor = getProfileBy(Users.id eq article[Articles.authorId], currentUserEmail)
+                ?: throw Exception("Author of article not found.")
+            val tags = Tags.select { Tags.articleId eq article[Articles.id] }.map { it.toTag() }
+
+            article.toArticle(
+                articleAuthor,
+                tags,
+                true,
+                favoritesCount
+            )
+        }
 }
 
 fun ResultRow.toUser() = User(
@@ -270,6 +302,8 @@ fun ResultRow.toComment(author: Profile) = Comment(
     updatedAt = this[Comments.updatedAt],
     author = author
 )
+
+fun ResultRow.toTag() = ArticleTag(this[Tags.tag])
 
 class UserAlreadyExistsException : HttpException(Status.CONFLICT, "The specified user already exists.")
 class UserNotFoundException(usernameOrEmail: String) :

@@ -62,26 +62,4 @@ class CommentsTest: StringSpec() {
             responseBody["comment"]["id"].isIntegralNumber.shouldBeTrue()
         }
     }
-
-    fun createArticle(token: String) {
-        @Language("JSON")
-        val requestBody = """
-              {
-                "article": {
-                  "title": "article title",
-                  "description": "article description",
-                  "body": "article body",
-                  "tagList": ["tag-1", "tag-2"]
-                }
-              }
-            """.trimIndent()
-        val request = Request(Method.POST, "$baseUrl/api/articles/")
-            .header("Content-Type", "application/json")
-            .header("X-Requested-With", "XMLHttpRequest")
-            .header("Authorization", "Token $token")
-            .body(requestBody)
-
-        val response = send(request)
-        response.status.shouldBe(Status.CREATED)
-    }
 }
