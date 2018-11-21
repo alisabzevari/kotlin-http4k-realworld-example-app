@@ -24,6 +24,7 @@ class Router(
     val unfollowUser: UnfollowUserHandler,
     val createArticle: CreateArticleHandler,
     val createArticleComment: CreateArticleCommentHandler,
+    val getArticleComments: GetArticleCommentsHandler,
     val createArticleFavorite: CreateArticleFavoriteHandler,
     val deleteArticleFavorite: DeleteArticleFavoriteHandler,
     val getArticlesFeed: GetArticlesFeedHandler,
@@ -68,6 +69,7 @@ class Router(
                         "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed()),
                         "{slug}" bind routes(
                             "/comments" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleComment()),
+                            "/comments" bind Method.GET to getArticleComments(),
                             "/favorite" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleFavorite()),
                             "/favorite" bind Method.DELETE to TokenAuth(tokenInfoKey).then(deleteArticleFavorite())
                         )
@@ -108,11 +110,11 @@ class Router(
 
     private val usernameLens = Path.nonEmptyString().map(::Username).of("username")
     private val profileLens = Body.auto<ProfileResponse>().toLens()
-    private val tokenInfoLens = Header.map(TokenAuth::extract).optional("Authorization")
+    private val optionalTokenInfoLens = Header.map(TokenAuth::extract).optional("Authorization")
 
     private fun getProfile() = { req: Request ->
         val username = usernameLens(req)
-        val tokenInfo = tokenInfoLens(req)
+        val tokenInfo = optionalTokenInfoLens(req)
         val result = getProfile(username, tokenInfo)
         profileLens(ProfileResponse(result), Response(Status.OK))
     }
@@ -182,6 +184,18 @@ class Router(
         )
     }
 
+    private val multipleCommentsResponseLens = Body.auto<MultipleCommentsResponse>().toLens()
+
+    private fun getArticleComments() = { req: Request ->
+        val tokenInfo = optionalTokenInfoLens(req)
+        val slug = articleSlugLens(req)
+        multipleCommentsResponseLens(
+            MultipleCommentsResponse(getArticleComments(slug, tokenInfo)),
+            Response(Status.OK)
+        )
+    }
+
+
     private fun createArticleFavorite() = { req: Request ->
         val tokenInfo = tokenInfoKey(req)
         val slug = articleSlugLens(req)
@@ -222,3 +236,5 @@ data class SingleArticleResponse(val article: Article)
 data class NewCommentRequest(val comment: NewComment)
 
 data class SingleCommentResponse(val comment: Comment)
+
+data class MultipleCommentsResponse(val comments: List<Comment>)

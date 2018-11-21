@@ -22,6 +22,7 @@ interface ConduitRepository {
     fun getArticlesFeed(email: Email, offset: Int, limit: Int): MultipleArticles
     fun getTags(): List<ArticleTag>
     fun createArticleComment(newComment: NewComment, slug: ArticleSlug, currentUserEmail: Email): Comment
+    fun getArticleComments(slug: ArticleSlug, currentUserEmail: Email?): List<Comment>
     fun createArticleFavorite(slug: ArticleSlug, currentUserEmail: Email): Article
     fun deleteArticleFavorite(slug: ArticleSlug, currentUserEmail: Email): Article
 }
@@ -209,7 +210,8 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
                 it[Articles.updatedAt],
                 favorited[it[Articles.id]] ?: false,
                 favoritesCount[it[Articles.id]] ?: 0,
-                articleAuthorProfiles[it[Articles.id]] ?: throw Error("Article ${it[Articles.id]} doesn't have Author.")
+                articleAuthorProfiles[it[Articles.id]]
+                    ?: throw Error("Article ${it[Articles.id]} doesn't have an author.")
             )
         }
 
@@ -235,6 +237,39 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
 
             Comments.select { Comments.id eq commentId }.single()
                 .toComment(Profile(authorUser.username, authorUser.bio, authorUser.image, false))
+        }
+
+    override fun getArticleComments(slug: ArticleSlug, currentUserEmail: Email?): List<Comment> =
+        transaction(database) {
+            val article = Articles.select { Articles.slug eq slug.value }.firstOrNull() ?: throw HttpException(
+                Status.NOT_FOUND,
+                "Article with slug [$slug] not found."
+            )
+            val comments = (Comments innerJoin Users)
+                .select { (Comments.articleId eq article[Articles.id]) and (Comments.authorId eq Users.id) }
+            val currentUser = if (currentUserEmail != null) getUser(byEmail(currentUserEmail)) else null
+
+
+            comments.map {
+                val following = if (currentUser != null) {
+                    Following
+                        .select { (Following.sourceId eq currentUser.id) and (Following.targetId eq it[Users.id]) }
+                        .any()
+                } else false
+
+                Comment(
+                    it[Comments.id],
+                    it[Comments.createdAt],
+                    it[Comments.updatedAt],
+                    CommentBody(it[Comments.body]),
+                    Profile(
+                        Username(it[Users.username]),
+                        it[Users.bio]?.let(::Bio),
+                        it[Users.image]?.let(::Image),
+                        following
+                    )
+                )
+            }
         }
 
     override fun getTags() = transaction(database) {
