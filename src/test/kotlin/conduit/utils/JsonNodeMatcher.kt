@@ -22,7 +22,7 @@ fun jsonTest(target: JsonNode, expected: JsonNode?, path: String = ""): Result =
     )
     target.isMissingNode -> sequenceOf(
         Result(
-            expected.isMissingNode ?: true,
+            expected.isMissingNode,
             "In [$path], $target should be missing",
             "In [$path], $target should not be missing"
         )
