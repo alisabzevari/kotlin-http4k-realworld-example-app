@@ -25,6 +25,7 @@ interface ConduitRepository {
     fun getArticleComments(slug: ArticleSlug, currentUserEmail: Email?): List<Comment>
     fun createArticleFavorite(slug: ArticleSlug, currentUserEmail: Email): Article
     fun deleteArticleFavorite(slug: ArticleSlug, currentUserEmail: Email): Article
+    fun deleteArticleComment(commentId: Int)
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
@@ -238,6 +239,13 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
             Comments.select { Comments.id eq commentId }.single()
                 .toComment(Profile(authorUser.username, authorUser.bio, authorUser.image, false))
         }
+
+    override fun deleteArticleComment(commentId: Int) {
+        transaction(database) {
+            Comments.deleteWhere { Comments.id eq commentId }
+        }
+    }
+
 
     override fun getArticleComments(slug: ArticleSlug, currentUserEmail: Email?): List<Comment> =
         transaction(database) {

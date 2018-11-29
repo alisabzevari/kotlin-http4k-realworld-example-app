@@ -110,5 +110,57 @@ class CommentsTest: StringSpec() {
 
             responseBody.shouldContainJsonNode(expectedResponse)
         }
+
+        "Delete a comment" {
+            IntegrationTest.app.resetDb()
+            registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
+            val token = login("jjacob@gmail.com", "jjcb")
+            createArticle(token)
+
+            @Language("JSON")
+            val requestBody = """
+              {
+                "comment": {
+                  "body": "test comment body"
+                }
+              }
+            """.trimIndent()
+            val createRequest = Request(Method.POST, "$baseUrl/api/articles/article-title/comments")
+                .header("Content-Type", "application/json")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .header("Authorization", "Token $token")
+                .body(requestBody)
+            val createResponse = send(createRequest)
+            createResponse.status.shouldBe(Status.OK)
+            val commentId = createResponse.bodyString().toJsonTree()["comment"]["id"]
+
+            val getRequest = Request(Method.GET, "$baseUrl/api/articles/article-title/comments")
+                .header("Content-Type", "application/json")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .header("Authorization", "Token $token")
+
+            val getResponse1 = send(getRequest)
+            val response1Body = getResponse1.bodyString().toJsonTree()["comments"]
+            @Language("JSON")
+            val expectedResponse1 = """
+              [{
+                  "body": "test comment body"
+              }]
+            """.trimIndent().toJsonTree()
+            response1Body.shouldContainJsonNode(expectedResponse1)
+
+            val request = Request(Method.DELETE, "$baseUrl/api/articles/article-title/comments/$commentId")
+                .header("Content-Type", "application/json")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .header("Authorization", "Token $token")
+            val response = send(request)
+            response.status.shouldBe(Status.OK)
+
+            val getResponse2 = send(getRequest)
+            val responseBody = getResponse2.bodyString().toJsonTree()["comments"]
+            @Language("JSON")
+            val expectedResponse = """[]""".trimIndent().toJsonTree()
+            responseBody.shouldContainJsonNode(expectedResponse)
+        }
     }
 }

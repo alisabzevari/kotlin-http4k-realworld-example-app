@@ -25,6 +25,7 @@ class Router(
     val createArticle: CreateArticleHandler,
     val createArticleComment: CreateArticleCommentHandler,
     val getArticleComments: GetArticleCommentsHandler,
+    val deleteArticleComment: DeleteArticleCommentHandler,
     val createArticleFavorite: CreateArticleFavoriteHandler,
     val deleteArticleFavorite: DeleteArticleFavoriteHandler,
     val getArticlesFeed: GetArticlesFeedHandler,
@@ -70,6 +71,9 @@ class Router(
                         "{slug}" bind routes(
                             "/comments" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleComment()),
                             "/comments" bind Method.GET to getArticleComments(),
+                            "/comments/{commentId}" bind Method.DELETE to TokenAuth(tokenInfoKey).then(
+                                deleteArticleComment()
+                            ),
                             "/favorite" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleFavorite()),
                             "/favorite" bind Method.DELETE to TokenAuth(tokenInfoKey).then(deleteArticleFavorite())
                         )
@@ -195,6 +199,12 @@ class Router(
         )
     }
 
+    private val articleCommentIdLens = Path.nonEmptyString().map(String::toInt).of("commentId")
+    private fun deleteArticleComment() = { req: Request ->
+        val commentId = articleCommentIdLens(req)
+        deleteArticleComment(commentId)
+        Response(Status.OK)
+    }
 
     private fun createArticleFavorite() = { req: Request ->
         val tokenInfo = tokenInfoKey(req)

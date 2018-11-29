@@ -34,6 +34,7 @@ fun startApp(config: AppConfig): Http4kServer {
     val createArticle = CreateArticleHandlerImpl(repository)
     val createArticleComment = CreateArticleCommentHandlerImpl(repository)
     val getArticleComments = GetArticleCommentsHandlerImpl(repository)
+    val deleteArticleComment = DeleteArticleCommentHandlerImpl(repository)
     val createArticleFavorite = CreateArticleFavoriteHandlerImpl(repository)
     val deleteArticleFavorite = DeleteArticleFavoriteHandlerImpl(repository)
     val getTags = GetTagsHandlerImpl(repository)
@@ -49,6 +50,7 @@ fun startApp(config: AppConfig): Http4kServer {
         createArticle,
         createArticleComment,
         getArticleComments,
+        deleteArticleComment,
         createArticleFavorite,
         deleteArticleFavorite,
         getArticlesFeed,
