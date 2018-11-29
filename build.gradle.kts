@@ -36,6 +36,10 @@ dependencies {
     testImplementation("io.mockk:mockk:1.8.7")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "1.8"
 
