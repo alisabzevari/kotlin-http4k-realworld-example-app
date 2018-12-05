@@ -7,8 +7,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object Users : Table("users") {
-    val id = integer("id").primaryKey().autoIncrement()
+object Users : IntIdTable("users") {
     val email = varchar("email", 254).uniqueIndex()
     val password = varchar("password", 255)
     val username = varchar("name", 50).uniqueIndex()
@@ -17,8 +16,8 @@ object Users : Table("users") {
 }
 
 object Following : Table("following") {
-    val sourceId = integer("source_id").primaryKey() references Users.id
-    val targetId = integer("target_id").primaryKey() references Users.id
+    val sourceId = reference("source_id", Users, ReferenceOption.CASCADE).primaryKey(0)
+    val targetId = reference("target_id", Users, ReferenceOption.CASCADE).primaryKey(1)
 }
 
 object Articles : IntIdTable("articles") {
@@ -28,7 +27,7 @@ object Articles : IntIdTable("articles") {
     val body = text("body")
     val createdAt = datetime("createdAt")
     val updatedAt = datetime("updatedAt")
-    val authorId = integer("author_id") references Users.id
+    val authorId = reference("author_id", Users).primaryKey()
 }
 
 object Tags : Table("tags") {
@@ -37,16 +36,15 @@ object Tags : Table("tags") {
 }
 
 object Favorites : Table("favorites") {
-    val userId = integer("user_id") references Users.id
-    val articleId = reference("article_id", Articles)
+    val userId = reference("user_id", Users, ReferenceOption.CASCADE)
+    val articleId = reference("article_id", Articles, ReferenceOption.CASCADE)
 }
 
-object Comments : Table("comments") {
-    val id = integer("id").primaryKey().autoIncrement()
+object Comments : IntIdTable("comments") {
     val createdAt = datetime("createdAt")
     val updatedAt = datetime("updatedAt")
     val body = text("body")
-    val authorId = integer("author_id") references Users.id
+    val authorId = reference("author_id", Users, ReferenceOption.CASCADE)
     val articleId =  reference("article_id", Articles, ReferenceOption.CASCADE)
 }
 

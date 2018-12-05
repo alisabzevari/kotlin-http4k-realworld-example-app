@@ -6,6 +6,7 @@ import conduit.handler.NewComment
 import conduit.model.*
 import conduit.util.HttpException
 import org.http4k.core.Status
+import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -104,8 +105,8 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
                     .any()
             if (!isFollowing) {
                 Following.insert {
-                    it[sourceId] = sourceUser.id
-                    it[targetId] = targetUser.id
+                    it[sourceId] = EntityID(sourceUser.id, Users)
+                    it[targetId] = EntityID(targetUser.id, Users)
                 }
             }
 
@@ -142,7 +143,7 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
             val authorUser = getUser(byEmail(authorEmail)) ?: throw UserNotFoundException(authorEmail.value)
 
             val id = Articles.insert {
-                it[authorId] = authorUser.id
+                it[authorId] = EntityID(authorUser.id, Users)
                 it[body] = newArticle.body.value
                 it[createdAt] = DateTime.now()
                 it[description] = newArticle.description.value
@@ -189,7 +190,7 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
                 .toMap()
         val articleAuthorProfiles = articles.map { article ->
             article[Articles.id] to getProfileBy(
-                byUserId(article[Articles.authorId]),
+                byUserId(article[Articles.authorId].value),
                 email
             )
         }.toMap()
@@ -230,7 +231,7 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
             )
 
             val commentId = Comments.insert {
-                it[authorId] = authorUser.id
+                it[authorId] = EntityID(authorUser.id, Users)
                 it[body] = newComment.body.value
                 it[createdAt] = DateTime.now()
                 it[updatedAt] = DateTime.now()
@@ -267,7 +268,7 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
                 } else false
 
                 Comment(
-                    it[Comments.id],
+                    it[Comments.id].value,
                     it[Comments.createdAt],
                     it[Comments.updatedAt],
                     CommentBody(it[Comments.body]),
@@ -299,7 +300,7 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
             if (!favoriteExist) {
                 Favorites.insert {
                     it[articleId] = article[Articles.id]
-                    it[userId] = currentUser.id
+                    it[userId] = EntityID(currentUser.id, Users)
                 }
             }
 
@@ -351,7 +352,7 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
 }
 
 fun ResultRow.toUser() = User(
-    id = this[Users.id],
+    id = this[Users.id].value,
     email = Email(this[Users.email]),
     password = Password(this[Users.password]),
     token = null,
@@ -374,7 +375,7 @@ fun ResultRow.toArticle(author: Profile, tags: List<ArticleTag>, favorited: Bool
 )
 
 fun ResultRow.toComment(author: Profile) = Comment(
-    id = this[Comments.id],
+    id = this[Comments.id].value,
     body = CommentBody(this[Comments.body]),
     createdAt = this[Comments.createdAt],
     updatedAt = this[Comments.updatedAt],
