@@ -187,6 +187,41 @@ class ArticlesTest : StringSpec() {
 
             response.bodyString().toJsonTree().shouldContainJsonNode(article)
         }
+
+        "Update an article" {
+            IntegrationTest.app.resetDb()
+            registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
+            val token = login("jjacob@gmail.com", "jjcb")
+            val article = createArticle(token)
+            val articleSlug = article["article"]["slug"].asText()
+
+            @Language("JSON")
+            val updateArticle = """
+                {
+                  "article": {
+                    "title": "title 2",
+                    "description": "description 2",
+                    "body": "body 2"
+                  }
+                }
+            """.trimIndent()
+
+            val request = Request(Method.PUT, "$baseUrl/api/articles/$articleSlug")
+                .header("Authorization", "Token $token")
+                .body(updateArticle)
+
+            val response = send(request)
+            response.status.shouldBe(Status.OK)
+
+            val result = IntegrationTest.app.db.connector().createStatement().executeQuery(
+                "SELECT * FROM Articles WHERE slug = '$articleSlug'"
+            )
+            result.next()
+
+            result.getString("title").shouldBe("title 2")
+            result.getString("description").shouldBe("description 2")
+            result.getString("body").shouldBe("body 2")
+        }
     }
 
     fun articleExists(slug: String): Boolean {

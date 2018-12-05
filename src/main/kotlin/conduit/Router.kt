@@ -30,6 +30,7 @@ class Router(
     val deleteArticle: DeleteArticleHandler,
     val getArticlesFeed: GetArticlesFeedHandler,
     val getArticle: GetArticleHandler,
+    val updateArticle: UpdateArticleHandler,
     val getTags: GetTagsHandler
 ) {
     private val contexts = RequestContexts()
@@ -72,6 +73,7 @@ class Router(
                         "{slug}" bind routes(
                             "/" bind Method.DELETE to TokenAuth(tokenInfoKey).then(deleteArticle()),
                             "/" bind Method.GET to getArticle(),
+                            "/" bind Method.PUT to TokenAuth(tokenInfoKey).then(updateArticle()),
                             "/comments" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleComment()),
                             "/comments" bind Method.GET to getArticleComments(),
                             "/comments/{commentId}" bind Method.DELETE to TokenAuth(tokenInfoKey).then(
@@ -234,11 +236,24 @@ class Router(
         Response(Status.OK)
     }
 
-    private fun getArticle() = {req: Request ->
+    private fun getArticle() = { req: Request ->
         val slug = articleSlugLens(req)
         val tokenInfo = optionalTokenInfoLens(req)
         singleArticleResponseLens(
             SingleArticleResponse(getArticle(slug, tokenInfo)),
+            Response(Status.OK)
+        )
+    }
+
+    private val updateArticleRequestLens = Body.auto<UpdateArticleRequest>().toLens()
+
+    private fun updateArticle() = { req: Request ->
+        val updateArticleDto = updateArticleRequestLens(req).article
+        val tokenInfo = tokenInfoKey(req)
+        val articleSlug = articleSlugLens(req)
+
+        singleArticleResponseLens(
+            SingleArticleResponse(updateArticle(articleSlug, updateArticleDto, tokenInfo)),
             Response(Status.OK)
         )
     }
@@ -267,3 +282,5 @@ data class NewCommentRequest(val comment: NewComment)
 data class SingleCommentResponse(val comment: Comment)
 
 data class MultipleCommentsResponse(val comments: List<Comment>)
+
+data class UpdateArticleRequest(val article: UpdateArticle)

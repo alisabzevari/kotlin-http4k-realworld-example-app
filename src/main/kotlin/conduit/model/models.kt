@@ -95,6 +95,12 @@ data class Article(
     val author: Profile
 )
 
+data class UpdateArticle(
+    val title: ArticleTitle?,
+    val description: ArticleDescription?,
+    val body: ArticleBody?
+)
+
 data class CommentBody @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
     override fun toString(): String = this.value
 }

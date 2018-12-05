@@ -29,6 +29,7 @@ interface ConduitRepository {
     fun deleteArticleComment(commentId: Int)
     fun deleteArticle(slug: ArticleSlug, currentUserEmail: Email)
     fun getArticle(slug: ArticleSlug, currentUserEmail: Email?): Article
+    fun updateArticle(slug: ArticleSlug, updateArticleDto: UpdateArticle, currentUserEmail: Email): Article
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
@@ -378,6 +379,19 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
                 favorited,
                 favoritesCount
             )
+        }
+
+    override fun updateArticle(slug: ArticleSlug, updateArticleDto: UpdateArticle, currentUserEmail: Email): Article =
+        transaction(database) {
+            val currentUser =
+                getUser(byEmail(currentUserEmail)) ?: throw HttpException(Status.NOT_FOUND, "User not found.")
+            Articles.update({ (Articles.slug eq slug.value) and (Articles.authorId eq currentUser.id) }) {
+                if (updateArticleDto.title != null) it[title] = updateArticleDto.title.value
+                if (updateArticleDto.description != null) it[description] = updateArticleDto.description.value
+                if (updateArticleDto.body!= null) it[body] = updateArticleDto.body.value
+            }
+
+            getArticle(slug, currentUserEmail)
         }
 }
 
