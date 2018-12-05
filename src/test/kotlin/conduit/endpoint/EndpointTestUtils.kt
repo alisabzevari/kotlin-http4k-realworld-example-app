@@ -24,7 +24,8 @@ fun getRouterToTest() = Router(
     createArticleFavorite = mockk(relaxed = true),
     deleteArticleFavorite = mockk(relaxed = true),
     getArticleComments = mockk(relaxed = true),
-    deleteArticleComment = mockk(relaxed = true)
+    deleteArticleComment = mockk(relaxed = true),
+    deleteArticle = mockk(relaxed = true)
 )
 
 fun Response.expectJsonResponse(expectedBody: String? = null) {

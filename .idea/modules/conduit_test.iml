@@ -120,8 +120,8 @@
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-jndi:9.4.14.v20181114" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-xml:9.4.14.v20181114" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-util:9.4.14.v20181114" level="project" />
-    <orderEntry type="library" name="Gradle: javax.annotation:javax.annotation-api:1.2" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: net.bytebuddy:byte-buddy-agent:1.8.8" level="project" />
+    <orderEntry type="library" name="Gradle: javax.annotation:javax.annotation-api:1.2" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-commons:7.0" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-analysis:7.0" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-tree:7.0" level="project" />

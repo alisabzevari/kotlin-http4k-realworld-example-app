@@ -1,6 +1,8 @@
 package conduit.repository
 
+import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -19,9 +21,8 @@ object Following : Table("following") {
     val targetId = integer("target_id").primaryKey() references Users.id
 }
 
-object Articles : Table("articles") {
-    val id = integer("id").primaryKey().autoIncrement()
-    val slug = varchar("slug", 255)
+object Articles : IntIdTable("articles") {
+    val slug = varchar("slug", 255).uniqueIndex()
     val title = varchar("title", 255)
     val description = varchar("description", 255)
     val body = text("body")
@@ -31,13 +32,13 @@ object Articles : Table("articles") {
 }
 
 object Tags : Table("tags") {
-    val articleId = integer("article_id") references Articles.id
+    val articleId = reference("article_id", Articles, ReferenceOption.CASCADE)
     val tag = varchar("tag", 255)
 }
 
 object Favorites : Table("favorites") {
     val userId = integer("user_id") references Users.id
-    val articleId = integer("article_id") references Articles.id
+    val articleId = reference("article_id", Articles)
 }
 
 object Comments : Table("comments") {
@@ -46,7 +47,7 @@ object Comments : Table("comments") {
     val updatedAt = datetime("updatedAt")
     val body = text("body")
     val authorId = integer("author_id") references Users.id
-    val articleId = integer("article_id") references Articles.id
+    val articleId =  reference("article_id", Articles, ReferenceOption.CASCADE)
 }
 
 fun createDb(url: String, driver: String): Database {

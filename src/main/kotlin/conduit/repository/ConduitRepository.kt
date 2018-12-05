@@ -26,6 +26,7 @@ interface ConduitRepository {
     fun createArticleFavorite(slug: ArticleSlug, currentUserEmail: Email): Article
     fun deleteArticleFavorite(slug: ArticleSlug, currentUserEmail: Email): Article
     fun deleteArticleComment(commentId: Int)
+    fun deleteArticle(slug: ArticleSlug, currentUserEmail: Email)
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
@@ -339,6 +340,14 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
                 favoritesCount
             )
         }
+
+    override fun deleteArticle(slug: ArticleSlug, currentUserEmail: Email) {
+        transaction(database) {
+            val currentUser = getUser(byEmail(currentUserEmail)) ?: throw UserNotFoundException(currentUserEmail.value)
+
+            Articles.deleteWhere { (Articles.slug eq slug.value) and (Articles.authorId eq currentUser.id) }
+        }
+    }
 }
 
 fun ResultRow.toUser() = User(

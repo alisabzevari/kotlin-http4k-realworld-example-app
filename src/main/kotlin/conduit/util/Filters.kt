@@ -8,7 +8,7 @@ import org.http4k.lens.Header
 import org.http4k.lens.RequestContextLens
 import org.slf4j.LoggerFactory
 
-open class HttpException(val status: Status, message: String) : RuntimeException(message)
+open class HttpException(val status: Status, message: String = status.description) : RuntimeException(message)
 data class GenericErrorModelBody(val body: List<String>)
 data class GenericErrorModel(val errors: GenericErrorModelBody)
 
@@ -45,11 +45,12 @@ object TokenAuth {
 
     operator fun invoke(tokenInfoKey: RequestContextLens<TokenInfo>) = Filter { next ->
         {
-            try {
-                next(it.with(tokenInfoKey of tokenInfoLens(it)))
+            val tokenInfo = try {
+                tokenInfoLens(it)
             } catch (ex: Exception) {
-                Response(Status.UNAUTHORIZED)
+                throw HttpException(Status.UNAUTHORIZED)
             }
+            next(it.with(tokenInfoKey of tokenInfo))
         }
     }
 }

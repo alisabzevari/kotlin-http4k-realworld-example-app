@@ -2,10 +2,12 @@ package conduit.filter
 
 import conduit.model.Email
 import conduit.model.Username
+import conduit.util.HttpException
 import conduit.util.TokenAuth
 import conduit.util.generateToken
 import io.kotlintest.matchers.string.shouldMatch
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
@@ -25,38 +27,48 @@ class TokenAuthTest: StringSpec() {
 
     init {
         "empty header" {
-            val res = router(Request(Method.GET, "/auth"))
+            val exception = shouldThrow<HttpException> {
+                router(Request(Method.GET, "/auth"))
+            }
 
-            res.status.shouldBe(Status.UNAUTHORIZED)
+            exception.status.shouldBe(Status.UNAUTHORIZED)
         }
 
         "empty authorization header" {
-            val res = router(Request(Method.GET, "/auth").header("Authorization", ""))
+            val exception = shouldThrow<HttpException> {
+                router(Request(Method.GET, "/auth").header("Authorization", ""))
+            }
 
-            res.status.shouldBe(Status.UNAUTHORIZED)
+            exception.status.shouldBe(Status.UNAUTHORIZED)
         }
 
         "authorization header with incorrect format - 1" {
-            val res = router(Request(Method.GET, "/auth").header("Authorization", "Basic test"))
+            val exception = shouldThrow<HttpException> {
+                router(Request(Method.GET, "/auth").header("Authorization", "Basic test"))
+            }
 
-            res.status.shouldBe(Status.UNAUTHORIZED)
+            exception.status.shouldBe(Status.UNAUTHORIZED)
         }
 
         "authorization header with incorrect format - 2" {
-            val res = router(Request(Method.GET, "/auth").header("Authorization", "Tokenssdsd"))
+            val exception = shouldThrow<HttpException> {
+                router(Request(Method.GET, "/auth").header("Authorization", "Tokenssdsd"))
+            }
 
-            res.status.shouldBe(Status.UNAUTHORIZED)
+            exception.status.shouldBe(Status.UNAUTHORIZED)
         }
 
         "authorization header with invalid token" {
-            val res = router(
-                Request(Method.GET, "/auth").header(
-                    "Authorization",
-                    "Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFsaSIsImVtYWlsIjoiYWxpc2FiemV2YXJzaUBnbWFpbC5jb20iLCJleHAiOjE1MzgyOTUyMzh9.jQlVD0b9Q2R0HYkiC6LHXgIm6VBcvBq9mOFGQVUgYNg"
+            val exception = shouldThrow<HttpException> {
+                router(
+                    Request(Method.GET, "/auth").header(
+                        "Authorization",
+                        "Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFsaSIsImVtYWlsIjoiYWxpc2FiemV2YXJzaUBnbWFpbC5jb20iLCJleHAiOjE1MzgyOTUyMzh9.jQlVD0b9Q2R0HYkiC6LHXgIm6VBcvBq9mOFGQVUgYNg"
+                    )
                 )
-            )
+            }
 
-            res.status.shouldBe(Status.UNAUTHORIZED)
+            exception.status.shouldBe(Status.UNAUTHORIZED)
         }
 
         "authorization header with valid token" {

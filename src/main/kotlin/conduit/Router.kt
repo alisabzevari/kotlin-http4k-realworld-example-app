@@ -28,6 +28,7 @@ class Router(
     val deleteArticleComment: DeleteArticleCommentHandler,
     val createArticleFavorite: CreateArticleFavoriteHandler,
     val deleteArticleFavorite: DeleteArticleFavoriteHandler,
+    val deleteArticle: DeleteArticleHandler,
     val getArticlesFeed: GetArticlesFeedHandler,
     val getTags: GetTagsHandler
 ) {
@@ -69,6 +70,7 @@ class Router(
                         "/" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticle()),
                         "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed()),
                         "{slug}" bind routes(
+                            "/" bind Method.DELETE to TokenAuth(tokenInfoKey).then(deleteArticle()),
                             "/comments" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleComment()),
                             "/comments" bind Method.GET to getArticleComments(),
                             "/comments/{commentId}" bind Method.DELETE to TokenAuth(tokenInfoKey).then(
@@ -222,6 +224,13 @@ class Router(
             SingleArticleResponse(deleteArticleFavorite(slug, tokenInfo)),
             Response(Status.OK)
         )
+    }
+
+    private fun deleteArticle() = { req: Request ->
+        val tokenInfo = tokenInfoKey(req)
+        val slug = articleSlugLens(req)
+        deleteArticle(slug, tokenInfo)
+        Response(Status.OK)
     }
 }
 
