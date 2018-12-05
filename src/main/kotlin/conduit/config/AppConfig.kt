@@ -10,4 +10,3 @@ data class DbConfig(
     val url: String,
     val driver: String
 )
-
