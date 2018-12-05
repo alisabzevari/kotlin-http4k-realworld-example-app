@@ -13,7 +13,7 @@ import org.http4k.core.Request
 import org.http4k.core.Status
 import org.intellij.lang.annotations.Language
 
-class ArticlesTest: StringSpec() {
+class ArticlesTest : StringSpec() {
     val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
     val send = ApacheClient()
 
@@ -117,14 +117,16 @@ class ArticlesTest: StringSpec() {
             val token = login("jjacob@gmail.com", "jjcb")
             val article = createArticle(token)
 
-            val favoriteRequest = Request(Method.POST, "$baseUrl/api/articles/${article["article"]["slug"].asText()}/favorite")
-                .header("Content-Type", "application/json")
-                .header("X-Requested-With", "XMLHttpRequest")
-                .header("Authorization", "Token $token")
+            val favoriteRequest =
+                Request(Method.POST, "$baseUrl/api/articles/${article["article"]["slug"].asText()}/favorite")
+                    .header("Content-Type", "application/json")
+                    .header("X-Requested-With", "XMLHttpRequest")
+                    .header("Authorization", "Token $token")
             send(favoriteRequest).status.shouldBe(Status.OK)
 
-            val request = Request(Method.DELETE, "$baseUrl/api/articles/${article["article"]["slug"].asText()}/favorite")
-                .header("Authorization", "Token $token")
+            val request =
+                Request(Method.DELETE, "$baseUrl/api/articles/${article["article"]["slug"].asText()}/favorite")
+                    .header("Authorization", "Token $token")
             val response = send(request)
             response.status.shouldBe(Status.OK)
             val responseBody = response.bodyString().toJsonTree()
@@ -169,6 +171,21 @@ class ArticlesTest: StringSpec() {
             response.status.shouldBe(Status.OK)
 
             articleExists(article["article"]["slug"].asText()).shouldBeFalse()
+        }
+
+        "Get an article" {
+            IntegrationTest.app.resetDb()
+            registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
+            val token = login("jjacob@gmail.com", "jjcb")
+            val article = createArticle(token)
+
+            val request = Request(Method.GET, "$baseUrl/api/articles/${article["article"]["slug"].asText()}")
+                .header("Authorization", "Token $token")
+
+            val response = send(request)
+            response.status.shouldBe(Status.OK)
+
+            response.bodyString().toJsonTree().shouldContainJsonNode(article)
         }
     }
 

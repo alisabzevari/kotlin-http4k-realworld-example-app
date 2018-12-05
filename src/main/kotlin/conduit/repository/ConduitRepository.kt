@@ -28,6 +28,7 @@ interface ConduitRepository {
     fun deleteArticleFavorite(slug: ArticleSlug, currentUserEmail: Email): Article
     fun deleteArticleComment(commentId: Int)
     fun deleteArticle(slug: ArticleSlug, currentUserEmail: Email)
+    fun getArticle(slug: ArticleSlug, currentUserEmail: Email?): Article
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
@@ -349,6 +350,35 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
             Articles.deleteWhere { (Articles.slug eq slug.value) and (Articles.authorId eq currentUser.id) }
         }
     }
+
+    override fun getArticle(slug: ArticleSlug, currentUserEmail: Email?): Article =
+        transaction(database) {
+            val article = Articles.select { Articles.slug eq slug.value }.firstOrNull() ?: throw HttpException(
+                Status.NOT_FOUND,
+                "Article with slug [$slug] not found."
+            )
+            val articleAuthor = getProfileBy(Users.id eq article[Articles.authorId], currentUserEmail)
+                ?: throw Exception("Author of article not found.")
+            val tags = Tags.select { Tags.articleId eq article[Articles.id] }.map { it.toTag() }
+
+            val favorited = if (currentUserEmail != null) {
+                val currentUser =
+                    getUser(byEmail(currentUserEmail)) ?: throw HttpException(Status.NOT_FOUND, "User not found.")
+                Favorites.select { (Favorites.articleId eq article[Articles.id]) and (Favorites.userId eq currentUser.id) }
+                    .any()
+            } else {
+                false
+            }
+
+            val favoritesCount = Favorites.select { Favorites.articleId eq article[Articles.id] }.count()
+
+            article.toArticle(
+                articleAuthor,
+                tags,
+                favorited,
+                favoritesCount
+            )
+        }
 }
 
 fun ResultRow.toUser() = User(

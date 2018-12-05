@@ -13,7 +13,6 @@ import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
-
 class Router(
     val login: LoginHandler,
     val registerUser: RegisterUserHandler,
@@ -30,6 +29,7 @@ class Router(
     val deleteArticleFavorite: DeleteArticleFavoriteHandler,
     val deleteArticle: DeleteArticleHandler,
     val getArticlesFeed: GetArticlesFeedHandler,
+    val getArticle: GetArticleHandler,
     val getTags: GetTagsHandler
 ) {
     private val contexts = RequestContexts()
@@ -71,6 +71,7 @@ class Router(
                         "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed()),
                         "{slug}" bind routes(
                             "/" bind Method.DELETE to TokenAuth(tokenInfoKey).then(deleteArticle()),
+                            "/" bind Method.GET to getArticle(),
                             "/comments" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleComment()),
                             "/comments" bind Method.GET to getArticleComments(),
                             "/comments/{commentId}" bind Method.DELETE to TokenAuth(tokenInfoKey).then(
@@ -231,6 +232,15 @@ class Router(
         val slug = articleSlugLens(req)
         deleteArticle(slug, tokenInfo)
         Response(Status.OK)
+    }
+
+    private fun getArticle() = {req: Request ->
+        val slug = articleSlugLens(req)
+        val tokenInfo = optionalTokenInfoLens(req)
+        singleArticleResponseLens(
+            SingleArticleResponse(getArticle(slug, tokenInfo)),
+            Response(Status.OK)
+        )
     }
 }
 
