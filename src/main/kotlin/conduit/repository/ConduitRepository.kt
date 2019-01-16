@@ -30,6 +30,14 @@ interface ConduitRepository {
     fun deleteArticle(slug: ArticleSlug, currentUserEmail: Email)
     fun getArticle(slug: ArticleSlug, currentUserEmail: Email?): Article
     fun updateArticle(slug: ArticleSlug, updateArticleDto: UpdateArticle, currentUserEmail: Email): Article
+    fun getArticles(
+        currentUserEmail: Email?,
+        offset: Int,
+        limit: Int,
+        tag: ArticleTag?,
+        author: Username?,
+        favoritedByUser: Username?
+    ): MultipleArticles
 }
 
 class ConduitRepositoryImpl(private val database: Database) : ConduitRepository {
@@ -388,10 +396,65 @@ class ConduitRepositoryImpl(private val database: Database) : ConduitRepository 
             Articles.update({ (Articles.slug eq slug.value) and (Articles.authorId eq currentUser.id) }) {
                 if (updateArticleDto.title != null) it[title] = updateArticleDto.title.value
                 if (updateArticleDto.description != null) it[description] = updateArticleDto.description.value
-                if (updateArticleDto.body!= null) it[body] = updateArticleDto.body.value
+                if (updateArticleDto.body != null) it[body] = updateArticleDto.body.value
             }
 
             getArticle(slug, currentUserEmail)
+        }
+
+    override fun getArticles(
+        currentUserEmail: Email?,
+        offset: Int,
+        limit: Int,
+        tag: ArticleTag?,
+        author: Username?,
+        favoritedByUser: Username?
+    ): MultipleArticles =
+        transaction(database) {
+            val articlesQuery = (Articles innerJoin Users).selectAll()
+            tag?.also { queryTag ->
+                val taggedArticleIds = Tags.select { Tags.tag eq queryTag.value }.map { it[Tags.articleId] }
+
+                articlesQuery.andWhere { Articles.id inList taggedArticleIds }
+            }
+            author?.also {
+                val userId = getUser(byUsername(author))?.id
+
+                articlesQuery.andWhere { Articles.authorId eq userId }
+            }
+            favoritedByUser?.also {
+                val userId = getUser(byUsername(favoritedByUser))?.id
+
+                val favArticles = Favorites.select { Favorites.userId eq userId }.map { it[Favorites.articleId] }
+
+                articlesQuery.andWhere { Articles.id inList favArticles }
+            }
+
+            val articlesQueryResult = articlesQuery
+                .orderBy(Articles.createdAt, false)
+                .limit(limit, offset)
+            val articlesCount = articlesQuery.count()
+
+            val currentUser = if (currentUserEmail != null) getUser(byEmail(currentUserEmail)) else null
+
+            val articles = articlesQueryResult.map { articleRow ->
+                val articleTags = Tags.select { Tags.articleId eq articleRow[Articles.id] }.map { it.toTag() }
+
+                val favorited = if (currentUser != null) {
+                    Favorites.select { (Favorites.articleId eq articleRow[Articles.id]) and (Favorites.userId eq currentUser.id) }.count() == 1
+                } else false
+
+                val favoritesCount = Favorites.select { Favorites.articleId eq articleRow[Articles.id] }.count()
+
+                articleRow.toArticle(
+                    getProfile(Username(articleRow[Users.username]), currentUserEmail),
+                    articleTags,
+                    favorited,
+                    favoritesCount
+                )
+            }
+
+            MultipleArticles(articles, articlesCount)
         }
 }
 
@@ -403,6 +466,13 @@ fun ResultRow.toUser() = User(
     username = Username(this[Users.username]),
     bio = this[Users.bio]?.let(::Bio),
     image = this[Users.image]?.let(::Image)
+)
+
+fun ResultRow.toProfile(following: Boolean) = Profile(
+    username = Username(this[Users.username]),
+    bio = this[Users.bio]?.let(::Bio),
+    image = this[Users.image]?.let(::Image),
+    following = following
 )
 
 fun ResultRow.toArticle(author: Profile, tags: List<ArticleTag>, favorited: Boolean, favoritesCount: Int) = Article(

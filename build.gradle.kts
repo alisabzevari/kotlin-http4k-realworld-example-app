@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 val kotlinVersion = "1.3.10"
-val http4kVersion = "3.102.1"
+val http4kVersion = "3.103.2"
 val log4jVersion = "2.10.0"
 val jacksonVersion = "2.9.6"
 
@@ -32,7 +32,7 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:$jacksonVersion")
 
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.10")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.11")
     testImplementation("io.mockk:mockk:1.8.13.kotlin13")
 }
 

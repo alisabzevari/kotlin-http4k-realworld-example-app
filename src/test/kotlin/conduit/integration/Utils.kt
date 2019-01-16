@@ -23,7 +23,12 @@ fun registerUser(email: String, username: String, password: String): Response {
                 }
             """.trimIndent()
     val send = ApacheClient()
-    val resp = send(Request(Method.POST, "http://localhost:${IntegrationTest.app.config.port}/api/users").body(registerReqBody))
+    val resp = send(
+        Request(
+            Method.POST,
+            "http://localhost:${IntegrationTest.app.config.port}/api/users"
+        ).body(registerReqBody)
+    )
     resp.status.shouldBe(Status.CREATED)
     return resp
 }
@@ -39,19 +44,25 @@ fun login(email: String, password: String): String {
               }
             """.trimIndent()
     val send = ApacheClient()
-    val response = send(Request(Method.POST, "http://localhost:${IntegrationTest.app.config.port}/api/users/login").body(loginReqBody))
+    val response = send(
+        Request(Method.POST, "http://localhost:${IntegrationTest.app.config.port}/api/users/login").body(loginReqBody)
+    )
     return response.bodyString().toJsonTree()["user"]["token"].asText()
 }
 
-fun createArticle(token: String): JsonNode {
+fun createArticle(
+    token: String,
+    title: String = "article title",
+    tags: List<String> = listOf("tag-1", "tag-2")
+): JsonNode {
     @Language("JSON")
     val requestBody = """
               {
                 "article": {
-                  "title": "article title",
+                  "title": "$title",
                   "description": "article description",
                   "body": "article body",
-                  "tagList": ["tag-1", "tag-2"]
+                  "tagList": [${tags.map { "\"$it\"" }.joinToString(",")}]
                 }
               }
             """.trimIndent()

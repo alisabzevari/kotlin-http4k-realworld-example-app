@@ -22,7 +22,7 @@ object CatchHttpExceptions {
             } catch (e: HttpException) {
                 logger.error("Uncaught error: ", e)
                 createErrorResponse(e.status, listOf(e.message ?: "Oops!"))
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 logger.error("Uncaught error: ", e)
                 createErrorResponse(Status(422, "Unprocessable Entity"), listOf("Unexpected error"))
             }

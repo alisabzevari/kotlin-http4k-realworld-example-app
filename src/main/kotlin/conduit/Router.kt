@@ -22,6 +22,7 @@ class Router(
     val followUser: FollowUserHandler,
     val unfollowUser: UnfollowUserHandler,
     val createArticle: CreateArticleHandler,
+    val getArticles: GetArticlesHandler,
     val createArticleComment: CreateArticleCommentHandler,
     val getArticleComments: GetArticleCommentsHandler,
     val deleteArticleComment: DeleteArticleCommentHandler,
@@ -69,6 +70,7 @@ class Router(
                     ),
                     "/api/articles" bind routes(
                         "/" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticle()),
+                        "/" bind Method.GET to getArticles(),
                         "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed()),
                         "{slug}" bind routes(
                             "/" bind Method.DELETE to TokenAuth(tokenInfoKey).then(deleteArticle()),
@@ -151,6 +153,25 @@ class Router(
         val offset = offsetLens(req)
         val limit = limitLens(req)
         val result = getArticlesFeed(tokenInfo, offset, limit)
+        multipleArticlesResponseLens(
+            MultipleArticlesResponse(result.articles, result.articlesCount),
+            Response(Status.OK)
+        )
+    }
+
+    private val optionalTagReqLens = Query.string().optional("tag")
+    private val optionalAuthorReqLens = Query.string().optional("author")
+    private val optionalFavoritedReqLens = Query.string().optional("favorited")
+
+    private fun getArticles() = { req: Request ->
+        val tokenInfo = optionalTokenInfoLens(req)
+        val offset = offsetLens(req)
+        val limit = limitLens(req)
+        val tag = optionalTagReqLens(req)?.let(::ArticleTag)
+        val author = optionalAuthorReqLens(req)?.let(::Username)
+        val favorited = optionalFavoritedReqLens(req)?.let(::Username)
+
+        val result = getArticles(tokenInfo, offset, limit, tag, author, favorited)
         multipleArticlesResponseLens(
             MultipleArticlesResponse(result.articles, result.articlesCount),
             Response(Status.OK)
