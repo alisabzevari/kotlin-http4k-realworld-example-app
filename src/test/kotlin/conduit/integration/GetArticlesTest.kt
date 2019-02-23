@@ -106,7 +106,7 @@ class GetArticlesTest : StringSpec() {
             result["articles"].shouldContainJsonNode(expectedArticles)
         }
 
-        "f:Filter by favorited" {
+        "Filter by favorited" {
             IntegrationTest.app.resetDb()
             registerUser("user1@gmail.com", "user1", "pass1")
             val user1Token = login("user1@gmail.com", "pass1")
