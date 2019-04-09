@@ -290,18 +290,18 @@ data class UpdateUserRequest(val user: UpdateUser)
 
 data class ProfileResponse(val profile: Profile)
 
-data class MultipleArticlesResponse(val articles: List<Article>, val articlesCount: Int)
+data class MultipleArticlesResponse(val articles: List<ArticleDto>, val articlesCount: Int)
 
 data class TagsResponse(val tags: List<ArticleTag>)
 
-data class NewArticleRequest(val article: NewArticle)
+data class NewArticleRequest(val article: NewArticleDto)
 
-data class SingleArticleResponse(val article: Article)
+data class SingleArticleResponse(val article: ArticleDto)
 
 data class NewCommentRequest(val comment: NewComment)
 
-data class SingleCommentResponse(val comment: Comment)
+data class SingleCommentResponse(val comment: CommentDto)
 
-data class MultipleCommentsResponse(val comments: List<Comment>)
+data class MultipleCommentsResponse(val comments: List<CommentDto>)
 
 data class UpdateArticleRequest(val article: UpdateArticle)

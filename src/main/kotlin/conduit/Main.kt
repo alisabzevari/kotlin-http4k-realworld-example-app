@@ -2,15 +2,14 @@ package conduit
 
 import conduit.config.AppConfig
 import conduit.handler.*
-import conduit.repository.ConduitRepositoryImpl
-import conduit.repository.createDb
+import conduit.repository.*
 import org.apache.logging.log4j.core.config.Configurator
 import org.http4k.server.Http4kServer
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import org.slf4j.LoggerFactory
 
-fun main(args: Array<String>) {
+fun main() {
     val server = startApp(conduit.config.local)
     server.block()
 }
@@ -20,28 +19,29 @@ fun startApp(config: AppConfig): Http4kServer {
 
     val logger = LoggerFactory.getLogger("main")
 
-    val database = createDb(config.db.url, driver = config.db.driver)
-    val repository = ConduitRepositoryImpl(database)
+    val db = createDb(config.db.url, driver = config.db.driver)
+    val repository = ConduitRepositoryImpl()
+    val database = ConduitDatabaseImpl(db, repository)
 
-    val loginHandler = LoginHandlerImpl(repository)
-    val registerUserHandler = RegisterUserHandlerImpl(repository)
-    val getCurrentUserHandler = GetCurrentUserHandlerImpl(repository)
-    val updateCurrentUserHandler = UpdateCurrentUserHandlerImpl(repository)
-    val getProfileHandler = GetProfileHandlerImpl(repository)
-    val followUserHandler = FollowUserHandlerImpl(repository)
-    val unfollowUserHandler = UnfollowUserHandlerImpl(repository)
-    val getArticlesFeed = GetArticlesFeedHandlerImpl(repository)
-    val createArticle = CreateArticleHandlerImpl(repository)
-    val createArticleComment = CreateArticleCommentHandlerImpl(repository)
-    val getArticles = GetArticlesHandlerImpl(repository)
-    val getArticleComments = GetArticleCommentsHandlerImpl(repository)
-    val deleteArticleComment = DeleteArticleCommentHandlerImpl(repository)
-    val createArticleFavorite = CreateArticleFavoriteHandlerImpl(repository)
-    val deleteArticleFavorite = DeleteArticleFavoriteHandlerImpl(repository)
-    val deleteArticle = DeleteArticleHandlerImpl(repository)
-    val getArticle = GetArticleHandlerImpl(repository)
-    val updateArticle = UpdateArticleHandlerImpl(repository)
-    val getTags = GetTagsHandlerImpl(repository)
+    val registerUserHandler = RegisterUserHandlerImpl(database)
+    val loginHandler = LoginHandlerImpl(database)
+    val getCurrentUserHandler = GetCurrentUserHandlerImpl(database)
+    val updateCurrentUserHandler = UpdateCurrentUserHandlerImpl(database)
+    val getProfileHandler = GetProfileHandlerImpl(database)
+    val followUserHandler = FollowUserHandlerImpl(database)
+    val unfollowUserHandler = UnfollowUserHandlerImpl(database)
+    val getArticlesFeed = GetArticlesFeedHandlerImpl(database)
+    val createArticle = CreateArticleHandlerImpl(database)
+    val createArticleComment = CreateArticleCommentHandlerImpl(database)
+    val getArticles = GetArticlesHandlerImpl(database)
+    val getArticleComments = GetArticleCommentsHandlerImpl(database)
+    val deleteArticleComment = DeleteArticleCommentHandlerImpl(database)
+    val createArticleFavorite = CreateArticleFavoriteHandlerImpl(database)
+    val deleteArticleFavorite = DeleteArticleFavoriteHandlerImpl(database)
+    val deleteArticle = DeleteArticleHandlerImpl(database)
+    val getArticle = GetArticleHandlerImpl(database)
+    val updateArticle = UpdateArticleHandlerImpl(database)
+    val getTags = GetTagsHandlerImpl(database)
 
     val app = Router(
         loginHandler,

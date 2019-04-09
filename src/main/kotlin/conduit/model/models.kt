@@ -82,7 +82,7 @@ data class ArticleTag @JsonCreator(mode = m) constructor(@JsonValue val value: S
     override fun toString(): String = this.value
 }
 
-data class Article(
+data class ArticleDto(
     val slug: ArticleSlug,
     val title: ArticleTitle,
     val description: ArticleDescription,
@@ -95,20 +95,51 @@ data class Article(
     val author: Profile
 )
 
+data class Article(
+    val id: Int,
+    val slug: ArticleSlug,
+    val title: ArticleTitle,
+    val description: ArticleDescription,
+    val body: ArticleBody,
+    val createdAt: DateTime,
+    val updatedAt: DateTime,
+    val authorId: Int
+)
+
 data class UpdateArticle(
     val title: ArticleTitle?,
     val description: ArticleDescription?,
     val body: ArticleBody?
 )
 
+data class NewArticle(
+    val title: ArticleTitle,
+    val description: ArticleDescription,
+    val body: ArticleBody,
+    val tagList: List<ArticleTag>,
+    val authorId: Int,
+    val slug: ArticleSlug,
+    val createdAt: DateTime,
+    val updatedAt: DateTime
+)
+
 data class CommentBody @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
     override fun toString(): String = this.value
 }
+
+data class CommentDto(
+    val id: Int,
+    val createdAt: DateTime,
+    val updatedAt: DateTime,
+    val body: CommentBody,
+    val author: Profile
+)
 
 data class Comment(
     val id: Int,
     val createdAt: DateTime,
     val updatedAt: DateTime,
     val body: CommentBody,
-    val author: Profile
+    val authorId: Int,
+    val articleId: Int
 )
