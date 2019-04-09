@@ -1,19 +1,11 @@
 package conduit.handler
 
-import conduit.model.*
-import conduit.util.hash
-import conduit.util.parse
-import io.kotlintest.Description
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
-import io.mockk.every
-import io.mockk.mockk
 
 class LoginHandlerImplTest : StringSpec() {
     lateinit var unit: LoginHandlerImpl
 
-//    override fun beforeTest(description: Description) {
+//    override fun beforeTest(testCase: TestCase) {
 //        unit = LoginHandlerImpl(
 //            repository = mockk(relaxed = true)
 //        )

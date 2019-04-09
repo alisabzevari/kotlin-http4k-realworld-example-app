@@ -2,7 +2,6 @@ package conduit.handler
 
 import conduit.model.ArticleTag
 import conduit.repository.ConduitDatabase
-import conduit.repository.OldRepo
 
 interface GetTagsHandler {
     operator fun invoke(): List<ArticleTag>

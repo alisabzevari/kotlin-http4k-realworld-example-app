@@ -4,7 +4,6 @@ import conduit.IntegrationTest
 import conduit.util.mapper
 import conduit.util.toJsonTree
 import conduit.utils.shouldContainJsonNode
-import io.kotlintest.matchers.sequences.shouldContainAll
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.http4k.client.ApacheClient
@@ -14,7 +13,7 @@ import org.http4k.core.Status
 import org.intellij.lang.annotations.Language
 
 class GetArticlesTest : StringSpec() {
-    val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
+    private val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
     val send = ApacheClient()
 
     init {

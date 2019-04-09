@@ -5,13 +5,10 @@ import conduit.model.ArticleSlug
 import conduit.model.UpdateArticle
 import conduit.model.extractEmail
 import conduit.repository.ConduitDatabase
-import conduit.repository.OldRepo
 import conduit.repository.toProfile
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status
-import java.lang.Exception
-import javax.xml.ws.http.HTTPBinding
 
 interface UpdateArticleHandler {
     operator fun invoke(slug: ArticleSlug, updateArticleDto: UpdateArticle, tokenInfo: TokenAuth.TokenInfo): ArticleDto

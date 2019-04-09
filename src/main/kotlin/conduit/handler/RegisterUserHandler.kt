@@ -5,9 +5,10 @@ import conduit.model.NewUser
 import conduit.model.Password
 import conduit.model.Username
 import conduit.repository.ConduitDatabase
-import conduit.repository.OldRepo
+import conduit.util.HttpException
 import conduit.util.generateToken
 import conduit.util.hash
+import org.http4k.core.Status
 
 interface RegisterUserHandler {
     operator fun invoke(newUserDto: NewUserDto): UserDto
@@ -16,6 +17,10 @@ interface RegisterUserHandler {
 class RegisterUserHandlerImpl(val database: ConduitDatabase) : RegisterUserHandler {
     override fun invoke(newUserDto: NewUserDto): UserDto {
         database.tx {
+            val user = getUser(newUserDto.username) ?: getUser(newUserDto.email)
+            if (user != null) {
+                throw HttpException(Status.CONFLICT, "The specified user already exists.")
+            }
             insertUser(newUserDto.let {
                 NewUser(it.username, it.password.hash(), it.email)
             })

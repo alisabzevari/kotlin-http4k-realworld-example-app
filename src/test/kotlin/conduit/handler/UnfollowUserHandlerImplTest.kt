@@ -1,19 +1,11 @@
 package conduit.handler
 
-import conduit.model.*
-import conduit.util.TokenAuth
-import io.jsonwebtoken.impl.DefaultClaims
-import io.kotlintest.Description
-import io.kotlintest.matchers.boolean.shouldBeFalse
-import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
-import io.mockk.every
-import io.mockk.mockk
 
 class UnfollowUserHandlerImplTest : StringSpec() {
     lateinit var unit: UnfollowUserHandlerImpl
 
-//    override fun beforeTest(description: Description) {
+//    override fun beforeTest(testCase: TestCase) {
 //        unit = UnfollowUserHandlerImpl(
 //            repository = mockk(relaxed = true)
 //        )

@@ -1,16 +1,11 @@
 package conduit.handler
 
-import conduit.model.ArticleTag
-import io.kotlintest.Description
-import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
-import io.mockk.every
-import io.mockk.mockk
 
 class GetTagsHandlerImplTest: StringSpec() {
     lateinit var unit: GetTagsHandlerImpl
 
-//    override fun beforeTest(description: Description) {
+//    override fun beforeTest(testCase: TestCase) {
 //        unit = GetTagsHandlerImpl(
 //            repository = mockk(relaxed = true)
 //        )

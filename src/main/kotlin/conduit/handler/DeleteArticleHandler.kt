@@ -3,7 +3,6 @@ package conduit.handler
 import conduit.model.ArticleSlug
 import conduit.model.extractEmail
 import conduit.repository.ConduitDatabase
-import conduit.repository.OldRepo
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status

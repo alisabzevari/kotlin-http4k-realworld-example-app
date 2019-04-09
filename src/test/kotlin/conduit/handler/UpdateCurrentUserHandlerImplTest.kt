@@ -1,19 +1,11 @@
 package conduit.handler
 
-import conduit.model.*
-import conduit.util.TokenAuth
-import conduit.util.hash
-import io.jsonwebtoken.impl.DefaultClaims
-import io.kotlintest.Description
-import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
-import io.mockk.every
-import io.mockk.mockk
 
 class UpdateCurrentUserHandlerImplTest: StringSpec() {
     lateinit var unit: UpdateCurrentUserHandlerImpl
 
-//    override fun beforeTest(description: Description) {
+//    override fun beforeTest(testCase: TestCase) {
 //        unit = UpdateCurrentUserHandlerImpl(
 //            repository = mockk(relaxed = true)
 //        )

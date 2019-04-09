@@ -8,10 +8,10 @@ import io.kotlintest.should
 fun jsonTest(target: JsonNode, expected: JsonNode?, path: String = ""): Result = when {
     expected == null -> sequenceOf(Result(true, "", ""))
     target.isObject -> target.fields().asSequence().map {
-        jsonTest(it.value, expected.get(it.key), "${path}.${it.key}")
+        jsonTest(it.value, expected.get(it.key), "$path.${it.key}")
     }
     target.isArray -> target.elements().asSequence().mapIndexed { index, targetNode ->
-        jsonTest(targetNode, expected.get(index), "${path}[$index]")
+        jsonTest(targetNode, expected.get(index), "$path[$index]")
     }
     target.isValueNode -> sequenceOf(
         Result(

@@ -7,7 +7,7 @@ import conduit.model.Bio
 import conduit.model.Email
 import conduit.model.Token
 import conduit.model.Username
-import io.kotlintest.Description
+import io.kotlintest.TestCase
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import io.mockk.every
@@ -19,7 +19,7 @@ import org.intellij.lang.annotations.Language
 class AuthenticationEndpointTest : StringSpec() {
     lateinit var router: Router
 
-    override fun beforeTest(description: Description) {
+    override fun beforeTest(testCase: TestCase) {
         router = getRouterToTest()
     }
 

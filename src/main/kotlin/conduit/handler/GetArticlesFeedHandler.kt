@@ -1,19 +1,24 @@
 package conduit.handler
 
-import conduit.model.*
-import conduit.repository.*
+import conduit.model.ArticleDto
+import conduit.model.extractEmail
+import conduit.repository.ConduitDatabase
+import conduit.repository.toProfile
+import conduit.util.HttpException
 import conduit.util.TokenAuth
-import org.jetbrains.exposed.sql.select
+import org.http4k.core.Status
 
 interface GetArticlesFeedHandler {
     operator fun invoke(tokenInfo: TokenAuth.TokenInfo, offset: Int, limit: Int): MultipleArticles
 }
+
 // TODO: Write integration tests for articles feed
 class GetArticlesFeedHandlerImpl(val database: ConduitDatabase) : GetArticlesFeedHandler {
     override fun invoke(tokenInfo: TokenAuth.TokenInfo, offset: Int, limit: Int) =
         database.tx {
             val email = tokenInfo.extractEmail()
-            val user = getUser(email) ?: throw UserNotFoundException(email.value)
+            val user =
+                getUser(email) ?: throw HttpException(Status.NOT_FOUND, "User with email ${email.value} not found.")
             val followedUserIds = getFollowedUserIds(user.id)
             val articlesCount = getArticlesOfAuthorsCount(followedUserIds)
             val articles = getArticlesOfAuthors(followedUserIds, offset, limit)

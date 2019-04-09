@@ -39,10 +39,10 @@ class Router(
 
     operator fun invoke(): RoutingHttpHandler =
         CatchHttpExceptions()
-            .then(ServerFilters.CatchLensFailure {
+            .then(ServerFilters.CatchLensFailure { error ->
                 createErrorResponse(
                     Status.BAD_REQUEST,
-                    if (it.cause != null) listOf(it.cause?.message!!) else it.failures.map { it.toString() } // TODO: improve error message creation logic
+                    if (error.cause != null) listOf(error.cause?.message!!) else error.failures.map { it.toString() } // TODO: improve error message creation logic
                 )
             })
             .then(ServerFilters.InitialiseRequestContext(contexts))

@@ -13,7 +13,7 @@ data class GenericErrorModelBody(val body: List<String>)
 data class GenericErrorModel(val errors: GenericErrorModelBody)
 
 object CatchHttpExceptions {
-    val logger = LoggerFactory.getLogger(CatchHttpExceptions::class.java)
+    private val logger = LoggerFactory.getLogger(CatchHttpExceptions::class.java)
 
     operator fun invoke() = Filter { next ->
         {

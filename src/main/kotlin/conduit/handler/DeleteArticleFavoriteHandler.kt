@@ -4,7 +4,6 @@ import conduit.model.ArticleDto
 import conduit.model.ArticleSlug
 import conduit.model.extractEmail
 import conduit.repository.ConduitDatabase
-import conduit.repository.OldRepo
 import conduit.repository.toProfile
 import conduit.util.HttpException
 import conduit.util.TokenAuth

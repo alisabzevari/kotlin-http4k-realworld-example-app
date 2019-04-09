@@ -238,3 +238,31 @@ fun ResultRow.toComment() = Comment(
     articleId = this[Comments.articleId].value,
     authorId = this[Comments.authorId].value
 )
+
+fun ResultRow.toUser() = User(
+    id = this[Users.id].value,
+    email = Email(this[Users.email]),
+    password = Password(this[Users.password]),
+    token = null,
+    username = Username(this[Users.username]),
+    bio = this[Users.bio]?.let(::Bio),
+    image = this[Users.image]?.let(::Image)
+)
+
+fun User.toProfile(following: Boolean) = Profile(
+    username = username,
+    bio = bio,
+    image = image,
+    following = following
+)
+
+fun ResultRow.toArticle() = Article(
+    id = this[Articles.id].value,
+    slug = ArticleSlug(this[Articles.slug]),
+    body = ArticleBody(this[Articles.body]),
+    createdAt = this[Articles.createdAt],
+    description = ArticleDescription(this[Articles.description]),
+    title = ArticleTitle(this[Articles.title]),
+    updatedAt = this[Articles.updatedAt],
+    authorId = this[Articles.authorId].value
+)

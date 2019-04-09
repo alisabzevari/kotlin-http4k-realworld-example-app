@@ -1,22 +1,11 @@
 package conduit.handler
 
-import conduit.model.*
-import conduit.repository.UserNotFoundException
-import conduit.util.TokenAuth
-import conduit.util.hash
-import io.jsonwebtoken.impl.DefaultClaims
-import io.kotlintest.Description
-import io.kotlintest.assertSoftly
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
-import io.mockk.every
-import io.mockk.mockk
 
 class GetCurrentUserHandlerImplTest : StringSpec() {
     lateinit var unit: GetCurrentUserHandlerImpl
 
-//    override fun beforeTest(description: Description) {
+//    override fun beforeTest(testCase: TestCase) {
 //        unit = GetCurrentUserHandlerImpl(
 //            repository = mockk(relaxed = true)
 //        )

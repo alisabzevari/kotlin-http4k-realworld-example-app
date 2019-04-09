@@ -1,7 +1,6 @@
 package conduit.handler
 
 import conduit.repository.ConduitDatabase
-import conduit.repository.OldRepo
 
 interface DeleteArticleCommentHandler {
     operator fun invoke(commentId: Int)

@@ -62,7 +62,7 @@ fun createArticle(
                   "title": "$title",
                   "description": "article description",
                   "body": "article body",
-                  "tagList": [${tags.map { "\"$it\"" }.joinToString(",")}]
+                  "tagList": [${tags.joinToString(",") { "\"$it\"" }}]
                 }
               }
             """.trimIndent()
@@ -75,5 +75,5 @@ fun createArticle(
     val send = ApacheClient()
     val response = send(request)
     response.status.shouldBe(Status.CREATED)
-    return response.bodyString().toJsonTree()!!
+    return response.bodyString().toJsonTree()
 }
