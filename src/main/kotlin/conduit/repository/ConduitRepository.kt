@@ -17,35 +17,33 @@ interface ConduitRepository {
     fun insertFollowing(sourceUserId: Int, targetUserId: Int)
     fun deleteFollowing(sourceUserId: Int, targetUserId: Int)
 
-    fun getArticlesOfAuthorsCount(authorUserIds: List<Int>): Int
-    fun getArticlesOfAuthors(authorUserIds: List<Int>, offset: Int, limit: Int): List<Article>
-    fun getArticleTags(articleId: Int): List<ArticleTag>
-
     fun getArticleFavoritesCount(articleId: Int): Int
     fun isArticleFavorited(articleId: Int, userId: Int): Boolean
     fun insertFavorite(articleId: Int, userId: Int)
     fun deleteFavorite(articleId: Int, userId: Int)
     fun updateArticle(articleId: Int, body: ArticleBody?, description: ArticleDescription?, title: ArticleTitle?)
 
-    fun insertArticle(newArticle: NewArticle)
+    fun getArticlesOfAuthorsCount(authorUserIds: List<Int>): Int
+    fun getArticlesOfAuthors(authorUserIds: List<Int>, offset: Int, limit: Int): List<Article>
     fun getArticle(slug: ArticleSlug): Article?
     fun getArticleIdsByTag(tag: ArticleTag): List<Int>
     fun getArticleIdsFavoritedBy(userId: Int): List<Int>
-    fun queryArticlesCount(authorUserId: Int?, taggedWithTagIds: List<Int>?, includingIds: List<Int>?): Int
-    fun queryArticles(
+    fun getArticlesCount(authorUserId: Int?, taggedWithTagIds: List<Int>?, includingIds: List<Int>?): Int
+    fun getArticles(
         limit: Int,
         offset: Int,
         authorUserId: Int?,
         taggedWithTagIds: List<Int>?,
         includingIds: List<Int>?
     ): List<Article>
-
+    fun insertArticle(newArticle: NewArticle)
     fun deleteArticle(articleId: Int)
 
     fun insertComment(body: CommentBody, authorId: Int, articleId: Int, createdAt: DateTime, updatedAt: DateTime): Int
     fun getArticleComments(articleId: Int): List<Comment>
     fun deleteArticleComment(commentId: Int)
 
+    fun getTagsOfArticle(articleId: Int): List<ArticleTag>
     fun getAllTags(): List<ArticleTag>
 }
 
@@ -104,7 +102,7 @@ class ConduitRepositoryImpl : ConduitRepository {
             .toList()
             .map { it.toArticle() }
 
-    override fun getArticleTags(articleId: Int): List<ArticleTag> =
+    override fun getTagsOfArticle(articleId: Int): List<ArticleTag> =
         Tags.select { Tags.articleId eq EntityID(articleId, Articles) }
             .map { ArticleTag(it[Tags.tag]) }
             .toList()
@@ -172,7 +170,7 @@ class ConduitRepositoryImpl : ConduitRepository {
     override fun getArticleIdsFavoritedBy(userId: Int): List<Int> =
         Favorites.select { Favorites.userId eq userId }.map { it[Favorites.articleId].value }
 
-    override fun queryArticlesCount(authorUserId: Int?, taggedWithTagIds: List<Int>?, includingIds: List<Int>?): Int {
+    override fun getArticlesCount(authorUserId: Int?, taggedWithTagIds: List<Int>?, includingIds: List<Int>?): Int {
         val query = Articles.selectAll()
 
         authorUserId?.also { userId -> query.andWhere { Articles.authorId eq userId } }
@@ -182,7 +180,7 @@ class ConduitRepositoryImpl : ConduitRepository {
         return query.count()
     }
 
-    override fun queryArticles(
+    override fun getArticles(
         limit: Int,
         offset: Int,
         authorUserId: Int?,

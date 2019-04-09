@@ -40,7 +40,7 @@ class UpdateArticleHandlerImpl(val database: ConduitDatabase) : UpdateArticleHan
 
         val updatedArticle =
             getArticle(slug) ?: throw HttpException(Status.NOT_FOUND, "Article with slug ${slug.value} not found.")
-        val tags = getArticleTags(article.id)
+        val tags = getTagsOfArticle(article.id)
         val favoritesCount = getArticleFavoritesCount(article.id)
         ArticleDto(
             updatedArticle.slug,

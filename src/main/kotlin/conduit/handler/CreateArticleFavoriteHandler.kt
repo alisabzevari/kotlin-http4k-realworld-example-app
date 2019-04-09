@@ -27,7 +27,7 @@ class CreateArticleFavoriteHandlerImpl(val database: ConduitDatabase) : CreateAr
             insertFavorite(article.id, currentUser.id)
         }
 
-        val tags = getArticleTags(article.id)
+        val tags = getTagsOfArticle(article.id)
         val favoritesCount = getArticleFavoritesCount(article.id)
         val authorUser = getUser(article.authorId) ?: throw HttpException(
             Status.INTERNAL_SERVER_ERROR,

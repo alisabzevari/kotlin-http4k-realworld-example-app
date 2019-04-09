@@ -18,7 +18,7 @@ class GetArticleHandlerImpl(val database: ConduitDatabase) : GetArticleHandler {
         val article =
             getArticle(slug) ?: throw HttpException(Status.NOT_FOUND, "Article with slug ${slug.value} not found.")
 
-        val tags = getArticleTags(article.id)
+        val tags = getTagsOfArticle(article.id)
         val favoritesCount = getArticleFavoritesCount(article.id)
         val authorUser = getUser(article.authorId) ?: throw HttpException(
             Status.INTERNAL_SERVER_ERROR,

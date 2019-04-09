@@ -22,7 +22,7 @@ class GetArticlesFeedHandlerImpl(val database: ConduitDatabase) : GetArticlesFee
             val followedUserIds = getFollowedUserIds(user.id)
             val articlesCount = getArticlesOfAuthorsCount(followedUserIds)
             val articles = getArticlesOfAuthors(followedUserIds, offset, limit)
-            val articleTags = articles.map { article -> article.id to getArticleTags(article.id) }.toMap()
+            val articleTags = articles.map { article -> article.id to getTagsOfArticle(article.id) }.toMap()
             val articleAuthors = articles.mapNotNull { article ->
                 val author = getUser(article.authorId)
                 if (author != null) article.id to author else null

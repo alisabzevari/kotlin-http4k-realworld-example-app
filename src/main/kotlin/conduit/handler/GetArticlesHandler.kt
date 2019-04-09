@@ -39,10 +39,10 @@ class GetArticlesHandlerImpl(val database: ConduitDatabase) : GetArticlesHandler
 
         val articleIdsFavoritedByCurrentUser = getArticleIdsFavoritedBy(currentUser.id)
 
-        val articlesCount = queryArticlesCount(authorUserId, taggedArticleIds, favoritedArticleIds)
-        val articles = queryArticles(limit, offset, authorUserId, taggedArticleIds, favoritedArticleIds)
+        val articlesCount = getArticlesCount(authorUserId, taggedArticleIds, favoritedArticleIds)
+        val articles = getArticles(limit, offset, authorUserId, taggedArticleIds, favoritedArticleIds)
             .map { article ->
-                val tags = getArticleTags(article.id)
+                val tags = getTagsOfArticle(article.id)
                 val favorited = article.id in articleIdsFavoritedByCurrentUser
                 val favoritesCount = getArticleFavoritesCount(article.id)
                 val articleAuthor = getUser(article.authorId) ?: throw HttpException(
