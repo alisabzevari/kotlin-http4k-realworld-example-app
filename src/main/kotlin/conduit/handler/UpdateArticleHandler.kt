@@ -1,11 +1,7 @@
 package conduit.handler
 
-import conduit.model.ArticleDto
-import conduit.model.ArticleSlug
-import conduit.model.UpdateArticle
-import conduit.model.extractEmail
-import conduit.repository.ConduitDatabase
-import conduit.repository.toProfile
+import conduit.model.*
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status
@@ -14,12 +10,12 @@ interface UpdateArticleHandler {
     operator fun invoke(slug: ArticleSlug, updateArticleDto: UpdateArticle, tokenInfo: TokenAuth.TokenInfo): ArticleDto
 }
 
-class UpdateArticleHandlerImpl(val database: ConduitDatabase) : UpdateArticleHandler {
+class UpdateArticleHandlerImpl(val txManager: ConduitTxManager) : UpdateArticleHandler {
     override fun invoke(
         slug: ArticleSlug,
         updateArticleDto: UpdateArticle,
         tokenInfo: TokenAuth.TokenInfo
-    ): ArticleDto = database.tx {
+    ): ArticleDto = txManager.tx {
         val currentUser = getUser(tokenInfo.extractEmail()) ?: throw HttpException(Status.NOT_FOUND, "User not found.")
 
         val article =

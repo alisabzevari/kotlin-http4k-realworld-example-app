@@ -1,13 +1,13 @@
 package conduit.handler
 
-import conduit.repository.ConduitDatabase
+import conduit.repository.ConduitTxManager
 
 interface DeleteArticleCommentHandler {
     operator fun invoke(commentId: Int)
 }
 
-class DeleteArticleCommentHandlerImpl(val database: ConduitDatabase) : DeleteArticleCommentHandler {
-    override fun invoke(commentId: Int) = database.tx {
+class DeleteArticleCommentHandlerImpl(val txManager: ConduitTxManager) : DeleteArticleCommentHandler {
+    override fun invoke(commentId: Int) = txManager.tx {
         deleteArticleComment(commentId)
     }
 }

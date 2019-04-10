@@ -4,7 +4,7 @@ import conduit.model.Email
 import conduit.model.NewUser
 import conduit.model.Password
 import conduit.model.Username
-import conduit.repository.ConduitDatabase
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.generateToken
 import conduit.util.hash
@@ -14,9 +14,9 @@ interface RegisterUserHandler {
     operator fun invoke(newUserDto: NewUserDto): UserDto
 }
 
-class RegisterUserHandlerImpl(val database: ConduitDatabase) : RegisterUserHandler {
+class RegisterUserHandlerImpl(val txManager: ConduitTxManager) : RegisterUserHandler {
     override fun invoke(newUserDto: NewUserDto): UserDto {
-        database.tx {
+        txManager.tx {
             val user = getUser(newUserDto.username) ?: getUser(newUserDto.email)
             if (user != null) {
                 throw HttpException(Status.CONFLICT, "The specified user already exists.")

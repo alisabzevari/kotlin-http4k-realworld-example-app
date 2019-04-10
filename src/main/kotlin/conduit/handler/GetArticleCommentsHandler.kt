@@ -3,8 +3,8 @@ package conduit.handler
 import conduit.model.ArticleSlug
 import conduit.model.CommentDto
 import conduit.model.extractEmail
-import conduit.repository.ConduitDatabase
-import conduit.repository.toProfile
+import conduit.model.toProfile
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status
@@ -13,8 +13,8 @@ interface GetArticleCommentsHandler {
     operator fun invoke(slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo?): List<CommentDto>
 }
 
-class GetArticleCommentsHandlerImpl(val database: ConduitDatabase) : GetArticleCommentsHandler {
-    override fun invoke(slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo?): List<CommentDto> = database.tx {
+class GetArticleCommentsHandlerImpl(val txManager: ConduitTxManager) : GetArticleCommentsHandler {
+    override fun invoke(slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo?): List<CommentDto> = txManager.tx {
         val article =
             getArticle(slug) ?: throw HttpException(Status.NOT_FOUND, "Article with slug ${slug.value} not found.")
         val comments = getArticleComments(article.id)

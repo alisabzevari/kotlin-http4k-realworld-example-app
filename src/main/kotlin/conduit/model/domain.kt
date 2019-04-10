@@ -40,17 +40,11 @@ data class User(
     val image: Image?
 )
 
-data class NewUser(
-    val username: Username,
-    val password: Password,
-    val email: Email
-)
-
-data class UpdateUser(
-    val email: Email?,
-    val username: Username?,
-    val bio: Bio?,
-    val image: Image?
+fun User.toProfile(following: Boolean) = Profile(
+    username = username,
+    bio = bio,
+    image = image,
+    following = following
 )
 
 data class Profile(
@@ -82,19 +76,6 @@ data class ArticleTag @JsonCreator(mode = m) constructor(@JsonValue val value: S
     override fun toString(): String = this.value
 }
 
-data class ArticleDto(
-    val slug: ArticleSlug,
-    val title: ArticleTitle,
-    val description: ArticleDescription,
-    val body: ArticleBody,
-    val tagList: List<ArticleTag>,
-    val createdAt: DateTime,
-    val updatedAt: DateTime,
-    val favorited: Boolean,
-    val favoritesCount: Int,
-    val author: Profile
-)
-
 data class Article(
     val id: Int,
     val slug: ArticleSlug,
@@ -104,6 +85,19 @@ data class Article(
     val createdAt: DateTime,
     val updatedAt: DateTime,
     val authorId: Int
+)
+
+data class CommentBody @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
+    override fun toString(): String = this.value
+}
+
+data class Comment(
+    val id: Int,
+    val createdAt: DateTime,
+    val updatedAt: DateTime,
+    val body: CommentBody,
+    val authorId: Int,
+    val articleId: Int
 )
 
 data class UpdateArticle(
@@ -123,23 +117,15 @@ data class NewArticle(
     val updatedAt: DateTime
 )
 
-data class CommentBody @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
-    override fun toString(): String = this.value
-}
-
-data class CommentDto(
-    val id: Int,
-    val createdAt: DateTime,
-    val updatedAt: DateTime,
-    val body: CommentBody,
-    val author: Profile
+data class NewUser(
+    val username: Username,
+    val password: Password,
+    val email: Email
 )
 
-data class Comment(
-    val id: Int,
-    val createdAt: DateTime,
-    val updatedAt: DateTime,
-    val body: CommentBody,
-    val authorId: Int,
-    val articleId: Int
+data class UpdateUser(
+    val email: Email?,
+    val username: Username?,
+    val bio: Bio?,
+    val image: Image?
 )

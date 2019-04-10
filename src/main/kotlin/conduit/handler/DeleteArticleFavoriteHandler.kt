@@ -3,8 +3,8 @@ package conduit.handler
 import conduit.model.ArticleDto
 import conduit.model.ArticleSlug
 import conduit.model.extractEmail
-import conduit.repository.ConduitDatabase
-import conduit.repository.toProfile
+import conduit.model.toProfile
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status
@@ -13,8 +13,8 @@ interface DeleteArticleFavoriteHandler {
     operator fun invoke(slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo): ArticleDto
 }
 
-class DeleteArticleFavoriteHandlerImpl(val database: ConduitDatabase): DeleteArticleFavoriteHandler {
-    override fun invoke(slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo): ArticleDto = database.tx {
+class DeleteArticleFavoriteHandlerImpl(val txManager: ConduitTxManager): DeleteArticleFavoriteHandler {
+    override fun invoke(slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo): ArticleDto = txManager.tx {
         val currentUserEmail = tokenInfo.extractEmail()
         val currentUser = getUser(currentUserEmail) ?: throw HttpException(
             Status.NOT_FOUND,

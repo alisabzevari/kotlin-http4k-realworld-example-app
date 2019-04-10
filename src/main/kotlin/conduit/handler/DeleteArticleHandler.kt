@@ -2,7 +2,7 @@ package conduit.handler
 
 import conduit.model.ArticleSlug
 import conduit.model.extractEmail
-import conduit.repository.ConduitDatabase
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status
@@ -11,9 +11,9 @@ interface DeleteArticleHandler {
     operator fun invoke(slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo)
 }
 
-class DeleteArticleHandlerImpl(val database: ConduitDatabase) : DeleteArticleHandler {
+class DeleteArticleHandlerImpl(val txManager: ConduitTxManager) : DeleteArticleHandler {
     override fun invoke(slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo) {
-        database.tx {
+        txManager.tx {
             val currentUserEmail = tokenInfo.extractEmail()
             val currentUser = getUser(currentUserEmail) ?: throw HttpException(
                 Status.NOT_FOUND,

@@ -1,7 +1,7 @@
 package conduit.handler
 
 import conduit.model.*
-import conduit.repository.ConduitDatabase
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.generateToken
 import conduit.util.hash
@@ -11,9 +11,9 @@ interface LoginHandler {
     operator fun invoke(loginUserDto: LoginUserDto): UserDto
 }
 
-class LoginHandlerImpl(val database: ConduitDatabase) : LoginHandler {
+class LoginHandlerImpl(val txManager: ConduitTxManager) : LoginHandler {
     override operator fun invoke(loginUserDto: LoginUserDto): UserDto {
-        val user = database.tx {
+        val user = txManager.tx {
             getUser(loginUserDto.email) ?: throw InvalidUserPassException() // TODO: Change exception
         }
 

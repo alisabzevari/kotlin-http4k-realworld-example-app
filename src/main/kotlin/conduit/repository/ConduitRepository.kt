@@ -247,13 +247,6 @@ fun ResultRow.toUser() = User(
     image = this[Users.image]?.let(::Image)
 )
 
-fun User.toProfile(following: Boolean) = Profile(
-    username = username,
-    bio = bio,
-    image = image,
-    following = following
-)
-
 fun ResultRow.toArticle() = Article(
     id = this[Articles.id].value,
     slug = ArticleSlug(this[Articles.slug]),

@@ -14,7 +14,7 @@ class RegisterUserHandlerImplTest : StringSpec() {
 
     override fun beforeTest(testCase: TestCase) {
         unit = RegisterUserHandlerImpl(
-            database = mockk(relaxed = true)
+            mockk(relaxed = true)
         )
     }
 
@@ -38,7 +38,7 @@ class RegisterUserHandlerImplTest : StringSpec() {
 
         // TODO: fix this
 //        "should throw exception if the user already exists" {
-//            every { unit.database.insertUser(any()) } throws UserAlreadyExistsException()
+//            every { unit.transactionManager.insertUser(any()) } throws UserAlreadyExistsException()
 //            val newUser = NewUserDto(
 //                Username("name"),
 //                Password("password"),

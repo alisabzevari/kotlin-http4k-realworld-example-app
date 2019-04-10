@@ -3,7 +3,7 @@ package conduit.handler
 import conduit.model.Profile
 import conduit.model.Username
 import conduit.model.extractEmail
-import conduit.repository.ConduitDatabase
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status
@@ -12,9 +12,9 @@ interface UnfollowUserHandler {
     operator fun invoke(username: Username, token: TokenAuth.TokenInfo): Profile
 }
 
-class UnfollowUserHandlerImpl(val database: ConduitDatabase) : UnfollowUserHandler {
+class UnfollowUserHandlerImpl(val txManager: ConduitTxManager) : UnfollowUserHandler {
     override fun invoke(username: Username, token: TokenAuth.TokenInfo) =
-        database.tx {
+        txManager.tx {
             val targetUser = getUser(username) ?: throw HttpException(Status.NOT_FOUND, "$username not found.")
             val email = token.extractEmail()
             val sourceUser =

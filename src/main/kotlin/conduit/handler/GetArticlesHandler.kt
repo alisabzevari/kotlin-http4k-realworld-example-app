@@ -1,7 +1,7 @@
 package conduit.handler
 
 import conduit.model.*
-import conduit.repository.ConduitDatabase
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status
@@ -17,7 +17,7 @@ interface GetArticlesHandler {
     ): MultipleArticles
 }
 
-class GetArticlesHandlerImpl(val database: ConduitDatabase) : GetArticlesHandler {
+class GetArticlesHandlerImpl(val txManager: ConduitTxManager) : GetArticlesHandler {
     override fun invoke(
         tokenInfo: TokenAuth.TokenInfo?,
         offset: Int,
@@ -25,7 +25,7 @@ class GetArticlesHandlerImpl(val database: ConduitDatabase) : GetArticlesHandler
         tag: ArticleTag?,
         author: Username?,
         favoritedByUser: Username?
-    ) = database.tx {
+    ) = txManager.tx {
         val taggedArticleIds = tag?.let { getArticleIdsByTag(it) }
         val authorUserId = author?.let { getUser(it) }?.id
         val favoritedArticleIds = favoritedByUser?.let {

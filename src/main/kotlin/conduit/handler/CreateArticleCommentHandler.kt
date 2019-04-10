@@ -1,11 +1,7 @@
 package conduit.handler
 
-import conduit.model.ArticleSlug
-import conduit.model.CommentDto
-import conduit.model.CommentBody
-import conduit.model.extractEmail
-import conduit.repository.ConduitDatabase
-import conduit.repository.toProfile
+import conduit.model.*
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status
@@ -15,9 +11,9 @@ interface CreateArticleCommentHandler {
     operator fun invoke(newComment: NewComment, slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo): CommentDto
 }
 
-class CreateArticleCommentHandlerImpl(val database: ConduitDatabase) : CreateArticleCommentHandler {
+class CreateArticleCommentHandlerImpl(val txManager: ConduitTxManager) : CreateArticleCommentHandler {
     override fun invoke(newComment: NewComment, slug: ArticleSlug, tokenInfo: TokenAuth.TokenInfo): CommentDto =
-        database.tx {
+        txManager.tx {
             val email = tokenInfo.extractEmail()
             val authorUser =
                 getUser(email) ?: throw HttpException(Status.NOT_FOUND, "User with email $email not found.")

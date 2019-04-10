@@ -2,8 +2,8 @@ package conduit.handler
 
 import conduit.model.ArticleDto
 import conduit.model.extractEmail
-import conduit.repository.ConduitDatabase
-import conduit.repository.toProfile
+import conduit.model.toProfile
+import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import org.http4k.core.Status
@@ -13,9 +13,10 @@ interface GetArticlesFeedHandler {
 }
 
 // TODO: Write integration tests for articles feed
-class GetArticlesFeedHandlerImpl(val database: ConduitDatabase) : GetArticlesFeedHandler {
+class GetArticlesFeedHandlerImpl(val txManager: ConduitTxManager) :
+    GetArticlesFeedHandler {
     override fun invoke(tokenInfo: TokenAuth.TokenInfo, offset: Int, limit: Int) =
-        database.tx {
+        txManager.tx {
             val email = tokenInfo.extractEmail()
             val user =
                 getUser(email) ?: throw HttpException(Status.NOT_FOUND, "User with email ${email.value} not found.")
