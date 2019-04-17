@@ -1,9 +1,13 @@
 package conduit.handler
 
-import conduit.model.*
+import conduit.model.ArticleDto
+import conduit.model.ArticleTag
+import conduit.model.Profile
+import conduit.model.Username
 import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
+import conduit.util.extractEmail
 import org.http4k.core.Status
 
 interface GetArticlesHandler {
@@ -27,7 +31,7 @@ class GetArticlesHandlerImpl(val txManager: ConduitTxManager) : GetArticlesHandl
         favoritedByUser: Username?
     ) = txManager.tx {
         val taggedArticleIds = tag?.let { getArticleIdsByTag(it) }
-        val authorUserId = author?.let { getUser(it) }?.id
+        val authorUserId = author?.let { getUser(it)?.id ?: -1 }
         val favoritedArticleIds = favoritedByUser?.let {
             val user = getUser(it) ?: throw HttpException(Status.NOT_FOUND, "User $favoritedByUser not found.")
             getArticleIdsFavoritedBy(user.id)

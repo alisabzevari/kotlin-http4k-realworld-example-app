@@ -18,7 +18,7 @@ class ArticlesTest : StringSpec() {
     val send = ApacheClient()
 
     init {
-        "POST ArticleDto" {
+        "POST article" {
             IntegrationTest.app.resetDb()
             registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
             val token = login("jjacob@gmail.com", "jjcb")

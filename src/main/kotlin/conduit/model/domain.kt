@@ -2,7 +2,6 @@ package conduit.model
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
-import conduit.util.TokenAuth
 import org.joda.time.DateTime
 import com.fasterxml.jackson.annotation.JsonCreator.Mode.DELEGATING as m
 
@@ -53,8 +52,6 @@ data class Profile(
     val image: Image?,
     val following: Boolean
 )
-
-fun TokenAuth.TokenInfo.extractEmail() = Email(claims["email"].toString())
 
 data class ArticleSlug @JsonCreator(mode = m) constructor(@JsonValue val value: String) {
     override fun toString(): String = this.value

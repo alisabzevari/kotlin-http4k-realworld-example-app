@@ -1,5 +1,6 @@
 package conduit.util
 
+import conduit.model.Email
 import conduit.model.Token
 import conduit.util.ConduitJackson.auto
 import io.jsonwebtoken.Claims
@@ -59,3 +60,5 @@ private val error = Body.auto<GenericErrorModel>().toLens()
 
 fun createErrorResponse(status: Status, errorMessages: List<String>) =
     Response(status).with(error of GenericErrorModel(GenericErrorModelBody(errorMessages)))
+
+fun TokenAuth.TokenInfo.extractEmail() = Email(claims["email"].toString())

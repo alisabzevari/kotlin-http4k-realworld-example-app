@@ -144,14 +144,14 @@ class ConduitRepositoryImpl : ConduitRepository {
 
     override fun insertArticle(newArticle: NewArticle) {
         val articleId = Articles.insert {
-            it[Articles.authorId] = EntityID(newArticle.authorId, Users)
-            it[Articles.body] = newArticle.body.value
-            it[Articles.createdAt] = DateTime.now()
-            it[Articles.description] = newArticle.description.value
-            it[Articles.slug] = newArticle.slug.value
-            it[Articles.title] = newArticle.title.value
-            it[Articles.updatedAt] = DateTime.now()
-        }[Articles.id]!!
+            it[authorId] = EntityID(newArticle.authorId, Users)
+            it[body] = newArticle.body.value
+            it[description] = newArticle.description.value
+            it[slug] = newArticle.slug.value
+            it[title] = newArticle.title.value
+            it[createdAt] = newArticle.createdAt
+            it[updatedAt] = newArticle.updatedAt
+        }[Articles.id]
 
         newArticle.tagList.forEach { tag ->
             Tags.insert {
@@ -212,7 +212,7 @@ class ConduitRepositoryImpl : ConduitRepository {
         it[Comments.createdAt] = createdAt
         it[Comments.updatedAt] = updatedAt
         it[Comments.articleId] = EntityID(articleId, Articles)
-    }[Comments.id]!!.value
+    }[Comments.id].value
 
     override fun getArticleComments(articleId: Int): List<Comment> =
         Comments.select { Comments.articleId eq articleId }.map { it.toComment() }
@@ -227,15 +227,6 @@ class ConduitRepositoryImpl : ConduitRepository {
         .withDistinct()
         .map { ArticleTag(it[Tags.tag]) }
 }
-
-fun ResultRow.toComment() = Comment(
-    id = this[Comments.id].value,
-    body = CommentBody(this[Comments.body]),
-    createdAt = this[Comments.createdAt],
-    updatedAt = this[Comments.updatedAt],
-    articleId = this[Comments.articleId].value,
-    authorId = this[Comments.authorId].value
-)
 
 fun ResultRow.toUser() = User(
     id = this[Users.id].value,
@@ -256,4 +247,13 @@ fun ResultRow.toArticle() = Article(
     title = ArticleTitle(this[Articles.title]),
     updatedAt = this[Articles.updatedAt],
     authorId = this[Articles.authorId].value
+)
+
+fun ResultRow.toComment() = Comment(
+    id = this[Comments.id].value,
+    body = CommentBody(this[Comments.body]),
+    createdAt = this[Comments.createdAt],
+    updatedAt = this[Comments.updatedAt],
+    articleId = this[Comments.articleId].value,
+    authorId = this[Comments.authorId].value
 )

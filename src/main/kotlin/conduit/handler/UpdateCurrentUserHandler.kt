@@ -1,10 +1,10 @@
 package conduit.handler
 
 import conduit.model.UpdateUser
-import conduit.model.extractEmail
 import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
+import conduit.util.extractEmail
 import org.http4k.core.Status
 
 interface UpdateCurrentUserHandler {

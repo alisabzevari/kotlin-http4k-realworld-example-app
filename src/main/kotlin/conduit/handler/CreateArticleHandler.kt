@@ -4,6 +4,7 @@ import conduit.model.*
 import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
 import conduit.util.TokenAuth
+import conduit.util.extractEmail
 import org.http4k.core.Status
 import org.joda.time.DateTime
 
@@ -17,6 +18,7 @@ class CreateArticleHandlerImpl(val txManager: ConduitTxManager) : CreateArticleH
             val email = tokenInfo.extractEmail()
             val authorUser =
                 getUser(email) ?: throw HttpException(Status.NOT_FOUND, "User with email $email not found.")
+            val now = DateTime.now()
             val newDbArticle = newArticle.let {
                 NewArticle(
                     it.title,
@@ -25,8 +27,8 @@ class CreateArticleHandlerImpl(val txManager: ConduitTxManager) : CreateArticleH
                     it.tagList,
                     authorUser.id,
                     ArticleSlug(it.title.value.replace(" ", "-")),
-                    DateTime.now(),
-                    DateTime.now()
+                    now,
+                    now
                 )
             }
             insertArticle(newDbArticle)
