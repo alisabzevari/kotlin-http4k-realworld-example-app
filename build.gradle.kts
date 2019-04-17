@@ -5,6 +5,7 @@ val kotlinVersion = "1.3.21"
 val http4kVersion = "3.132.0"
 val log4jVersion = "2.11.2"
 val jacksonVersion = "2.9.8"
+val jaxbVersion = "2.3.0"
 
 plugins {
     kotlin("jvm") version "1.3.21"
@@ -18,6 +19,9 @@ repositories {
 }
 
 dependencies {
+    implementation("javax.xml.bind:jaxb-api:$jaxbVersion")
+    implementation("com.sun.xml.bind:jaxb-core:$jaxbVersion")
+    implementation("com.sun.xml.bind:jaxb-impl:$jaxbVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.http4k:http4k-core:$http4kVersion")
     implementation("org.http4k:http4k-server-jetty:$http4kVersion")
