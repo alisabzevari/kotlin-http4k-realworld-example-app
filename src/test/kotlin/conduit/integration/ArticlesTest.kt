@@ -14,11 +14,11 @@ import org.http4k.core.Status
 import org.intellij.lang.annotations.Language
 
 class ArticlesTest : StringSpec() {
-    val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
+    private val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
     val send = ApacheClient()
 
     init {
-        "POST Article" {
+        "POST article" {
             IntegrationTest.app.resetDb()
             registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
             val token = login("jjacob@gmail.com", "jjcb")
@@ -224,7 +224,7 @@ class ArticlesTest : StringSpec() {
         }
     }
 
-    fun articleExists(slug: String): Boolean {
+    private fun articleExists(slug: String): Boolean {
         val result = IntegrationTest.app.db.connector().createStatement().executeQuery(
             "SELECT COUNT(1) FROM Articles WHERE slug = '$slug'"
         )

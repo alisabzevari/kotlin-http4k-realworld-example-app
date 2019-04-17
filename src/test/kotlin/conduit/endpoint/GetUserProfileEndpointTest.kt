@@ -5,7 +5,7 @@ import conduit.model.Bio
 import conduit.model.Image
 import conduit.model.Profile
 import conduit.model.Username
-import io.kotlintest.Description
+import io.kotlintest.TestCase
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import io.mockk.every
@@ -17,7 +17,7 @@ import org.intellij.lang.annotations.Language
 class GetUserProfileEndpointTest : StringSpec() {
     lateinit var router: Router
 
-    override fun beforeTest(description: Description) {
+    override fun beforeTest(testCase: TestCase) {
         router = getRouterToTest()
     }
 

@@ -3,6 +3,7 @@ package conduit.util
 import conduit.model.Email
 import conduit.model.Token
 import conduit.model.Username
+import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import java.util.*
@@ -25,7 +26,7 @@ fun generateToken(username: Username, email: Email) = Token(
         .compact()
 )
 
-fun Token.parse() = Jwts
+fun Token.parse(): Claims = Jwts
     .parser()
     .setSigningKey(signingKey)
     .parseClaimsJws(value)

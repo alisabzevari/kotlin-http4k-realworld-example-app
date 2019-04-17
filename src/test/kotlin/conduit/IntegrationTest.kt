@@ -12,7 +12,7 @@ private val logger = LoggerFactory.getLogger("IntegrationTest")
 
 class App : Closeable {
     val db: Database
-    val server: Http4kServer
+    private val server: Http4kServer
     val config: AppConfig = AppConfig(
         "log4j2.yaml",
         DbConfig(
@@ -29,7 +29,7 @@ class App : Closeable {
 
     fun resetDb() {
         val command = "SET REFERENTIAL_INTEGRITY FALSE;" +
-                getAllTables().map { "TRUNCATE TABLE $it;" }.joinToString("") +
+                getAllTables().joinToString("") { "TRUNCATE TABLE $it;" } +
                 "SET REFERENTIAL_INTEGRITY TRUE;"
         val statement = db.connector().createStatement()
 

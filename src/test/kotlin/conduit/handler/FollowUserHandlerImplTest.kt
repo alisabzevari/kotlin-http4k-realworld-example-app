@@ -1,47 +1,51 @@
 package conduit.handler
 
 import conduit.model.*
+import conduit.repository.ConduitRepository
 import conduit.util.TokenAuth
 import io.jsonwebtoken.impl.DefaultClaims
-import io.kotlintest.Description
-import io.kotlintest.assertSoftly
-import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 
 class FollowUserHandlerImplTest : StringSpec() {
-    lateinit var unit: FollowUserHandlerImpl
-
-    override fun beforeTest(description: Description) {
-        unit = FollowUserHandlerImpl(
-            repository = mockk(relaxed = true)
-        )
-    }
-
     init {
-        "should follow the user" {
-            val username = Username("jake")
-            val profile = Profile(
-                username,
-                Bio("I work at statefarm"),
-                Image("an image url"),
-                true
-            )
-            val followerEmail = Email("email@site.com")
-            every { unit.repository.followUser(username, followerEmail) } returns profile
+        "follow user should insert following when it is not followed" {
+            val repo = mockk<ConduitRepository>(relaxed = true)
+            every { repo.getFollowing(any(), any()) } returns false
+            every { repo.getUser(any<Username>()) } returns followableUser
+            val follow = FollowUserHandlerImpl(TestTxManager(repo))
 
-            val tokenInfo = TokenAuth.TokenInfo(Token("token"), DefaultClaims(mapOf("email" to followerEmail.value)))
+            val result = follow(username, tokenInfo)
 
-            val result = unit(username, tokenInfo)
+            result.shouldBe(profile)
+            verify(exactly = 1) { repo.insertFollowing(any(), followableUserId) }
+        }
 
-            assertSoftly {
-                result.bio.shouldBe(profile.bio)
-                result.username.shouldBe(profile.username)
-                result.image.shouldBe(profile.image)
-                result.following.shouldBeTrue()
-            }
+        "follow user should not change user following if it was already following" {
+            val repo = mockk<ConduitRepository>(relaxed = true)
+            every { repo.getFollowing(any(), any()) } returns true
+            every { repo.getUser(any<Username>()) } returns followableUser
+            val follow = FollowUserHandlerImpl(TestTxManager(repo))
+
+            val result = follow(username, tokenInfo)
+
+            result.shouldBe(profile)
+            verify(exactly = 0) { repo.insertFollowing(any(), any()) }
         }
     }
+
+    val username = Username("jake")
+    val profile = Profile(
+        username,
+        Bio("I work at statefarm"),
+        Image("an image url"),
+        true
+    )
+    val followerEmail = Email("email@site.com")
+    val tokenInfo = TokenAuth.TokenInfo(Token("token"), DefaultClaims(mapOf("email" to followerEmail.value)))
+    val followableUserId = 1
+    val followableUser = User(followableUserId, Email("email"), Password(""), null, username, profile.bio, profile.image)
 }

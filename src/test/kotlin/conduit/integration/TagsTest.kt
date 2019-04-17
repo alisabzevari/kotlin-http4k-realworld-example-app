@@ -12,7 +12,7 @@ import org.http4k.core.Status
 import org.intellij.lang.annotations.Language
 
 class TagsTest: StringSpec() {
-    val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
+    private val baseUrl = "http://localhost:${IntegrationTest.app.config.port}"
     val send = ApacheClient()
 
     init {

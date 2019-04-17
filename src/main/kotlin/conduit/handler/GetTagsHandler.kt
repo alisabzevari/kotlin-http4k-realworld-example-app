@@ -1,12 +1,14 @@
 package conduit.handler
 
 import conduit.model.ArticleTag
-import conduit.repository.ConduitRepository
+import conduit.repository.ConduitTxManager
 
 interface GetTagsHandler {
     operator fun invoke(): List<ArticleTag>
 }
 
-class GetTagsHandlerImpl(val repository: ConduitRepository) : GetTagsHandler {
-    override fun invoke(): List<ArticleTag> = repository.getTags()
+class GetTagsHandlerImpl(val txManager: ConduitTxManager) : GetTagsHandler {
+    override fun invoke(): List<ArticleTag> = txManager.tx {
+        getAllTags()
+    }
 }
