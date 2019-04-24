@@ -79,4 +79,4 @@ There are various ways to contribute to this project. Some of them are:
 * Create an issue if you find a bug or you have suggestions.
 * Fix bugs, improve code or documentation.
 * Write more tests for the project to increase the code coverage.
-* Or look at the issue with ['help wanted'](https://github.com/alisabzevari/kotlin-http4k-realworld-example-app/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) label.
+* Or look at the issue with [help wanted](https://github.com/alisabzevari/kotlin-http4k-realworld-example-app/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) label.
