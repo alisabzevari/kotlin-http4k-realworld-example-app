@@ -10,6 +10,12 @@ val jaxbVersion = "2.3.0"
 plugins {
     kotlin("jvm") version "1.3.21"
     id("com.github.ben-manes.versions") version "0.21.0"
+    id("com.adarshr.test-logger") version "1.6.0"
+    application
+}
+
+application {
+    mainClassName = "conduit.MainKt"
 }
 
 repositories {
@@ -41,8 +47,8 @@ dependencies {
     testImplementation("io.mockk:mockk:1.9.3")
 }
 
-tasks.test {
-    useJUnitPlatform()
+val test by tasks.getting(Test::class) {
+    useJUnitPlatform { }
 }
 
 val compileKotlin: KotlinCompile by tasks
