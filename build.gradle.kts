@@ -1,16 +1,16 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
-val kotlinVersion = "1.3.21"
-val http4kVersion = "3.132.0"
-val log4jVersion = "2.11.2"
-val jacksonVersion = "2.9.8"
+val kotlinVersion = "1.3.50"
+val http4kVersion = "3.189.0"
+val log4jVersion = "2.12.1"
+val jacksonVersion = "2.10.0"
 val jaxbVersion = "2.3.0"
 
 plugins {
-    kotlin("jvm") version "1.3.21"
-    id("com.github.ben-manes.versions") version "0.21.0"
-    id("com.adarshr.test-logger") version "1.6.0"
+    kotlin("jvm") version "1.3.50"
+    id("com.github.ben-manes.versions") version "0.26.0"
+    id("com.adarshr.test-logger") version "2.0.0"
     application
 }
 
