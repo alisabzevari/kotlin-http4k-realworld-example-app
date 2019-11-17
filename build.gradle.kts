@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 val kotlinVersion = "1.3.50"
-val http4kVersion = "3.189.0"
+val http4kVersion = "3.196.0"
 val log4jVersion = "2.12.1"
 val jacksonVersion = "2.10.0"
 val jaxbVersion = "2.3.0"
