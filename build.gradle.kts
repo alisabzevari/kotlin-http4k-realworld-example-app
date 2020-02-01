@@ -9,6 +9,7 @@ val jaxbVersion = "2.3.0"
 
 plugins {
     kotlin("jvm") version "1.3.50"
+    jacoco
     id("com.github.ben-manes.versions") version "0.26.0"
     id("com.adarshr.test-logger") version "2.0.0"
     application
@@ -49,6 +50,12 @@ dependencies {
 
 val test by tasks.getting(Test::class) {
     useJUnitPlatform { }
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.isEnabled = true
+    }
 }
 
 val compileKotlin: KotlinCompile by tasks
