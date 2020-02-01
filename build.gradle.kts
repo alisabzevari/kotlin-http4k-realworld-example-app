@@ -10,7 +10,6 @@ val jaxbVersion = "2.3.0"
 plugins {
     kotlin("jvm") version "1.3.50"
     jacoco
-    id("com.github.kt3k.coveralls") version "2.8.4"
     id("com.github.ben-manes.versions") version "0.26.0"
     id("com.adarshr.test-logger") version "2.0.0"
     application
@@ -57,9 +56,6 @@ tasks.jacocoTestReport {
     reports {
         xml.isEnabled = true
     }
-}
-coveralls {
-    jacocoReportPath = "$buildDir/reports/jacoco/test/jacocoTestReport.xml"
 }
 
 val compileKotlin: KotlinCompile by tasks
