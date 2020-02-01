@@ -1,6 +1,6 @@
 # ![RealWorld Example App](logo.png)
 
-![Java CI](https://github.com/alisabzevari/kotlin-http4k-realworld-example-app/workflows/Java%20CI/badge.svg)
+[![Java CI](https://github.com/alisabzevari/kotlin-http4k-realworld-example-app/workflows/Java%20CI/badge.svg)](https://github.com/alisabzevari/kotlin-http4k-realworld-example-app/actions)
 [![codecov](https://codecov.io/gh/alisabzevari/kotlin-http4k-realworld-example-app/branch/master/graph/badge.svg)](https://codecov.io/gh/alisabzevari/kotlin-http4k-realworld-example-app)
 
 > ### Kotlin + http4k codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
