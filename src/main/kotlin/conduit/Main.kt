@@ -46,6 +46,7 @@ fun startApp(config: AppConfig): Http4kServer {
     val getTags = GetTagsHandlerImpl(txManager)
 
     val app = Router(
+        config.corsPolicy,
         loginHandler,
         registerUserHandler,
         getCurrentUserHandler,

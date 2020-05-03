@@ -7,6 +7,7 @@ import conduit.util.ConduitJackson.auto
 import conduit.util.TokenAuth
 import conduit.util.createErrorResponse
 import org.http4k.core.*
+import org.http4k.filter.CorsPolicy
 import org.http4k.filter.ServerFilters
 import org.http4k.lens.*
 import org.http4k.routing.RoutingHttpHandler
@@ -14,6 +15,7 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 
 class Router(
+    val corsPolicy: CorsPolicy,
     val login: LoginHandler,
     val registerUser: RegisterUserHandler,
     val getCurrentUser: GetCurrentUserHandler,
@@ -39,6 +41,7 @@ class Router(
 
     operator fun invoke(): RoutingHttpHandler =
         CatchHttpExceptions()
+            .then(ServerFilters.Cors(corsPolicy))
             .then(ServerFilters.CatchLensFailure { error ->
                 createErrorResponse(
                     Status.BAD_REQUEST,
