@@ -25,8 +25,8 @@ fun startApp(config: AppConfig): Http4kServer {
     val repository = ConduitRepositoryImpl()
     val txManager = ConduitTransactionManagerImpl(db, repository)
 
-    val registerUserHandler = RegisterUserHandlerImpl(txManager)
-    val loginHandler = LoginHandlerImpl(txManager)
+    val registerUserHandler = RegisterUserHandlerImpl(txManager, config.jwtConfig.signingKey, config.jwtConfig.issuer, config.jwtConfig.expirationMillis)
+    val loginHandler = LoginHandlerImpl(txManager, config.jwtConfig.signingKey, config.jwtConfig.issuer, config.jwtConfig.expirationMillis)
     val getCurrentUserHandler = GetCurrentUserHandlerImpl(txManager)
     val updateCurrentUserHandler = UpdateCurrentUserHandlerImpl(txManager)
     val getProfileHandler = GetProfileHandlerImpl(txManager)
@@ -46,6 +46,7 @@ fun startApp(config: AppConfig): Http4kServer {
     val getTags = GetTagsHandlerImpl(txManager)
 
     val app = Router(
+        config.jwtConfig.signingKey,
         loginHandler,
         registerUserHandler,
         getCurrentUserHandler,

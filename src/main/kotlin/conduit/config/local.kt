@@ -6,5 +6,10 @@ val local = AppConfig(
         url = "jdbc:h2:~/conduit-db/conduit",
         driver = "org.h2.Driver"
     ),
-    port = 9000
+    port = 9000,
+    jwtConfig = JwtConfig(
+        secret = "Top Secret",
+        issuer = "thinkster.io",
+        expirationMillis = 36_000_000
+    )
 )

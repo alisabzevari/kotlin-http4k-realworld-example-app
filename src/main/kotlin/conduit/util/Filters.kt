@@ -8,6 +8,7 @@ import org.http4k.core.*
 import org.http4k.lens.Header
 import org.http4k.lens.RequestContextLens
 import org.slf4j.LoggerFactory
+import javax.crypto.spec.SecretKeySpec
 
 open class HttpException(val status: Status, message: String = status.description) : RuntimeException(message)
 data class GenericErrorModelBody(val body: List<String>)
@@ -31,17 +32,18 @@ object CatchHttpExceptions {
     }
 }
 
-object TokenAuth {
+fun extract(headerValue: String, signingKey: SecretKeySpec) : TokenAuth.TokenInfo {
+    if (headerValue.substring(0..5).toLowerCase() != "token ") throw Exception()
+    val token = Token(headerValue.substring(6))
+    return TokenAuth.TokenInfo(token, token.parse(signingKey))
+}
+
+class TokenAuth(private val signingKey: SecretKeySpec) {
+
     data class TokenInfo(val token: Token, val claims: Claims)
 
-    fun extract(headerValue: String) : TokenInfo {
-        if (headerValue.substring(0..5).toLowerCase() != "token ") throw Exception()
-        val token = Token(headerValue.substring(6))
-        return TokenInfo(token, token.parse())
-    }
-
     private val tokenInfoLens = Header
-        .map(TokenAuth::extract)
+        .map { extract(headerValue = it, signingKey = signingKey) }
         .required("Authorization")
 
     operator fun invoke(tokenInfoKey: RequestContextLens<TokenInfo>) = Filter { next ->
