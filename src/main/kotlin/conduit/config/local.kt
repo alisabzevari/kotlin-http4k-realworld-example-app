@@ -9,11 +9,16 @@ val local = AppConfig(
         url = "jdbc:h2:~/conduit-db/conduit",
         driver = "org.h2.Driver"
     ),
-    port = 9000,
     corsPolicy = CorsPolicy(
         origins = listOf("localhost:9000"),
         headers = listOf("content-type", "authorization"),
         methods = Method.values().toList(),
         credentials = true
-    )
+    ),
+    jwtConfig = JwtConfig(
+        secret = "Top Secret",
+        issuer = "thinkster.io",
+        expirationMillis = 36_000_000
+    ),
+    port = 9000
 )

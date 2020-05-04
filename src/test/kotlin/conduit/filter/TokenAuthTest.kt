@@ -1,10 +1,9 @@
 package conduit.filter
 
-import conduit.model.Email
-import conduit.model.Username
+import conduit.endpoint.generateTestToken
+import conduit.endpoint.jwtTestSigningKey
 import conduit.util.HttpException
 import conduit.util.TokenAuth
-import conduit.util.generateToken
 import io.kotlintest.matchers.string.shouldMatch
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
@@ -18,9 +17,10 @@ import org.http4k.routing.routes
 class TokenAuthTest: StringSpec() {
     private val contexts = RequestContexts()
     private val key = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
+    private val tokenAuth = TokenAuth(jwtTestSigningKey)
 
     private val router = ServerFilters.InitialiseRequestContext(contexts)
-        .then(TokenAuth(key))
+        .then(tokenAuth(tokenInfoKey = key))
         .then(
             routes("/auth" bind Method.GET to { req -> Response(Status.OK).body(key(req).claims.entries.toString()) })
         )
@@ -72,7 +72,7 @@ class TokenAuthTest: StringSpec() {
         }
 
         "authorization header with valid token" {
-            val token = generateToken(Username("ali"), Email("alisabzevari@gmail.com"))
+            val token = generateTestToken()
 
             val res = router(Request(Method.GET, "/auth").header("Authorization", "Token ${token.value}"))
 

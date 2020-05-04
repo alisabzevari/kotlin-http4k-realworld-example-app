@@ -9,12 +9,18 @@ import conduit.util.HttpException
 import conduit.util.generateToken
 import conduit.util.hash
 import org.http4k.core.Status
+import javax.crypto.spec.SecretKeySpec
 
 interface RegisterUserHandler {
     operator fun invoke(newUserDto: NewUserDto): UserDto
 }
 
-class RegisterUserHandlerImpl(val txManager: ConduitTxManager) : RegisterUserHandler {
+class RegisterUserHandlerImpl(
+    val txManager: ConduitTxManager,
+    private val jwtSigningKey: SecretKeySpec,
+    private val jwtIssuer: String,
+    private val jwtExpirationMillis: Long
+) : RegisterUserHandler {
     override fun invoke(newUserDto: NewUserDto): UserDto {
         txManager.tx {
             val user = getUser(newUserDto.username) ?: getUser(newUserDto.email)
@@ -27,7 +33,7 @@ class RegisterUserHandlerImpl(val txManager: ConduitTxManager) : RegisterUserHan
         }
         return UserDto(
             newUserDto.email,
-            generateToken(newUserDto.username, newUserDto.email),
+            generateToken(jwtSigningKey, jwtIssuer, jwtExpirationMillis, newUserDto.username, newUserDto.email),
             newUserDto.username,
             null,
             null
