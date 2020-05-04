@@ -3,6 +3,7 @@ package conduit
 import conduit.config.AppConfig
 import conduit.config.DbConfig
 import io.kotlintest.extensions.TestListener
+import org.http4k.filter.CorsPolicy
 import org.http4k.server.Http4kServer
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
@@ -19,6 +20,7 @@ class App : Closeable {
             "jdbc:h2:mem:conduittestdb;DB_CLOSE_DELAY=-1",
             "org.h2.Driver"
         ),
+        CorsPolicy.UnsafeGlobalPermissive,
         9192
     )
 
