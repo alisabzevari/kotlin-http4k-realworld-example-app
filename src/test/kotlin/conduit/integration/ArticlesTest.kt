@@ -5,6 +5,7 @@ import conduit.util.toJsonTree
 import conduit.utils.shouldContainJsonNode
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.http4k.client.ApacheClient
@@ -186,6 +187,28 @@ class ArticlesTest : StringSpec() {
             response.status.shouldBe(Status.OK)
 
             response.bodyString().toJsonTree().shouldContainJsonNode(article)
+        }
+
+        "Get articles for not-logged-in user" {
+            IntegrationTest.app.resetDb()
+            registerUser("jjacob@gmail.com", "johnjacob", "jjcb")
+            val token = login("jjacob@gmail.com", "jjcb")
+            val article1 = createArticle(token)
+            val article2 = createArticle(token, "article title 2")
+
+            val request = Request(Method.GET, "$baseUrl/api/articles/")
+
+            val response = send(request)
+            response.status.shouldBe(Status.OK)
+
+            val body = response.bodyString().toJsonTree()
+
+            body["articles"].should {
+                it.isArray.shouldBeTrue()
+                it.size().shouldBe(2)
+                it.shouldContainJsonNode(article1)
+                it.shouldContainJsonNode(article2)
+            }
         }
 
         "Update an article" {

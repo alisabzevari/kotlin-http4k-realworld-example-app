@@ -40,7 +40,7 @@ class GetArticlesHandlerImpl(val txManager: ConduitTxManager) : GetArticlesHandl
         val email = tokenInfo?.extractEmail()
         val currentUser = email?.let { getUser(it) }
 
-        val articleIdsFavoritedByCurrentUser = currentUser?.let { getArticleIdsFavoritedBy(it.id) } ?: listOf()
+        val articleIdsFavoritedByCurrentUser = currentUser?.let { getArticleIdsFavoritedBy(it.id) } ?: emptyList()
 
         val articlesCount = getArticlesCount(authorUserId, taggedArticleIds, favoritedArticleIds)
         val articles = getArticles(limit, offset, authorUserId, taggedArticleIds, favoritedArticleIds)
