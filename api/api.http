@@ -12,6 +12,8 @@ Accept: application/json
   }
 }
 
+> {% client.global.set("auth_token", response.body.user.token); %}
+
 ###
 
 POST http://localhost:9000/api/users
@@ -29,12 +31,12 @@ Accept: application/json
 
 GET http://localhost:9000/api/users/
 Accept: application/json
-Authorization: Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImpvaG5qYWNvYiIsImVtYWlsIjoiamFrZUBqYWtlLmpha2UiLCJleHAiOjE1Mzg3MjU2Mzd9.PcQPzDA66tKsP-TqlAIGQrZzZgCa8A1HWrcmEv5a4v8
+Authorization: Token {{auth_token}}
 
 ###
 
 GET http://localhost:9000/api/profiles/johnjacob
 Accept: application/json
-Authorization: Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImpvaG5qYWNvYiIsImVtYWlsIjoiamFrZUBqYWtlLmpha2UiLCJleHAiOjE1Mzg3MjU2Mzd9.PcQPzDA66tKsP-TqlAIGQrZzZgCa8A1HWrcmEv5a4v8
+Authorization: Token {{auth_token}}
 
 ###
