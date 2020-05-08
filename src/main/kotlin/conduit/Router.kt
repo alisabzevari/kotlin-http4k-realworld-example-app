@@ -11,7 +11,6 @@ import org.http4k.lens.*
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-import javax.crypto.spec.SecretKeySpec
 
 class Router(
     val corsPolicy: CorsPolicy,

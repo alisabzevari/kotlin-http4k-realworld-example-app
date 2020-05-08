@@ -8,7 +8,6 @@ import org.http4k.core.*
 import org.http4k.lens.Header
 import org.http4k.lens.RequestContextLens
 import org.slf4j.LoggerFactory
-import javax.crypto.spec.SecretKeySpec
 
 open class HttpException(val status: Status, message: String = status.description) : RuntimeException(message)
 data class GenericErrorModelBody(val body: List<String>)
