@@ -4,7 +4,7 @@ import conduit.Router
 import conduit.config.JwtConfig
 import conduit.model.Email
 import conduit.model.Username
-import conduit.util.generateToken
+import conduit.util.JWT
 import conduit.util.toJsonTree
 import io.jsonwebtoken.SignatureAlgorithm
 import io.kotlintest.shouldBe
@@ -14,7 +14,7 @@ import javax.crypto.spec.SecretKeySpec
 
 fun getRouterToTest() = Router(
     corsPolicy = mockk(relaxed = true),
-    jwtSigningKey = jwtTestSigningKey,
+    jwt = jwt,
     login = mockk(relaxed = true),
     registerUser = mockk(relaxed = true),
     getCurrentUser = mockk(relaxed = true),
@@ -47,10 +47,9 @@ val jwtTestSigningKey = SecretKeySpec("Top Secret".toByteArray(), SignatureAlgor
 
 val jwtTestConfig = JwtConfig(secret = "Top Secret", expirationMillis = 36_000_000, issuer = "foo")
 
-fun generateTestToken() = generateToken(
-    signingKey = jwtTestConfig.signingKey,
-    issuer = jwtTestConfig.issuer,
-    expirationMillis = jwtTestConfig.expirationMillis,
+val jwt = JWT(jwtTestConfig.signingKey, jwtTestConfig.issuer, jwtTestConfig.expirationMillis)
+
+fun generateTestToken() = jwt.generate(
     username = Username("ali"),
     email = Email("alisabzevari@gmail.com")
 )

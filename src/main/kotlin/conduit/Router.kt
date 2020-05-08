@@ -2,11 +2,8 @@ package conduit
 
 import conduit.handler.*
 import conduit.model.*
-import conduit.util.CatchHttpExceptions
+import conduit.util.*
 import conduit.util.ConduitJackson.auto
-import conduit.util.TokenAuth
-import conduit.util.createErrorResponse
-import conduit.util.extract
 import org.http4k.core.*
 import org.http4k.filter.CorsPolicy
 import org.http4k.filter.ServerFilters
@@ -18,7 +15,7 @@ import javax.crypto.spec.SecretKeySpec
 
 class Router(
     val corsPolicy: CorsPolicy,
-    val jwtSigningKey: SecretKeySpec,
+    val jwt: JWT,
     val login: LoginHandler,
     val registerUser: RegisterUserHandler,
     val getCurrentUser: GetCurrentUserHandler,
@@ -41,7 +38,7 @@ class Router(
 ) {
     private val contexts = RequestContexts()
     private val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
-    private val tokenAuth = TokenAuth(jwtSigningKey)
+    private val tokenAuth = TokenAuth(jwt)
 
     operator fun invoke(): RoutingHttpHandler =
         CatchHttpExceptions()
@@ -128,7 +125,7 @@ class Router(
 
     private val usernameLens = Path.nonEmptyString().map(::Username).of("username")
     private val profileLens = Body.auto<ProfileResponse>().toLens()
-    private val optionalTokenInfoLens = Header.map { extract(it, jwtSigningKey) }.optional("Authorization")
+    private val optionalTokenInfoLens = Header.map { extract(it, jwt) }.optional("Authorization")
 
     private fun getProfile() = { req: Request ->
         val username = usernameLens(req)

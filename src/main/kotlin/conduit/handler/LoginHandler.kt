@@ -3,10 +3,9 @@ package conduit.handler
 import conduit.model.*
 import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
-import conduit.util.generateToken
+import conduit.util.JWT
 import conduit.util.hash
 import org.http4k.core.Status
-import javax.crypto.spec.SecretKeySpec
 
 interface LoginHandler {
     operator fun invoke(loginUserDto: LoginUserDto): UserDto
@@ -14,9 +13,7 @@ interface LoginHandler {
 
 class LoginHandlerImpl(
     val txManager: ConduitTxManager,
-    private val jwtSigningKey: SecretKeySpec,
-    private val jwtIssuer: String,
-    private val jwtExpirationMillis: Long
+    private val jwt: JWT
 ) : LoginHandler {
     override operator fun invoke(loginUserDto: LoginUserDto): UserDto {
         val user = txManager.tx {
@@ -25,7 +22,7 @@ class LoginHandlerImpl(
 
         if (loginUserDto.password.hash() != user.password) throw InvalidUserPassException()
 
-        val token = generateToken(jwtSigningKey, jwtIssuer, jwtExpirationMillis, user.username, user.email)
+        val token = jwt.generate(user.username, user.email)
 
         return UserDto(
             user.email,

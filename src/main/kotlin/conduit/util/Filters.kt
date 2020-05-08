@@ -32,18 +32,18 @@ object CatchHttpExceptions {
     }
 }
 
-fun extract(headerValue: String, signingKey: SecretKeySpec) : TokenAuth.TokenInfo {
+fun extract(headerValue: String, jwt: JWT) : TokenAuth.TokenInfo {
     if (headerValue.substring(0..5).toLowerCase() != "token ") throw Exception()
     val token = Token(headerValue.substring(6))
-    return TokenAuth.TokenInfo(token, token.parse(signingKey))
+    return TokenAuth.TokenInfo(token, jwt.parse(token))
 }
 
-class TokenAuth(private val signingKey: SecretKeySpec) {
+class TokenAuth(private val jwt: JWT) {
 
     data class TokenInfo(val token: Token, val claims: Claims)
 
     private val tokenInfoLens = Header
-        .map { extract(headerValue = it, signingKey = signingKey) }
+        .map { extract(headerValue = it, jwt = jwt) }
         .required("Authorization")
 
     operator fun invoke(tokenInfoKey: RequestContextLens<TokenInfo>) = Filter { next ->

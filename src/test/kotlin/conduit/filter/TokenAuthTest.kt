@@ -1,7 +1,7 @@
 package conduit.filter
 
 import conduit.endpoint.generateTestToken
-import conduit.endpoint.jwtTestSigningKey
+import conduit.endpoint.jwt
 import conduit.util.HttpException
 import conduit.util.TokenAuth
 import io.kotlintest.matchers.string.shouldMatch
@@ -17,7 +17,7 @@ import org.http4k.routing.routes
 class TokenAuthTest: StringSpec() {
     private val contexts = RequestContexts()
     private val key = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
-    private val tokenAuth = TokenAuth(jwtTestSigningKey)
+    private val tokenAuth = TokenAuth(jwt)
 
     private val router = ServerFilters.InitialiseRequestContext(contexts)
         .then(tokenAuth(tokenInfoKey = key))

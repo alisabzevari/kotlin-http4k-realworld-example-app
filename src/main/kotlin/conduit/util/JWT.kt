@@ -9,23 +9,27 @@ import io.jsonwebtoken.SignatureAlgorithm
 import java.util.*
 import javax.crypto.spec.SecretKeySpec
 
-fun generateToken(signingKey: SecretKeySpec, issuer: String, expirationMillis: Long, username: Username, email: Email) = Token(
-    Jwts.builder()
-        .setSubject(username.value)
-        .setIssuer(issuer)
-        .setClaims(
-            mapOf(
-                "username" to username.value,
-                "email" to email.value
-            )
-        )
-        .setExpiration(Date(System.currentTimeMillis() + expirationMillis))
-        .signWith(SignatureAlgorithm.HS256, signingKey)
-        .compact()
-)
+class JWT(private val signingKey: SecretKeySpec, private val issuer: String, private val expirationMillis: Long) {
 
-fun Token.parse(signingKey: SecretKeySpec): Claims = Jwts
-    .parser()
-    .setSigningKey(signingKey)
-    .parseClaimsJws(value)
-    .body
+    fun generate(username: Username, email: Email) = Token(
+        Jwts.builder()
+            .setSubject(username.value)
+            .setIssuer(issuer)
+            .setClaims(
+                mapOf(
+                    "username" to username.value,
+                    "email" to email.value
+                )
+            )
+            .setExpiration(Date(System.currentTimeMillis() + expirationMillis))
+            .signWith(SignatureAlgorithm.HS256, signingKey)
+            .compact()
+    )
+
+    fun parse(token: Token): Claims = Jwts
+        .parser()
+        .setSigningKey(signingKey)
+        .parseClaimsJws(token.value)
+        .body
+
+}
