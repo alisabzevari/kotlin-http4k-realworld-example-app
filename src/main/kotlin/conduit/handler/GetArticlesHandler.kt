@@ -37,11 +37,10 @@ class GetArticlesHandlerImpl(val txManager: ConduitTxManager) : GetArticlesHandl
             getArticleIdsFavoritedBy(user.id)
         }
 
-        // TODO: fix this: this route should work without authentication. It should not throw exception
-        val email = tokenInfo?.extractEmail() ?: throw HttpException(Status.INTERNAL_SERVER_ERROR, "Cannot extract email from the token.")
-        val currentUser = getUser(email) ?: throw HttpException(Status.NOT_FOUND, "User with email $email not found.")
+        val email = tokenInfo?.extractEmail()
+        val currentUser = email?.let { getUser(it) }
 
-        val articleIdsFavoritedByCurrentUser = getArticleIdsFavoritedBy(currentUser.id)
+        val articleIdsFavoritedByCurrentUser = currentUser?.let { getArticleIdsFavoritedBy(it.id) } ?: emptyList()
 
         val articlesCount = getArticlesCount(authorUserId, taggedArticleIds, favoritedArticleIds)
         val articles = getArticles(limit, offset, authorUserId, taggedArticleIds, favoritedArticleIds)
@@ -57,7 +56,7 @@ class GetArticlesHandlerImpl(val txManager: ConduitTxManager) : GetArticlesHandl
                     articleAuthor.username,
                     articleAuthor.bio,
                     articleAuthor.image,
-                    getFollowing(currentUser.id, articleAuthor.id)
+                    currentUser?.let { getFollowing(currentUser.id, articleAuthor.id) } ?: false
                 )
 
                 ArticleDto(
