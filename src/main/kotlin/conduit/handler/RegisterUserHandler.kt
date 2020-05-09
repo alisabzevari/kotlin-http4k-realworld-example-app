@@ -6,7 +6,7 @@ import conduit.model.Password
 import conduit.model.Username
 import conduit.repository.ConduitTxManager
 import conduit.util.HttpException
-import conduit.util.generateToken
+import conduit.util.JWT
 import conduit.util.hash
 import org.http4k.core.Status
 
@@ -14,7 +14,10 @@ interface RegisterUserHandler {
     operator fun invoke(newUserDto: NewUserDto): UserDto
 }
 
-class RegisterUserHandlerImpl(val txManager: ConduitTxManager) : RegisterUserHandler {
+class RegisterUserHandlerImpl(
+    val txManager: ConduitTxManager,
+    private val jwt: JWT
+) : RegisterUserHandler {
     override fun invoke(newUserDto: NewUserDto): UserDto {
         txManager.tx {
             val user = getUser(newUserDto.username) ?: getUser(newUserDto.email)
@@ -27,7 +30,7 @@ class RegisterUserHandlerImpl(val txManager: ConduitTxManager) : RegisterUserHan
         }
         return UserDto(
             newUserDto.email,
-            generateToken(newUserDto.username, newUserDto.email),
+            jwt.generate(newUserDto.username, newUserDto.email),
             newUserDto.username,
             null,
             null

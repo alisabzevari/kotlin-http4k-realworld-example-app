@@ -5,6 +5,7 @@ import conduit.handler.*
 import conduit.repository.ConduitRepositoryImpl
 import conduit.repository.ConduitTransactionManagerImpl
 import conduit.repository.createDb
+import conduit.util.JWT
 import org.apache.logging.log4j.core.config.Configurator
 import org.http4k.server.Http4kServer
 import org.http4k.server.Jetty
@@ -24,9 +25,10 @@ fun startApp(config: AppConfig): Http4kServer {
     val db = createDb(config.db.url, driver = config.db.driver)
     val repository = ConduitRepositoryImpl()
     val txManager = ConduitTransactionManagerImpl(db, repository)
+    val jwt = with(config.jwtConfig) { JWT(secret, algorithm, issuer, expirationMillis) }
 
-    val registerUserHandler = RegisterUserHandlerImpl(txManager)
-    val loginHandler = LoginHandlerImpl(txManager)
+    val registerUserHandler = RegisterUserHandlerImpl(txManager, jwt)
+    val loginHandler = LoginHandlerImpl(txManager, jwt)
     val getCurrentUserHandler = GetCurrentUserHandlerImpl(txManager)
     val updateCurrentUserHandler = UpdateCurrentUserHandlerImpl(txManager)
     val getProfileHandler = GetProfileHandlerImpl(txManager)
@@ -47,6 +49,7 @@ fun startApp(config: AppConfig): Http4kServer {
 
     val app = Router(
         config.corsPolicy,
+        jwt,
         loginHandler,
         registerUserHandler,
         getCurrentUserHandler,

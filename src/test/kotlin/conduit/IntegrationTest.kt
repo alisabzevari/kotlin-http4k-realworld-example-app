@@ -2,6 +2,7 @@ package conduit
 
 import conduit.config.AppConfig
 import conduit.config.DbConfig
+import conduit.endpoint.jwtTestConfig
 import io.kotlintest.extensions.TestListener
 import org.http4k.filter.CorsPolicy
 import org.http4k.server.Http4kServer
@@ -21,6 +22,7 @@ class App : Closeable {
             "org.h2.Driver"
         ),
         CorsPolicy.UnsafeGlobalPermissive,
+        jwtTestConfig,
         9192
     )
 

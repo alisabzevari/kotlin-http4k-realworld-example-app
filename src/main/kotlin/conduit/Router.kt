@@ -2,10 +2,8 @@ package conduit
 
 import conduit.handler.*
 import conduit.model.*
-import conduit.util.CatchHttpExceptions
+import conduit.util.*
 import conduit.util.ConduitJackson.auto
-import conduit.util.TokenAuth
-import conduit.util.createErrorResponse
 import org.http4k.core.*
 import org.http4k.filter.CorsPolicy
 import org.http4k.filter.ServerFilters
@@ -16,6 +14,7 @@ import org.http4k.routing.routes
 
 class Router(
     val corsPolicy: CorsPolicy,
+    val jwt: JWT,
     val login: LoginHandler,
     val registerUser: RegisterUserHandler,
     val getCurrentUser: GetCurrentUserHandler,
@@ -38,6 +37,7 @@ class Router(
 ) {
     private val contexts = RequestContexts()
     private val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
+    private val tokenAuth = TokenAuth(jwt)
 
     operator fun invoke(): RoutingHttpHandler =
         CatchHttpExceptions()
@@ -56,36 +56,36 @@ class Router(
                         "/login" bind Method.POST to login(),
                         "/" bind routes(
                             Method.POST to registerUser(),
-                            Method.GET to TokenAuth(tokenInfoKey).then(getCurrentUser()),
-                            Method.PUT to TokenAuth(tokenInfoKey).then(updateCurrentUser())
+                            Method.GET to tokenAuth(tokenInfoKey).then(getCurrentUser()),
+                            Method.PUT to tokenAuth(tokenInfoKey).then(updateCurrentUser())
                         )
                     ),
                     "/api/user" bind routes( // postman tests calls this endpoint
-                        Method.GET to TokenAuth(tokenInfoKey).then(getCurrentUser()),
-                        Method.PUT to TokenAuth(tokenInfoKey).then(updateCurrentUser())
+                        Method.GET to tokenAuth(tokenInfoKey).then(getCurrentUser()),
+                        Method.PUT to tokenAuth(tokenInfoKey).then(updateCurrentUser())
                     ),
                     "/api/profiles/{username}" bind routes(
                         "/" bind Method.GET to getProfile(),
                         "/follow" bind routes(
-                            "/" bind Method.POST to TokenAuth(tokenInfoKey).then(followUser()),
-                            "/" bind Method.DELETE to TokenAuth(tokenInfoKey).then(unfollowUser())
+                            "/" bind Method.POST to tokenAuth(tokenInfoKey).then(followUser()),
+                            "/" bind Method.DELETE to tokenAuth(tokenInfoKey).then(unfollowUser())
                         )
                     ),
                     "/api/articles" bind routes(
-                        "/" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticle()),
+                        "/" bind Method.POST to tokenAuth(tokenInfoKey).then(createArticle()),
                         "/" bind Method.GET to getArticles(),
-                        "/feed" bind Method.GET to TokenAuth(tokenInfoKey).then(getArticlesFeed()),
+                        "/feed" bind Method.GET to tokenAuth(tokenInfoKey).then(getArticlesFeed()),
                         "{slug}" bind routes(
-                            "/" bind Method.DELETE to TokenAuth(tokenInfoKey).then(deleteArticle()),
+                            "/" bind Method.DELETE to tokenAuth(tokenInfoKey).then(deleteArticle()),
                             "/" bind Method.GET to getArticle(),
-                            "/" bind Method.PUT to TokenAuth(tokenInfoKey).then(updateArticle()),
-                            "/comments" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleComment()),
+                            "/" bind Method.PUT to tokenAuth(tokenInfoKey).then(updateArticle()),
+                            "/comments" bind Method.POST to tokenAuth(tokenInfoKey).then(createArticleComment()),
                             "/comments" bind Method.GET to getArticleComments(),
-                            "/comments/{commentId}" bind Method.DELETE to TokenAuth(tokenInfoKey).then(
+                            "/comments/{commentId}" bind Method.DELETE to tokenAuth(tokenInfoKey).then(
                                 deleteArticleComment()
                             ),
-                            "/favorite" bind Method.POST to TokenAuth(tokenInfoKey).then(createArticleFavorite()),
-                            "/favorite" bind Method.DELETE to TokenAuth(tokenInfoKey).then(deleteArticleFavorite())
+                            "/favorite" bind Method.POST to tokenAuth(tokenInfoKey).then(createArticleFavorite()),
+                            "/favorite" bind Method.DELETE to tokenAuth(tokenInfoKey).then(deleteArticleFavorite())
                         )
                     ),
                     "/api/tags" bind Method.GET to getTagsHandler()
@@ -124,7 +124,7 @@ class Router(
 
     private val usernameLens = Path.nonEmptyString().map(::Username).of("username")
     private val profileLens = Body.auto<ProfileResponse>().toLens()
-    private val optionalTokenInfoLens = Header.map(TokenAuth::extract).optional("Authorization")
+    private val optionalTokenInfoLens = Header.map { extract(it, jwt) }.optional("Authorization")
 
     private fun getProfile() = { req: Request ->
         val username = usernameLens(req)

@@ -9,25 +9,37 @@ import io.jsonwebtoken.SignatureAlgorithm
 import java.util.*
 import javax.crypto.spec.SecretKeySpec
 
-private val signingKey = SecretKeySpec("Top Secret".toByteArray(), SignatureAlgorithm.HS256.jcaName)
+class JWT(
+    secret: String,
+    algorithm: String?,
+    private val issuer: String,
+    private val expirationMillis: Long
+) {
 
-fun generateToken(username: Username, email: Email) = Token(
-    Jwts.builder()
-        .setSubject(username.value)
-        .setIssuer("thinkster.io")
-        .setClaims(
-            mapOf(
-                "username" to username.value,
-                "email" to email.value
+    private val signingKey: SecretKeySpec = SecretKeySpec(
+        secret.toByteArray(),
+        algorithm ?: SignatureAlgorithm.HS256.jcaName
+    )
+
+    fun generate(username: Username, email: Email) = Token(
+        Jwts.builder()
+            .setSubject(username.value)
+            .setIssuer(issuer)
+            .setClaims(
+                mapOf(
+                    "username" to username.value,
+                    "email" to email.value
+                )
             )
-        )
-        .setExpiration(Date(System.currentTimeMillis() + 36_000_000))
-        .signWith(SignatureAlgorithm.HS256, signingKey)
-        .compact()
-)
+            .setExpiration(Date(System.currentTimeMillis() + expirationMillis))
+            .signWith(SignatureAlgorithm.HS256, signingKey)
+            .compact()
+    )
 
-fun Token.parse(): Claims = Jwts
-    .parser()
-    .setSigningKey(signingKey)
-    .parseClaimsJws(value)
-    .body
+    fun parse(token: Token): Claims = Jwts
+        .parser()
+        .setSigningKey(signingKey)
+        .parseClaimsJws(token.value)
+        .body
+
+}
