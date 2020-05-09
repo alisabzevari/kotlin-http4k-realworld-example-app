@@ -9,7 +9,17 @@ import io.jsonwebtoken.SignatureAlgorithm
 import java.util.*
 import javax.crypto.spec.SecretKeySpec
 
-class JWT(private val signingKey: SecretKeySpec, private val issuer: String, private val expirationMillis: Long) {
+class JWT(
+    secret: String,
+    algorithm: String?,
+    private val issuer: String,
+    private val expirationMillis: Long
+) {
+
+    private val signingKey: SecretKeySpec = SecretKeySpec(
+        secret.toByteArray(),
+        algorithm ?: SignatureAlgorithm.HS256.jcaName
+    )
 
     fun generate(username: Username, email: Email) = Token(
         Jwts.builder()

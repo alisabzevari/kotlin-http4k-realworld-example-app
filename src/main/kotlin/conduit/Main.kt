@@ -25,7 +25,7 @@ fun startApp(config: AppConfig): Http4kServer {
     val db = createDb(config.db.url, driver = config.db.driver)
     val repository = ConduitRepositoryImpl()
     val txManager = ConduitTransactionManagerImpl(db, repository)
-    val jwt = JWT(config.jwtConfig.signingKey, config.jwtConfig.issuer, config.jwtConfig.expirationMillis)
+    val jwt = with(config.jwtConfig) { JWT(secret, algorithm, issuer, expirationMillis) }
 
     val registerUserHandler = RegisterUserHandlerImpl(txManager, jwt)
     val loginHandler = LoginHandlerImpl(txManager, jwt)
