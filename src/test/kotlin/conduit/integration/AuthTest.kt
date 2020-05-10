@@ -3,9 +3,9 @@ package conduit.integration
 import conduit.IntegrationTest
 import conduit.util.toJsonTree
 import conduit.utils.shouldContainJsonNode
-import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
 import org.http4k.client.ApacheClient
 import org.http4k.core.Method
 import org.http4k.core.Request

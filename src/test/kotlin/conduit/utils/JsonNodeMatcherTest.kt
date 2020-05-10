@@ -1,7 +1,7 @@
 package conduit.utils
 
 import conduit.util.toJsonTree
-import io.kotlintest.specs.StringSpec
+import io.kotest.core.spec.style.StringSpec
 import org.intellij.lang.annotations.Language
 
 class JsonNodeMatcherTest: StringSpec() {

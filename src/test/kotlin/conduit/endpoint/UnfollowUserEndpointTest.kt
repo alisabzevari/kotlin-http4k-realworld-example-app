@@ -5,9 +5,9 @@ import conduit.model.Bio
 import conduit.model.Image
 import conduit.model.Profile
 import conduit.model.Username
-import io.kotlintest.TestCase
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.test.TestCase
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request

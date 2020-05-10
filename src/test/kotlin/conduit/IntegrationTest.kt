@@ -3,7 +3,7 @@ package conduit
 import conduit.config.AppConfig
 import conduit.config.DbConfig
 import conduit.endpoint.jwtTestConfig
-import io.kotlintest.extensions.TestListener
+import io.kotest.core.listeners.ProjectListener
 import org.http4k.filter.CorsPolicy
 import org.http4k.server.Http4kServer
 import org.jetbrains.exposed.sql.Database
@@ -59,7 +59,7 @@ class App : Closeable {
     }
 }
 
-object IntegrationTest : TestListener {
+object IntegrationTest : ProjectListener {
     private val lazyApp = lazy { App() }
     val app: App by lazyApp
 

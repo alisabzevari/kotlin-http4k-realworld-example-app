@@ -22,7 +22,7 @@ The application was built with:
 * [exposed](https://github.com/JetBrains/Exposed) to access database and build typesafe SQL queries.
 * [jsonwebtoken](https://github.com/jwtk/jjwt) to handle JSON Web Tokens for request authorization.
 * [log4j](https://logging.apache.org/log4j/2.x/) for proper logging in the application.
-* [kotlintest](https://github.com/kotlintest/kotlintest) as testing framework for kotlin.
+* [kotest](https://github.com/kotest/kotest/) as testing framework for kotlin.
 * [mockk](https://mockk.io/) as mocking library for Kotlin.
 
 ## Application structure

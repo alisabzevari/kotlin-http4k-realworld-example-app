@@ -4,10 +4,10 @@ import conduit.endpoint.generateTestToken
 import conduit.endpoint.jwt
 import conduit.util.HttpException
 import conduit.util.TokenAuth
-import io.kotlintest.matchers.string.shouldMatch
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.StringSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldMatch
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
 import org.http4k.routing.bind
@@ -21,13 +21,9 @@ class TokenAuthTest : StringSpec() {
         .then(
             routes(
                 "/auth" bind Method.GET to tokenAuth.required()
-                    .then { req -> Response(Status.OK).body(tokenAuth.getToken(req).claims.entries.toString()) },
+                    .then { Response(Status.OK).body(tokenAuth.getToken(it).claims.entries.toString()) },
                 "/optional-auth" bind Method.GET to tokenAuth.optional()
-                    .then { req ->
-                        val t = tokenAuth.getOptionalToken(req)
-                        val r = Response(Status.OK).body(t?.claims?.entries.toString())
-                        r
-                    }
+                    .then { Response(Status.OK).body(tokenAuth.getOptionalToken(it)?.claims?.entries.toString()) }
             )
         )
 

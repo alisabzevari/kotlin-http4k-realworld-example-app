@@ -6,6 +6,7 @@ val http4kVersion = "3.196.0"
 val log4jVersion = "2.12.1"
 val jacksonVersion = "2.10.0"
 val jaxbVersion = "2.3.0"
+val kotestVersion = "4.0.5"
 
 plugins {
     kotlin("jvm") version "1.3.50"
@@ -44,12 +45,13 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:$jacksonVersion")
 
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion") // for kotest framework
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion") // for kotest core jvm assertions
     testImplementation("io.mockk:mockk:1.9.3")
 }
 
-val test by tasks.getting(Test::class) {
-    useJUnitPlatform { }
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 tasks.jacocoTestReport {

@@ -3,9 +3,9 @@ package conduit.endpoint
 import conduit.Router
 import conduit.handler.UserDto
 import conduit.model.*
-import io.kotlintest.TestCase
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.test.TestCase
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import org.http4k.core.Method
 import org.http4k.core.Request

@@ -4,8 +4,8 @@ import conduit.model.*
 import conduit.repository.ConduitRepository
 import conduit.util.TokenAuth
 import io.jsonwebtoken.impl.DefaultClaims
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

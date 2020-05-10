@@ -6,7 +6,7 @@ import conduit.model.Email
 import conduit.model.Username
 import conduit.util.JWT
 import conduit.util.toJsonTree
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import org.http4k.core.Response
 

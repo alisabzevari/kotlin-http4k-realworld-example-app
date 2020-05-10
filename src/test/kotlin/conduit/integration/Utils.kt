@@ -3,7 +3,7 @@ package conduit.integration
 import com.fasterxml.jackson.databind.JsonNode
 import conduit.IntegrationTest
 import conduit.util.toJsonTree
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.http4k.client.ApacheClient
 import org.http4k.core.Method
 import org.http4k.core.Request
