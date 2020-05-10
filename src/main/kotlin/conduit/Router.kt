@@ -36,8 +36,7 @@ class Router(
     val getTags: GetTagsHandler
 ) {
     private val contexts = RequestContexts()
-    private val tokenInfoKey = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
-    private val tokenAuth = TokenAuth(jwt)
+    private val tokenAuth = TokenAuth(jwt, contexts)
 
     operator fun invoke(): RoutingHttpHandler =
         CatchHttpExceptions()
@@ -56,36 +55,36 @@ class Router(
                         "/login" bind Method.POST to login(),
                         "/" bind routes(
                             Method.POST to registerUser(),
-                            Method.GET to tokenAuth(tokenInfoKey).then(getCurrentUser()),
-                            Method.PUT to tokenAuth(tokenInfoKey).then(updateCurrentUser())
+                            Method.GET to tokenAuth.required().then(getCurrentUser()),
+                            Method.PUT to tokenAuth.required().then(updateCurrentUser())
                         )
                     ),
                     "/api/user" bind routes( // postman tests calls this endpoint
-                        Method.GET to tokenAuth(tokenInfoKey).then(getCurrentUser()),
-                        Method.PUT to tokenAuth(tokenInfoKey).then(updateCurrentUser())
+                        Method.GET to tokenAuth.required().then(getCurrentUser()),
+                        Method.PUT to tokenAuth.required().then(updateCurrentUser())
                     ),
                     "/api/profiles/{username}" bind routes(
-                        "/" bind Method.GET to getProfile(),
+                        "/" bind Method.GET to tokenAuth.optional().then(getProfile()),
                         "/follow" bind routes(
-                            "/" bind Method.POST to tokenAuth(tokenInfoKey).then(followUser()),
-                            "/" bind Method.DELETE to tokenAuth(tokenInfoKey).then(unfollowUser())
+                            "/" bind Method.POST to tokenAuth.required().then(followUser()),
+                            "/" bind Method.DELETE to tokenAuth.required().then(unfollowUser())
                         )
                     ),
                     "/api/articles" bind routes(
-                        "/" bind Method.POST to tokenAuth(tokenInfoKey).then(createArticle()),
-                        "/" bind Method.GET to getArticles(),
-                        "/feed" bind Method.GET to tokenAuth(tokenInfoKey).then(getArticlesFeed()),
+                        "/" bind Method.POST to tokenAuth.required().then(createArticle()),
+                        "/" bind Method.GET to tokenAuth.optional().then(getArticles()),
+                        "/feed" bind Method.GET to tokenAuth.required().then(getArticlesFeed()),
                         "{slug}" bind routes(
-                            "/" bind Method.DELETE to tokenAuth(tokenInfoKey).then(deleteArticle()),
-                            "/" bind Method.GET to getArticle(),
-                            "/" bind Method.PUT to tokenAuth(tokenInfoKey).then(updateArticle()),
-                            "/comments" bind Method.POST to tokenAuth(tokenInfoKey).then(createArticleComment()),
-                            "/comments" bind Method.GET to getArticleComments(),
-                            "/comments/{commentId}" bind Method.DELETE to tokenAuth(tokenInfoKey).then(
+                            "/" bind Method.DELETE to tokenAuth.required().then(deleteArticle()),
+                            "/" bind Method.GET to tokenAuth.optional().then(getArticle()),
+                            "/" bind Method.PUT to tokenAuth.required().then(updateArticle()),
+                            "/comments" bind Method.POST to tokenAuth.required().then(createArticleComment()),
+                            "/comments" bind Method.GET to tokenAuth.optional().then(getArticleComments()),
+                            "/comments/{commentId}" bind Method.DELETE to tokenAuth.required().then(
                                 deleteArticleComment()
                             ),
-                            "/favorite" bind Method.POST to tokenAuth(tokenInfoKey).then(createArticleFavorite()),
-                            "/favorite" bind Method.DELETE to tokenAuth(tokenInfoKey).then(deleteArticleFavorite())
+                            "/favorite" bind Method.POST to tokenAuth.required().then(createArticleFavorite()),
+                            "/favorite" bind Method.DELETE to tokenAuth.required().then(deleteArticleFavorite())
                         )
                     ),
                     "/api/tags" bind Method.GET to getTagsHandler()
@@ -108,7 +107,7 @@ class Router(
     }
 
     private fun getCurrentUser() = { req: Request ->
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val result = getCurrentUser(tokenInfo)
         userLens(UserResponse(result), Response(Status.OK))
     }
@@ -116,7 +115,7 @@ class Router(
     private val updateLens = Body.auto<UpdateUserRequest>().toLens()
 
     private fun updateCurrentUser() = { req: Request ->
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val updateUser = updateLens(req).user
         val result = updateCurrentUser(tokenInfo, updateUser)
         userLens(UserResponse(result), Response(Status.OK))
@@ -124,25 +123,24 @@ class Router(
 
     private val usernameLens = Path.nonEmptyString().map(::Username).of("username")
     private val profileLens = Body.auto<ProfileResponse>().toLens()
-    private val optionalTokenInfoLens = Header.map { extract(it, jwt) }.optional("Authorization")
 
     private fun getProfile() = { req: Request ->
         val username = usernameLens(req)
-        val tokenInfo = optionalTokenInfoLens(req)
+        val tokenInfo = tokenAuth.getOptionalToken(req)
         val result = getProfile(username, tokenInfo)
         profileLens(ProfileResponse(result), Response(Status.OK))
     }
 
     private fun followUser() = { req: Request ->
         val username = usernameLens(req)
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val result = followUser(username, tokenInfo)
         profileLens(ProfileResponse(result), Response(Status.OK))
     }
 
     private fun unfollowUser() = { req: Request ->
         val username = usernameLens(req)
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val result = unfollowUser(username, tokenInfo)
         profileLens(ProfileResponse(result), Response(Status.OK))
     }
@@ -152,7 +150,7 @@ class Router(
     private val multipleArticlesResponseLens = Body.auto<MultipleArticlesResponse>().toLens()
 
     private fun getArticlesFeed() = { req: Request ->
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val offset = offsetLens(req)
         val limit = limitLens(req)
         val result = getArticlesFeed(tokenInfo, offset, limit)
@@ -167,7 +165,7 @@ class Router(
     private val optionalFavoritedReqLens = Query.string().optional("favorited")
 
     private fun getArticles() = { req: Request ->
-        val tokenInfo = optionalTokenInfoLens(req)
+        val tokenInfo = tokenAuth.getOptionalToken(req)
         val offset = offsetLens(req)
         val limit = limitLens(req)
         val tag = optionalTagReqLens(req)?.let(::ArticleTag)
@@ -195,7 +193,7 @@ class Router(
     private val singleArticleResponseLens = Body.auto<SingleArticleResponse>().toLens()
 
     private fun createArticle() = { req: Request ->
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val newArticle = newArticleRequestLens(req).article
         singleArticleResponseLens(
             SingleArticleResponse(createArticle(newArticle, tokenInfo)),
@@ -208,7 +206,7 @@ class Router(
     private val articleSlugLens = Path.nonEmptyString().map(::ArticleSlug).of("slug")
 
     private fun createArticleComment() = { req: Request ->
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val newComment = newCommentRequestLens(req)
         val slug = articleSlugLens(req)
         singleCommentResponseLens(
@@ -220,7 +218,7 @@ class Router(
     private val multipleCommentsResponseLens = Body.auto<MultipleCommentsResponse>().toLens()
 
     private fun getArticleComments() = { req: Request ->
-        val tokenInfo = optionalTokenInfoLens(req)
+        val tokenInfo = tokenAuth.getOptionalToken(req)
         val slug = articleSlugLens(req)
         multipleCommentsResponseLens(
             MultipleCommentsResponse(getArticleComments(slug, tokenInfo)),
@@ -236,7 +234,7 @@ class Router(
     }
 
     private fun createArticleFavorite() = { req: Request ->
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val slug = articleSlugLens(req)
         singleArticleResponseLens(
             SingleArticleResponse(createArticleFavorite(slug, tokenInfo)),
@@ -245,7 +243,7 @@ class Router(
     }
 
     private fun deleteArticleFavorite() = { req: Request ->
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val slug = articleSlugLens(req)
         singleArticleResponseLens(
             SingleArticleResponse(deleteArticleFavorite(slug, tokenInfo)),
@@ -254,7 +252,7 @@ class Router(
     }
 
     private fun deleteArticle() = { req: Request ->
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val slug = articleSlugLens(req)
         deleteArticle(slug, tokenInfo)
         Response(Status.OK)
@@ -262,7 +260,7 @@ class Router(
 
     private fun getArticle() = { req: Request ->
         val slug = articleSlugLens(req)
-        val tokenInfo = optionalTokenInfoLens(req)
+        val tokenInfo = tokenAuth.getOptionalToken(req)
         singleArticleResponseLens(
             SingleArticleResponse(getArticle(slug, tokenInfo)),
             Response(Status.OK)
@@ -273,7 +271,7 @@ class Router(
 
     private fun updateArticle() = { req: Request ->
         val updateArticleDto = updateArticleRequestLens(req).article
-        val tokenInfo = tokenInfoKey(req)
+        val tokenInfo = tokenAuth.getToken(req)
         val articleSlug = articleSlugLens(req)
 
         singleArticleResponseLens(

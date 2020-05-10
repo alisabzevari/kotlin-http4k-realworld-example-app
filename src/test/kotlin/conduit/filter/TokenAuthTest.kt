@@ -10,19 +10,25 @@ import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
 import org.http4k.core.*
 import org.http4k.filter.ServerFilters
-import org.http4k.lens.RequestContextKey
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
-class TokenAuthTest: StringSpec() {
+class TokenAuthTest : StringSpec() {
     private val contexts = RequestContexts()
-    private val key = RequestContextKey.required<TokenAuth.TokenInfo>(contexts)
-    private val tokenAuth = TokenAuth(jwt)
+    private val tokenAuth = TokenAuth(jwt, contexts)
 
     private val router = ServerFilters.InitialiseRequestContext(contexts)
-        .then(tokenAuth(tokenInfoKey = key))
         .then(
-            routes("/auth" bind Method.GET to { req -> Response(Status.OK).body(key(req).claims.entries.toString()) })
+            routes(
+                "/auth" bind Method.GET to tokenAuth.required()
+                    .then { req -> Response(Status.OK).body(tokenAuth.getToken(req).claims.entries.toString()) },
+                "/optional-auth" bind Method.GET to tokenAuth.optional()
+                    .then { req ->
+                        val t = tokenAuth.getOptionalToken(req)
+                        val r = Response(Status.OK).body(t?.claims?.entries.toString())
+                        r
+                    }
+            )
         )
 
     init {
@@ -30,36 +36,50 @@ class TokenAuthTest: StringSpec() {
             val exception = shouldThrow<HttpException> {
                 router(Request(Method.GET, "/auth"))
             }
-
             exception.status.shouldBe(Status.UNAUTHORIZED)
+
+            val response = router(Request(Method.GET, "/optional-auth"))
+            response.status.shouldBe(Status.OK)
         }
 
         "empty authorization header" {
-            val exception = shouldThrow<HttpException> {
+            val exception1 = shouldThrow<HttpException> {
                 router(Request(Method.GET, "/auth").header("Authorization", ""))
             }
+            exception1.status.shouldBe(Status.UNAUTHORIZED)
 
-            exception.status.shouldBe(Status.UNAUTHORIZED)
+            val exception2 = shouldThrow<HttpException> {
+                router(Request(Method.GET, "/optional-auth").header("Authorization", ""))
+            }
+            exception2.status.shouldBe(Status.UNAUTHORIZED)
         }
 
         "authorization header with incorrect format - 1" {
-            val exception = shouldThrow<HttpException> {
+            val exception1 = shouldThrow<HttpException> {
                 router(Request(Method.GET, "/auth").header("Authorization", "Basic test"))
             }
+            exception1.status.shouldBe(Status.UNAUTHORIZED)
 
-            exception.status.shouldBe(Status.UNAUTHORIZED)
+            val exception2 = shouldThrow<HttpException> {
+                router(Request(Method.GET, "/optional-auth").header("Authorization", "Basic test"))
+            }
+            exception2.status.shouldBe(Status.UNAUTHORIZED)
         }
 
         "authorization header with incorrect format - 2" {
-            val exception = shouldThrow<HttpException> {
+            val exception1 = shouldThrow<HttpException> {
                 router(Request(Method.GET, "/auth").header("Authorization", "Tokenssdsd"))
             }
+            exception1.status.shouldBe(Status.UNAUTHORIZED)
 
-            exception.status.shouldBe(Status.UNAUTHORIZED)
+            val exception2 = shouldThrow<HttpException> {
+                router(Request(Method.GET, "/auth").header("Authorization", "Tokenssdsd"))
+            }
+            exception2.status.shouldBe(Status.UNAUTHORIZED)
         }
 
         "authorization header with invalid token" {
-            val exception = shouldThrow<HttpException> {
+            val exception1 = shouldThrow<HttpException> {
                 router(
                     Request(Method.GET, "/auth").header(
                         "Authorization",
@@ -67,17 +87,28 @@ class TokenAuthTest: StringSpec() {
                     )
                 )
             }
+            exception1.status.shouldBe(Status.UNAUTHORIZED)
 
-            exception.status.shouldBe(Status.UNAUTHORIZED)
+            val exception2 = shouldThrow<HttpException> {
+                router(
+                    Request(Method.GET, "/optional-auth").header(
+                        "Authorization",
+                        "Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFsaSIsImVtYWlsIjoiYWxpc2FiemV2YXJzaUBnbWFpbC5jb20iLCJleHAiOjE1MzgyOTUyMzh9.jQlVD0b9Q2R0HYkiC6LHXgIm6VBcvBq9mOFGQVUgYNg"
+                    )
+                )
+            }
+            exception2.status.shouldBe(Status.UNAUTHORIZED)
         }
 
         "authorization header with valid token" {
             val token = generateTestToken()
+            val res1 = router(Request(Method.GET, "/auth").header("Authorization", "Token ${token.value}"))
+            res1.status.shouldBe(Status.OK)
+            res1.bodyString().shouldMatch(Regex("\\[username=ali, email=alisabzevari@gmail.com, exp=\\d*]"))
 
-            val res = router(Request(Method.GET, "/auth").header("Authorization", "Token ${token.value}"))
-
-            res.status.shouldBe(Status.OK)
-            res.bodyString().shouldMatch(Regex("\\[username=ali, email=alisabzevari@gmail.com, exp=\\d*]"))
+            val res2 = router(Request(Method.GET, "/optional-auth").header("Authorization", "Token ${token.value}"))
+            res2.status.shouldBe(Status.OK)
+            res2.bodyString().shouldMatch(Regex("\\[username=ali, email=alisabzevari@gmail.com, exp=\\d*]"))
         }
     }
 }

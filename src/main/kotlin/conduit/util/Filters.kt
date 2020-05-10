@@ -6,7 +6,7 @@ import conduit.util.ConduitJackson.auto
 import io.jsonwebtoken.Claims
 import org.http4k.core.*
 import org.http4k.lens.Header
-import org.http4k.lens.RequestContextLens
+import org.http4k.lens.RequestContextKey
 import org.slf4j.LoggerFactory
 
 open class HttpException(val status: Status, message: String = status.description) : RuntimeException(message)
@@ -31,30 +31,49 @@ object CatchHttpExceptions {
     }
 }
 
-fun extract(headerValue: String, jwt: JWT) : TokenAuth.TokenInfo {
-    if (headerValue.substring(0..5).toLowerCase() != "token ") throw Exception()
-    val token = Token(headerValue.substring(6))
-    return TokenAuth.TokenInfo(token, jwt.parse(token))
-}
 
-class TokenAuth(private val jwt: JWT) {
-
+class TokenAuth(private val jwt: JWT, contexts: RequestContexts) {
     data class TokenInfo(val token: Token, val claims: Claims)
 
-    private val tokenInfoLens = Header
-        .map { extract(headerValue = it, jwt = jwt) }
-        .required("Authorization")
+    val getToken = RequestContextKey.required<TokenInfo>(contexts)
+    val getOptionalToken = RequestContextKey.optional<TokenInfo>(contexts)
 
-    operator fun invoke(tokenInfoKey: RequestContextLens<TokenInfo>) = Filter { next ->
-        {
+    fun required() = Filter { next ->
+        { req ->
             val tokenInfo = try {
-                tokenInfoLens(it)
+                tokenInfoLens(req)
             } catch (ex: Exception) {
                 throw HttpException(Status.UNAUTHORIZED)
             }
-            next(it.with(tokenInfoKey of tokenInfo))
+            next(req.with(getToken of tokenInfo))
         }
     }
+
+    fun optional() = Filter { next ->
+        { req ->
+            val tokenInfo = try {
+                tokenInfoLensOptional(req)
+            } catch (ex: Exception) {
+                throw HttpException(Status.UNAUTHORIZED)
+            }
+            next(req.with(getOptionalToken of tokenInfo))
+        }
+    }
+
+    private val tokenInfoLens = Header
+        .map { extractTokenFromHeader(headerValue = it) }
+        .required("Authorization")
+    private val tokenInfoLensOptional = Header
+        .map { extractTokenFromHeader(headerValue = it) }
+        .optional("Authorization")
+
+    private fun extractTokenFromHeader(headerValue: String): TokenInfo {
+        if (headerValue.substring(0..5).toLowerCase() != "token ") throw Exception()
+        val token = Token(headerValue.substring(6))
+        return TokenInfo(token, jwt.parse(token))
+    }
+
+
 }
 
 private val error = Body.auto<GenericErrorModel>().toLens()
