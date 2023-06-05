@@ -63,7 +63,7 @@ object IntegrationTest : ProjectListener {
     private val lazyApp = lazy { App() }
     val app: App by lazyApp
 
-    override fun afterProject() {
+    override suspend fun afterProject() {
         if (lazyApp.isInitialized()) {
             app.close()
         }

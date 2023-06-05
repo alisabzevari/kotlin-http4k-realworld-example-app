@@ -18,7 +18,7 @@ import org.intellij.lang.annotations.Language
 class GetCurrentUserEndpointTest : StringSpec() {
     lateinit var router: Router
 
-    override fun beforeTest(testCase: TestCase) {
+    override suspend fun beforeTest(testCase: TestCase) {
         router = getRouterToTest()
     }
 

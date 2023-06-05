@@ -2,6 +2,8 @@ package conduit.config
 
 import org.http4k.core.Method
 import org.http4k.filter.CorsPolicy
+import org.http4k.filter.Only
+import org.http4k.filter.OriginPolicy
 
 val local = AppConfig(
     logConfig = "log4j2-local.yaml",
@@ -10,7 +12,7 @@ val local = AppConfig(
         driver = "org.h2.Driver"
     ),
     corsPolicy = CorsPolicy(
-        origins = listOf("localhost:9000"),
+        originPolicy = OriginPolicy.Only("localhost:9000"),
         headers = listOf("content-type", "authorization"),
         methods = Method.values().toList(),
         credentials = true

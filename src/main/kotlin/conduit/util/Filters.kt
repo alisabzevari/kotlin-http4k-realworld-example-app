@@ -68,7 +68,7 @@ class TokenAuth(private val jwt: JWT, contexts: RequestContexts) {
         .optional("Authorization")
 
     private fun extractTokenFromHeader(headerValue: String): TokenInfo {
-        if (headerValue.substring(0..5).toLowerCase() != "token ") throw Exception()
+        if (headerValue.substring(0..5).lowercase() != "token ") throw Exception()
         val token = Token(headerValue.substring(6))
         return TokenInfo(token, jwt.parse(token))
     }
