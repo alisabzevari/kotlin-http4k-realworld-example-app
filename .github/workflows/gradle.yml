@@ -14,7 +14,3 @@ jobs:
           java-version: 1.11
       - name: Build with Gradle
         run: ./gradlew build
-      - name: Run tests with coverage (codecov)
-        run: ./gradlew test jacocoTestReport && bash <(curl -s https://codecov.io/bash)
-        env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
