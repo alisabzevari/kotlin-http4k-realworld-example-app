@@ -10,7 +10,7 @@ val kotestVersion = "4.6.4"
 plugins {
     kotlin("jvm") version "1.8.21"
     jacoco
-    id("com.github.ben-manes.versions") version "0.26.0"
+    id("com.github.ben-manes.versions") version "0.46.0"
     id("com.adarshr.test-logger") version "2.0.0"
     application
 }
