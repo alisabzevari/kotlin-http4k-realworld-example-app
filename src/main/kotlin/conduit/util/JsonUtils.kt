@@ -4,12 +4,20 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.joda.JodaModule
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.http4k.format.ConfigurableJackson
 import org.http4k.format.asConfigurable
 import org.http4k.format.withStandardMappings
 
-val mapper: ObjectMapper = KotlinModule()
+val mapper: ObjectMapper = KotlinModule.Builder()
+    .withReflectionCacheSize(512)
+    .configure(KotlinFeature.NullToEmptyCollection, false)
+    .configure(KotlinFeature.NullToEmptyMap, false)
+    .configure(KotlinFeature.NullIsSameAsDefault, false)
+    .configure(KotlinFeature.SingletonSupport, false)
+    .configure(KotlinFeature.StrictNullChecks, false)
+    .build()
     .asConfigurable()
     .withStandardMappings()
     .done()
