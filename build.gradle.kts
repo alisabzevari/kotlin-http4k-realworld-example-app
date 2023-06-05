@@ -5,7 +5,7 @@ val http4kVersion = "4.46.0.0"
 val log4jVersion = "2.20.0"
 val jacksonVersion = "2.15.2"
 val jaxbVersion = "2.3.0"
-val kotestVersion = "4.6.4"
+val kotestVersion = "5.6.2"
 
 plugins {
     kotlin("jvm") version "1.8.21"
@@ -34,7 +34,7 @@ dependencies {
     implementation("org.http4k:http4k-client-apache:$http4kVersion")
     implementation("org.jetbrains.exposed:exposed:0.17.14")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
-    implementation("com.h2database:h2:1.4.198")
+    implementation("com.h2database:h2:1.4.200")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
